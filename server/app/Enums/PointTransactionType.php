@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum PointTransactionTypeEnum: string
+enum PointTransactionType: string
 {
     case DEBIT = 'debit';
     case CREDIT = 'credit';

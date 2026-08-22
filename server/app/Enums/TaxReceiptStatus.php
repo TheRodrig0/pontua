@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum TaxReceiptStatusEnum: string
+enum TaxReceiptStatus: string
 {
     case PENDING = 'pending';
     case APPROVED = 'approved';

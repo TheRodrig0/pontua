@@ -2,23 +2,22 @@
 
 namespace App\Models;
 
-use App\Enums\PointBucketStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Table('point_buckets')]
+#[Table('redemptions')]
 #[Fillable([
     'user_id',
-    'tax_receipt_id',
-    'initial_points',
-    'remaining_points',
-    'expires_at',
-    'status'
+    'reward_id',
+    'points_cost',
+    'status',
+    'voucher_code',
+    'redeemed_at'
 ])]
-class PointBucket extends Model
+class Redemption extends Model
 {
     use HasFactory;
 
@@ -27,18 +26,16 @@ class PointBucket extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function taxReceipt(): BelongsTo
+    public function reward(): BelongsTo
     {
-        return $this->belongsTo(TaxReceipt::class, 'tax_receipt_id');
+        return $this->belongsTo(Reward::class, 'reward_id');
     }
 
     protected function casts(): array
     {
         return [
-            'status' => PointBucketStatus::class,
-            'initial_points' => 'integer',
-            'remaining_points' => 'integer',
-            'expires_at' => 'datetime',
+            'points_cost' => 'integer',
+            'redeemed_at' => 'datetime',
         ];
     }
 }

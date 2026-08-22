@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Enums\TaxReceiptStatusEnum;
+use App\Enums\TaxReceiptStatus;
 
-#[Table('tax_receipt')]
+#[Table('tax_receipts')]
 #[Fillable([
     'user_id',
     'access_key',
@@ -30,7 +30,7 @@ class TaxReceipt extends Model
     protected function casts(): array
     {
         return [
-            'status' => TaxReceiptStatusEnum::class,
+            'status' => TaxReceiptStatus::class,
             'value' => 'decimal:2',
             'points_earned' => 'integer',
             'issue_date' => 'datetime',

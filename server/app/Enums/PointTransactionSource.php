@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum PointTransactionSourceEnum: string
+enum PointTransactionSource: string
 {
     case INVOICE_SUBMISSION = 'invoice_submission';
     case REWARD_REDEMPTION = 'reward_redemption';

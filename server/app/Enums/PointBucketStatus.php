@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum PointBucketStatusEnum: string
+enum PointBucketStatus: string
 {
     case ACTIVE = 'active';
     case EXHAUSTED = 'exhausted';
