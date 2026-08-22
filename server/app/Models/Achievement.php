@@ -12,9 +12,12 @@ use Illuminate\Database\Eloquent\Model;
     'name',
     'description',
     'url_image',
-    'title_text'
+    'title_text',
+    'group_key',
+    'level'
 ])]
 class Achievement extends Model
 {
     use HasFactory;
 }
+
