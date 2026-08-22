@@ -2,31 +2,34 @@
 
 namespace App\Models;
 
-use App\Enums\RewardTag;
+use App\Enums\AchievementType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Table('rewards')]
+#[Table('achievements')]
 #[Fillable([
     'name',
     'description',
-    'tag',
+    'type',
     'url_image',
-    'cost',
-    'is_active'
+    'title_text'
 ])]
-class Reward extends Model
+class Achievement extends Model
 {
     use HasFactory;
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'achievement_user');
+    }
 
     protected function casts(): array
     {
         return [
-            'tag' => RewardTag::class,
-            'cost' => 'integer',
-            'is_active' => 'boolean',
+            'type' => AchievementType::class,
         ];
     }
 }
