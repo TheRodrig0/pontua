@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RedemptionStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +35,7 @@ class Redemption extends Model
     protected function casts(): array
     {
         return [
+            'status' => RedemptionStatus::class,
             'points_cost' => 'integer',
             'redeemed_at' => 'datetime',
         ];
