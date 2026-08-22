@@ -56,8 +56,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'equipped_achievement_id' => 'integer',
+            'password' => 'hashed'
         ];
     }
 }
