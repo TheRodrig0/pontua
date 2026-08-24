@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Casts\AsUri;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +18,8 @@ use App\Enums\TaxReceiptStatus;
     'points_earned',
     'issue_date',
     'status',
+    'rejection_reason',
+    'original_url'
 ])]
 class TaxReceipt extends Model
 {
@@ -34,6 +37,7 @@ class TaxReceipt extends Model
             'value' => 'decimal:2',
             'points_earned' => 'integer',
             'issue_date' => 'datetime',
+            'original_url' => AsUri::class
         ];
     }
 }
