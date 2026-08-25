@@ -42,6 +42,11 @@ class User extends Authenticatable
         return $this->hasMany(Donation::class, 'recipient_id');
     }
 
+    public function taxReceipts(): HasMany
+    {
+        return $this->hasMany(TaxReceipt::class, 'user_id');
+    }
+
     public function achievements(): BelongsToMany
     {
         return $this->belongsToMany(Achievement::class, 'achievement_user');
