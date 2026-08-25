@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\TaxReceipt;
 use App\Scrapers\NfceScraper;
 use App\Enums\TaxReceiptStatus;
+use Illuminate\Contracts\Pagination\CursorPaginator;
 
 class TaxReceiptService
 {
@@ -15,7 +16,14 @@ class TaxReceiptService
 
     }
 
-    public function create(array $data): TaxReceipt
+    public function index(int $userId, int $perPage = 5): CursorPaginator
+    {
+        return TaxReceipt::where('user_id', $userId)
+            ->latest('id')
+            ->cursorPaginate($perPage);
+    }
+
+    public function store(int $userId, array $data): TaxReceipt
     {
         preg_match('/(\d{44})/', $data['url'], $matches);
         $accessKey = $matches[1] ?? null;
@@ -28,24 +36,25 @@ class TaxReceiptService
             abort(422, 'Esta nota fiscal já foi doada.');
         }
 
-        $taxReceiptScrapedInfos = $this->scraper->scrape($data['url']);
+        $scraped = $this->scraper->scrape($data['url']);
 
-        $pointsEarned = 0;
-        if ($taxReceiptScrapedInfos['status'] === TaxReceiptStatus::APPROVED) {
-            $pointsEarned = (int) round($taxReceiptScrapedInfos['value']);
+        if ($scraped['status'] === TaxReceiptStatus::APPROVED && $scraped['value'] < 1.00) {
+            abort(422, 'O valor mínimo da nota fiscal para pontuar é de R$ 1,00.');
         }
 
-        $receipt = TaxReceipt::create([
-            'user_id' => $data['user_id'],
-            'access_key' => $accessKey,
-            'value' => $taxReceiptScrapedInfos['value'],
-            'points_earned' => $pointsEarned,
-            'issue_date' => $taxReceiptScrapedInfos['issue_date'],
-            'status' => $taxReceiptScrapedInfos['status'],
-            'rejection_reason' => $taxReceiptScrapedInfos['rejection_reason'],
-            'original_url' => $data['url'],
-        ]);
+        $pointsEarned = $scraped['status'] === TaxReceiptStatus::APPROVED
+            ? (int) round($scraped['value'])
+            : 0;
 
-        return $receipt;
+        return TaxReceipt::create([
+            'user_id' => $userId,
+            'access_key' => $accessKey,
+            'original_url' => $data['url'],
+            'points_earned' => $pointsEarned,
+            'value' => $scraped['value'],
+            'issue_date' => $scraped['issue_date'],
+            'status' => $scraped['status'],
+            'rejection_reason' => $scraped['rejection_reason'],
+        ]);
     }
 }
