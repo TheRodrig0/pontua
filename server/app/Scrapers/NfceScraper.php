@@ -16,15 +16,15 @@ class NfceScraper
     {
         $crawler = $this->fetchCrawler($url);
 
-        if ($crawler->filter('.panelConsulta, #Conteudo_txtChaveAcesso')->count() > 0) {
+        if ($crawler->filter('.panelConsulta, #Conteudo_txtChaveAcesso')->count()) {
             return $this->rejected('Link inválido ou nota fiscal não encontrada.');
         }
 
-        if ($crawler->filter('#hdfNotaCancelada')->count() > 0) {
+        if ($crawler->filter('#hdfNotaCancelada')->count()) {
             return $this->rejected('Esta nota fiscal foi cancelada.');
         }
 
-        if ($crawler->filter('#hdfNotaDenegada')->count() > 0) {
+        if ($crawler->filter('#hdfNotaDenegada')->count()) {
             return $this->rejected('Esta nota fiscal foi denegada pela SEFAZ.');
         }
 
@@ -47,16 +47,14 @@ class NfceScraper
     {
         try {
             $response = Http::withoutVerifying()
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                ])
+                ->withUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
                 ->timeout(10)
                 ->get($url);
         } catch (\Exception) {
             abort(504, 'O portal da SEFAZ demorou muito para responder ou está inacessível.');
         }
 
-        if ($response->status() !== 200) {
+        if ($response->failed()) {
             abort(502, 'O portal da SEFAZ está temporariamente indisponível.');
         }
 
@@ -65,13 +63,14 @@ class NfceScraper
 
     private function extractValue(Crawler $crawler): ?float
     {
-        $node = $crawler->filter('#totalNota .txtMax');
+        $text = $crawler->filter('#totalNota .txtMax')
+            ->text();
 
-        if ($node->count() <= 0) {
+        if (!$text) {
             return null;
         }
 
-        return str($node->text())
+        return str($text)
             ->trim()
             ->replace(',', '.')
             ->toFloat();
@@ -79,8 +78,10 @@ class NfceScraper
 
     private function extractIssueDate(Crawler $crawler): ?string
     {
-        $infos = $crawler->filter('#infos');
-        if ($infos->count() > 0 && preg_match('/(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/', $infos->text(), $matches)) {
+        $text = $crawler->filter('#infos')
+            ->text('');
+
+        if (preg_match('/(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/', $text, $matches)) {
             return Carbon::createFromFormat('d/m/Y H:i:s', $matches[1])
                 ->toDateTimeString();
         }

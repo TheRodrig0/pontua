@@ -15,7 +15,6 @@ class StoreTaxReceiptRequest extends FormRequest
     {
         return [
             'url' => ['required', 'string', 'starts_with:http://,https://'],
-            'user_id' => ['required', 'integer', 'exists:users,id'],
         ];
     }
 }
