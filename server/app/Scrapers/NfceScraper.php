@@ -2,78 +2,73 @@
 
 namespace App\Scrapers;
 
-use App\Enums\TaxReceiptStatus;
+use App\Enums\SefazReceiptStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
 class NfceScraper
 {
-    /**
-     * @return array{value: ?float, issue_date: ?string, status: TaxReceiptStatus, rejection_reason: ?string}
-     */
     public function scrape(string $url): array
     {
-        $crawler = $this->fetchCrawler($url);
+        $timeout = 10;
+        $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
 
-        if ($crawler->filter('.panelConsulta, #Conteudo_txtChaveAcesso')->count()) {
-            return $this->rejected('Link inválido ou nota fiscal não encontrada.');
-        }
+        $response = Http::withoutVerifying()
+            ->withUserAgent($userAgent)
+            ->timeout($timeout)
+            ->get($url)
+            ->throw();
 
-        if ($crawler->filter('#hdfNotaCancelada')->count()) {
-            return $this->rejected('Esta nota fiscal foi cancelada.');
-        }
+        $crawler = new Crawler($response->body());
 
-        if ($crawler->filter('#hdfNotaDenegada')->count()) {
-            return $this->rejected('Esta nota fiscal foi denegada pela SEFAZ.');
-        }
+        $errorStatuses = [
+            '.panelConsulta, #Conteudo_txtChaveAcesso' => SefazReceiptStatus::NOT_FOUND,
+            '#hdfNotaCancelada' => SefazReceiptStatus::CANCELED,
+            '#hdfNotaDenegada' => SefazReceiptStatus::DENIED,
+        ];
 
-        $value = $this->extractValue($crawler);
-        $issueDate = $this->extractIssueDate($crawler);
+        foreach ($errorStatuses as $selector => $status) {
+            $hasError = $crawler->filter($selector)->count() > 0;
 
-        if ($value === null || $issueDate === null) {
-            return $this->rejected('Falha ao ler os dados estruturais da nota fiscal.');
+            if ($hasError) {
+                return [
+                    'status' => $status,
+                    'rejectionReason' => $status->message(),
+                    'value' => 0,
+                    'issueDate' => null,
+                ];
+            }
         }
 
         return [
-            'value' => $value,
-            'issue_date' => $issueDate,
-            'status' => TaxReceiptStatus::APPROVED,
-            'rejection_reason' => null,
+            'status' => SefazReceiptStatus::SUCCESS,
+            'rejectionReason' => null,
+            'value' => $this->extractValue($crawler),
+            'issueDate' => $this->extractIssueDate($crawler),
         ];
-    }
-
-    private function fetchCrawler(string $url): Crawler
-    {
-        try {
-            $response = Http::withoutVerifying()
-                ->withUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-                ->timeout(10)
-                ->get($url);
-        } catch (\Exception) {
-            abort(504, 'O portal da SEFAZ demorou muito para responder ou está inacessível.');
-        }
-
-        if ($response->failed()) {
-            abort(502, 'O portal da SEFAZ está temporariamente indisponível.');
-        }
-
-        return new Crawler($response->body());
     }
 
     private function extractValue(Crawler $crawler): ?float
     {
         $text = $crawler->filter('#totalNota .txtMax')
-            ->text();
+            ->text('');
 
         if (!$text) {
             return null;
         }
 
-        return str($text)
-            ->trim()
+        $normalized = (string) Str::of($text)
+            ->replace('.', '')
             ->replace(',', '.')
-            ->toFloat();
+            ->trim();
+
+        if (is_numeric($normalized)) {
+            return (float) $normalized;
+        }
+
+        return null;
     }
 
     private function extractIssueDate(Crawler $crawler): ?string
@@ -81,24 +76,13 @@ class NfceScraper
         $text = $crawler->filter('#infos')
             ->text('');
 
-        if (preg_match('/(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/', $text, $matches)) {
-            return Carbon::createFromFormat('d/m/Y H:i:s', $matches[1])
+        $date = Str::match('/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}/', $text);
+
+        if ($date) {
+            return Carbon::createFromFormat('d/m/Y H:i:s', $date)
                 ->toDateTimeString();
         }
 
         return null;
-    }
-
-    /**
-     * @return array{value: null, issue_date: null, status: TaxReceiptStatus, rejection_reason: string}
-     */
-    private function rejected(string $reason): array
-    {
-        return [
-            'value' => null,
-            'issue_date' => null,
-            'status' => TaxReceiptStatus::REJECTED,
-            'rejection_reason' => $reason,
-        ];
     }
 }
