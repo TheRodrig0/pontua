@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\TaxReceiptService;
 use App\Http\Requests\StoreTaxReceiptRequest;
+use App\Services\TaxReceiptService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -32,6 +32,6 @@ class TaxReceiptController extends Controller
         );
 
         return response()
-            ->json($receipt, 201);
+            ->json($receipt, 202);
     }
 }
