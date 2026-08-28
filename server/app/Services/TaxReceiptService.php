@@ -4,16 +4,21 @@ namespace App\Services;
 
 use App\Models\TaxReceipt;
 use App\Scrapers\NfceScraper;
-use App\Enums\TaxReceiptStatus;
 use Illuminate\Contracts\Pagination\CursorPaginator;
+use App\Jobs\ProcessTaxReceiptJob;
+use App\Enums\TaxReceiptStatus;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Enums\SefazReceiptStatus;
+use App\Enums\PointTransactionSource;
+use Illuminate\Support\Facades\Cache;
 
 class TaxReceiptService
 {
-
     public function __construct(
-        private readonly NfceScraper $scraper
+        private readonly NfceScraper $nfceScraper,
+        private readonly PointService $pointService
     ) {
-
     }
 
     public function index(int $userId, int $perPage = 5): CursorPaginator
@@ -25,36 +30,96 @@ class TaxReceiptService
 
     public function store(int $userId, array $data): TaxReceipt
     {
-        preg_match('/(\d{44})/', $data['url'], $matches);
-        $accessKey = $matches[1] ?? null;
-
-        if (!str_starts_with($accessKey, '35')) {
-            abort(422, 'Somente notas fiscais de SP são suportadas.');
-        }
-
-        if (TaxReceipt::where('access_key', $accessKey)->exists()) {
-            abort(422, 'Esta nota fiscal já foi doada.');
-        }
-
-        $scraped = $this->scraper->scrape($data['url']);
-
-        if ($scraped['status'] === TaxReceiptStatus::APPROVED && $scraped['value'] < 1.00) {
-            abort(422, 'O valor mínimo da nota fiscal para pontuar é de R$ 1,00.');
-        }
-
-        $pointsEarned = $scraped['status'] === TaxReceiptStatus::APPROVED
-            ? (int) round($scraped['value'])
-            : 0;
-
-        return TaxReceipt::create([
+        $taxReceipt = TaxReceipt::create([
             'user_id' => $userId,
-            'access_key' => $accessKey,
-            'original_url' => $data['url'],
-            'points_earned' => $pointsEarned,
-            'value' => $scraped['value'],
-            'issue_date' => $scraped['issue_date'],
-            'status' => $scraped['status'],
-            'rejection_reason' => $scraped['rejection_reason'],
+            'status' => TaxReceiptStatus::PENDING,
+            'points_earned' => 0,
+            'value' => 0,
+            'access_key' => $data['access_key'],
+            'original_url' => $data['url']
         ]);
+
+        ProcessTaxReceiptJob::dispatch($taxReceipt)
+            ->afterCommit();
+
+        return $taxReceipt;
+    }
+
+    public function process(TaxReceipt $taxReceipt): void
+    {
+        $lockKey = "process-tax-receipt:{$taxReceipt->id}";
+        $seconds = 30;
+        $lock = Cache::lock($lockKey, $seconds);
+
+        if (!$lock->get()) {
+            return;
+        }
+
+        try {
+            $scraped = $this->nfceScraper->scrape($taxReceipt->original_url);
+
+            $rejectReason = $this->getRejectionReason($scraped);
+
+            $status = TaxReceiptStatus::APPROVED;
+            if ($rejectReason) {
+                $status = TaxReceiptStatus::REJECTED;
+            }
+
+            $pointsEarned = 0;
+            if ($status === TaxReceiptStatus::APPROVED) {
+                $pointsEarned = (int) round((float) $scraped['value']);
+            }
+
+            DB::transaction(function () use ($taxReceipt, $scraped, $status, $rejectReason, $pointsEarned) {
+                $lockedReceipt = TaxReceipt::where('id', $taxReceipt->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($lockedReceipt->status !== TaxReceiptStatus::PENDING) {
+                    return;
+                }
+
+                $lockedReceipt->update([
+                    'value' => $scraped['value'] ?? 0,
+                    'status' => $status,
+                    'issue_date' => $scraped['issueDate'] ?? null,
+                    'rejection_reason' => $rejectReason,
+                    'points_earned' => $pointsEarned
+                ]);
+
+                if ($pointsEarned > 0) {
+                    $this->pointService->credit(
+                        userId: $lockedReceipt->user_id,
+                        amount: $pointsEarned,
+                        reference: $lockedReceipt,
+                        source: PointTransactionSource::INVOICE_SUBMISSION
+                    );
+                }
+            });
+
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function getRejectionReason(array $scraped): ?string
+    {
+        $isSuccess = $scraped['status'] === SefazReceiptStatus::SUCCESS;
+        if (!$isSuccess) {
+            return $scraped['status']->message();
+        }
+
+        $isValidValue = $scraped['value'] !== null;
+        $isValidDate = $scraped['issueDate'] !== null;
+        if (!$isValidValue || !$isValidDate) {
+            return 'Falha ao ler os dados estruturais da nota fiscal.';
+        }
+
+        $isGreaterThanOne = $scraped['value'] >= 1.00;
+        if (!$isGreaterThanOne) {
+            return 'Valor da nota fiscal inferior a R$ 1,00.';
+        }
+
+        return null;
     }
 }
