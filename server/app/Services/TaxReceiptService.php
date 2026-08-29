@@ -2,16 +2,17 @@
 
 namespace App\Services;
 
+use App\Events\TaxReceiptProcessedEvent;
 use App\Models\TaxReceipt;
 use App\Scrapers\NfceScraper;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use App\Jobs\ProcessTaxReceiptJob;
 use App\Enums\TaxReceiptStatus;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Enums\SefazReceiptStatus;
 use App\Enums\PointTransactionSource;
 use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 class TaxReceiptService
 {
@@ -56,7 +57,7 @@ class TaxReceiptService
         }
 
         try {
-            $scraped = $this->nfceScraper->scrape($taxReceipt->original_url);
+            $scraped = $this->nfceScraper->scrape((string) $taxReceipt->original_url);
 
             $rejectReason = $this->getRejectionReason($scraped);
 
@@ -70,13 +71,13 @@ class TaxReceiptService
                 $pointsEarned = (int) round((float) $scraped['value']);
             }
 
-            DB::transaction(function () use ($taxReceipt, $scraped, $status, $rejectReason, $pointsEarned) {
+            $processedReceipt = DB::transaction(function () use ($taxReceipt, $scraped, $status, $rejectReason, $pointsEarned) {
                 $lockedReceipt = TaxReceipt::where('id', $taxReceipt->id)
                     ->lockForUpdate()
                     ->first();
 
                 if ($lockedReceipt->status !== TaxReceiptStatus::PENDING) {
-                    return;
+                    return null;
                 }
 
                 $lockedReceipt->update([
@@ -95,7 +96,13 @@ class TaxReceiptService
                         source: PointTransactionSource::INVOICE_SUBMISSION
                     );
                 }
+
+                return $lockedReceipt;
             });
+
+            if ($processedReceipt) {
+                TaxReceiptProcessedEvent::dispatch($processedReceipt);
+            }
 
         } finally {
             $lock->release();
@@ -113,6 +120,11 @@ class TaxReceiptService
         $isValidDate = $scraped['issueDate'] !== null;
         if (!$isValidValue || !$isValidDate) {
             return 'Falha ao ler os dados estruturais da nota fiscal.';
+        }
+
+        $isOlderThanFortyDays = Carbon::parse($scraped['issueDate'])->diffInDays(now()) > 40;
+        if ($isOlderThanFortyDays) {
+            return 'Nota fiscal com mais de 40 dias de emissão.';
         }
 
         $isGreaterThanOne = $scraped['value'] >= 1.00;
