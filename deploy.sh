@@ -14,6 +14,7 @@ composer install --no-dev --prefer-dist -a --no-interaction
 php artisan migrate --force
 
 # 4. Cache para API (configurações, rotas e eventos, sem buscar Blade views)
+# php artisan optimize
 php artisan config:cache
 php artisan route:cache
 php artisan event:cache
