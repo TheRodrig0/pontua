@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\SefazReceiptStatus;
 use App\Enums\TaxReceiptStatus;
 use App\Events\TaxReceiptProcessedEvent;
+use App\Http\Requests\StoreTaxReceiptRequest;
 use App\Jobs\ProcessTaxReceiptJob;
 use App\Models\TaxReceipt;
 use App\Models\User;
@@ -14,6 +15,8 @@ use App\Services\TaxReceiptService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Mockery;
 use Tests\TestCase;
 
@@ -200,5 +203,49 @@ class TaxReceiptTest extends TestCase
         $this->assertEquals(0, $taxReceipt->points_earned);
 
         Event::assertDispatched(TaxReceiptProcessedEvent::class);
+    }
+
+    public function test_request_rejects_url_outside_official_sefaz_sp_domain(): void
+    {
+        $accessKey = '35' . str_repeat('7', 42);
+        $maliciousUrl = "https://evil-server.com/fake-sefaz?p={$accessKey}";
+
+        $request = new StoreTaxReceiptRequest();
+        $validator = Validator::make([
+            'url' => $maliciousUrl,
+        ], $request->rules(), $request->messages());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('url', $validator->errors()->toArray());
+        $this->assertEquals(
+            'A URL informada deve pertencer obrigatoriamente ao portal oficial da SEFAZ-SP (fazenda.sp.gov.br).',
+            $validator->errors()->first('url')
+        );
+    }
+
+    public function test_service_store_converts_unique_query_exception_into_validation_exception(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()->create();
+        $accessKey = '35' . str_repeat('8', 42);
+        $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$accessKey}";
+
+        $scraperMock = Mockery::mock(NfceScraper::class);
+        $pointServiceMock = Mockery::mock(PointService::class);
+
+        $service = new TaxReceiptService($scraperMock, $pointServiceMock);
+
+        $service->store($user->id, [
+            'access_key' => $accessKey,
+            'url' => $url,
+        ]);
+
+        $this->expectException(ValidationException::class);
+
+        $service->store($user->id, [
+            'access_key' => $accessKey,
+            'url' => $url,
+        ]);
     }
 }
