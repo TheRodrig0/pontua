@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\SefazReceiptStatus;
 use App\Enums\PointTransactionSource;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
 class TaxReceiptService
@@ -29,16 +31,25 @@ class TaxReceiptService
             ->cursorPaginate($perPage);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function store(int $userId, array $data): TaxReceipt
     {
-        $taxReceipt = TaxReceipt::create([
-            'user_id' => $userId,
-            'status' => TaxReceiptStatus::PENDING,
-            'points_earned' => 0,
-            'value' => 0,
-            'access_key' => $data['access_key'],
-            'original_url' => $data['url']
-        ]);
+        try {
+            $taxReceipt = TaxReceipt::create([
+                'user_id' => $userId,
+                'status' => TaxReceiptStatus::PENDING,
+                'points_earned' => 0,
+                'value' => 0,
+                'access_key' => $data['access_key'],
+                'original_url' => $data['url']
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            throw ValidationException::withMessages([
+                'access_key' => ['Esta nota fiscal já foi inserida no sistema.'],
+            ]);
+        }
 
         ProcessTaxReceiptJob::dispatch($taxReceipt)
             ->afterCommit();
