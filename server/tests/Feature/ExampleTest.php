@@ -16,4 +16,15 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_the_api_returns_a_successful_response(): void
+    {
+        $response = $this->getJson('/api');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'ok',
+                'message' => 'Pontua API is running',
+            ]);
+    }
 }

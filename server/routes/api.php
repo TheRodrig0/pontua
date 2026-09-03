@@ -5,6 +5,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return response()->json([
         'status' => 'ok',
-        'message' => 'Pontua application is running',
+        'message' => 'Pontua API is running',
     ]);
 });
