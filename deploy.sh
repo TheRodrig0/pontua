@@ -7,8 +7,7 @@ echo "🚀 Iniciando deploy do Pontua..."
 cd /var/www/pontua
 git pull origin main
 
-# 2. Entra na pasta do server e executa comandos do Laravel
-cd server
+# 2. Executa comandos do Laravel na raiz
 composer install --no-dev --prefer-dist -a --no-interaction
 # 3. Executa migrations pendentes sem confirmação interativa
 php artisan migrate --force
