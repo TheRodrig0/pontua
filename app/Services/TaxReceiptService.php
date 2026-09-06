@@ -79,7 +79,8 @@ class TaxReceiptService
 
             $pointsEarned = 0;
             if ($status === TaxReceiptStatus::APPROVED) {
-                $pointsEarned = (int) round((float) $scraped['value']);
+                $pointsPerReal = (float) config('tax_receipt.points_per_real', 1.0);
+                $pointsEarned = (int) round(((float) $scraped['value']) * $pointsPerReal);
             }
 
             $processedReceipt = DB::transaction(function () use ($taxReceipt, $scraped, $status, $rejectReason, $pointsEarned) {
@@ -133,14 +134,17 @@ class TaxReceiptService
             return 'Falha ao ler os dados estruturais da nota fiscal.';
         }
 
-        $isOlderThanFortyDays = Carbon::parse($scraped['issueDate'])->diffInDays(now()) > 40;
-        if ($isOlderThanFortyDays) {
-            return 'Nota fiscal com mais de 40 dias de emissão.';
+        $maxDaysOld = (int) config('tax_receipt.max_days_old', 40);
+        $isOlderThanMaxDays = Carbon::parse($scraped['issueDate'])->diffInDays(now()) > $maxDaysOld;
+        if ($isOlderThanMaxDays) {
+            return "Nota fiscal com mais de {$maxDaysOld} dias de emissão.";
         }
 
-        $isGreaterThanOne = $scraped['value'] >= 1.00;
-        if (!$isGreaterThanOne) {
-            return 'Valor da nota fiscal inferior a R$ 1,00.';
+        $minValue = (float) config('tax_receipt.min_value', 1.00);
+        $isGreaterThanMin = $scraped['value'] >= $minValue;
+        if (!$isGreaterThanMin) {
+            $formattedMin = number_format($minValue, 2, ',', '.');
+            return "Valor da nota fiscal inferior a R$ {$formattedMin}.";
         }
 
         return null;
