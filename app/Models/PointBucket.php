@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Table('point_buckets')]
 #[Fillable([
     'user_id',
-    'tax_receipt_id',
+    'reference_type',
+    'reference_id',
     'initial_points',
     'remaining_points',
     'expires_at',
@@ -27,9 +29,9 @@ class PointBucket extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function taxReceipt(): BelongsTo
+    public function reference(): MorphTo
     {
-        return $this->belongsTo(TaxReceipt::class, 'tax_receipt_id');
+        return $this->morphTo();
     }
 
     protected function casts(): array
