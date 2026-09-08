@@ -10,6 +10,7 @@
         "guzzlehttp/psr7": "3.0.0 as 2.8.0",
         "laravel/framework": "^13.17",
         "laravel/reverb": "^1.0",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
         "symfony/css-selector": "^8.1",
         "symfony/dom-crawler": "^8.1"
