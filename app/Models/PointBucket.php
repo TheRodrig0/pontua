@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PointBucketStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,18 @@ class PointBucket extends Model
     public function reference(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('status', PointBucketStatus::ACTIVE)
+            ->where('expires_at', '>', now());
+    }
+
+    public function scopeExpiringSoon(Builder $query, int $days = 30): void
+    {
+        $query->where('status', PointBucketStatus::ACTIVE)
+            ->whereBetween('expires_at', [now(), now()->addDays($days)]);
     }
 
     protected function casts(): array
