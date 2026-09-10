@@ -16,8 +16,10 @@ class TaxReceiptController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $userId = $request->user()->id;
+
         $receipts = $this->taxReceiptService->index(
-            userId: $request->user()->id
+            userId: $userId
         );
 
         return response()
@@ -26,9 +28,12 @@ class TaxReceiptController extends Controller
 
     public function store(StoreTaxReceiptRequest $request): JsonResponse
     {
+        $userId = $request->user()->id;
+        $validatedRequest = $request->validated();
+
         $receipt = $this->taxReceiptService->store(
-            userId: $request->user()->id,
-            data: $request->validated()
+            userId: $userId,
+            data: $validatedRequest
         );
 
         return response()

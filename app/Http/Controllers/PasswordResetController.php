@@ -11,13 +11,16 @@ class PasswordResetController extends Controller
 {
     public function __construct(
         private readonly PasswordResetService $passwordResetService
-    ) {}
+    ) {
+    }
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         $validatedRequest = $request->validated();
 
-        $result = $this->passwordResetService->forgotPassword($validatedRequest);
+        $result = $this->passwordResetService->forgotPassword(
+            data: $validatedRequest
+        );
 
         return response()
             ->json($result);
@@ -27,7 +30,9 @@ class PasswordResetController extends Controller
     {
         $validatedRequest = $request->validated();
 
-        $result = $this->passwordResetService->resetPassword($validatedRequest);
+        $result = $this->passwordResetService->resetPassword(
+            data: $validatedRequest
+        );
 
         return response()
             ->json($result);
