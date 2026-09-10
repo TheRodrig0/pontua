@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -38,6 +39,7 @@ class AuthService
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => $data['password'],
+                'role' => UserRole::USER,
             ]);
 
             $token = $user->createToken('auth_token')
