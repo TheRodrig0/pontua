@@ -36,7 +36,7 @@ class RankingService
         return $ranking;
     }
 
-    public function me(int $userId): array
+    public function myPerformance(int $userId): array
     {
         $cacheKey = "ranking_performance_{$userId}";
         $timeToLive = now()->addMinutes(5);
