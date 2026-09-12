@@ -26,9 +26,11 @@ class TaxReceiptService
 
     public function index(int $userId, int $perPage = 5): CursorPaginator
     {
-        return TaxReceipt::where('user_id', $userId)
+        $taxReceipt = TaxReceipt::where('user_id', $userId)
             ->latest('id')
             ->cursorPaginate($perPage);
+
+        return $taxReceipt;
     }
 
     /**
