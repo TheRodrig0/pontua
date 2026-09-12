@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DonationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\UserController;
@@ -33,4 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/ranking', [RankingController::class, 'index']);
     Route::get('/ranking/my-performance', [RankingController::class, 'myPerformance']);
+
+    Route::get('/donation', [DonationController::class, 'index']);
+    Route::post('/donation', [DonationController::class, 'create']);
 });
