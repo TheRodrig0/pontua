@@ -37,6 +37,7 @@ class StoreTaxReceiptRequest extends FormRequest
                 'url',
                 'regex:/^https:\/\/(www\.)?(nfce\.)?fazenda\.sp\.gov\.br(\/.*)?$/i',
             ],
+
             'access_key' => [
                 'required',
                 'string',
