@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\RankingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,5 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [UserController::class, 'me']);
     Route::put('/me', [UserController::class, 'update']);
     Route::delete('/me', [UserController::class, 'delete']);
-});
 
+    Route::get('/ranking', [RankingController::class, 'index']);
+    Route::get('/ranking/my-performance', [RankingController::class, 'myPerformance']);
+});
