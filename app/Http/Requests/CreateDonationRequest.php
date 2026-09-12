@@ -4,8 +4,10 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class ResetPasswordRequest extends FormRequest
+
+class CreateDonationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,23 +25,19 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token' => [
+            'recipient_id' => [
                 'required',
-                'string'
+                'integer',
+                'exists:users,id',
+                Rule::notIn([$this->user()?->id])
             ],
 
-            'email' => [
+            'amount' => [
                 'required',
-                'string',
-                'email'
-            ],
-
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed'
-            ],
+                'integer',
+                'min:1'
+            ]
         ];
     }
+
 }
