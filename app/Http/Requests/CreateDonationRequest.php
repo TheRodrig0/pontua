@@ -6,7 +6,6 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-
 class CreateDonationRequest extends FormRequest
 {
     /**
@@ -29,15 +28,14 @@ class CreateDonationRequest extends FormRequest
                 'required',
                 'integer',
                 'exists:users,id',
-                Rule::notIn([$this->user()?->id])
+                Rule::notIn([$this->user()?->id]),
             ],
 
             'amount' => [
                 'required',
                 'integer',
-                'min:1'
-            ]
+                'min:1',
+            ],
         ];
     }
-
 }

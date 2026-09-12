@@ -24,7 +24,7 @@ class RankingController extends Controller
     {
         $userId = $request->user()->id;
 
-        $performance = $this->rankingService->me(
+        $performance = $this->rankingService->myPerformance(
             userId: $userId
         );
 

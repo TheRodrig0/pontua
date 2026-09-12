@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateDonationRequest;
 use App\Services\DonationService;
 use Illuminate\Http\JsonResponse;
@@ -12,8 +11,7 @@ class DonationController extends Controller
 {
     public function __construct(
         private readonly DonationService $donationService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
