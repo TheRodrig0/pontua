@@ -11,8 +11,7 @@ class DonationService
 {
     public function __construct(
         private readonly PointService $pointService
-    ) {
-    }
+    ) {}
 
     public function index(int $userId, int $perPage = 10): CursorPaginator
     {
