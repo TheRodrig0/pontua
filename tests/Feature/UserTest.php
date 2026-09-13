@@ -18,7 +18,7 @@ class UserTest extends TestCase
     public function test_unauthenticated_user_cannot_access_profile_routes(): void
     {
         $this->getJson('/api/me')->assertStatus(401);
-        $this->putJson('/api/me', ['name' => 'Novo Nome'])->assertStatus(401);
+        $this->patchJson('/api/me', ['name' => 'Novo Nome'])->assertStatus(401);
         $this->deleteJson('/api/me', ['password' => 'password'])->assertStatus(401);
     }
 
@@ -121,7 +121,7 @@ class UserTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me', [
+            ->patchJson('/api/me', [
                 'name' => 'Nome Novo',
                 'nick' => 'nick.novo',
             ]);
@@ -144,7 +144,7 @@ class UserTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me', [
+            ->patchJson('/api/me', [
                 'avatar_id' => 3,
             ]);
 
@@ -161,7 +161,7 @@ class UserTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me', [
+            ->patchJson('/api/me', [
                 'avatar_id' => 99,
             ]);
 
@@ -180,7 +180,7 @@ class UserTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me', [
+            ->patchJson('/api/me', [
                 'nick' => 'outro.nick',
             ]);
 
@@ -195,7 +195,7 @@ class UserTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me', [
+            ->patchJson('/api/me', [
                 'name' => 'Novo Nome',
                 'nick' => 'mesmo.nick',
             ]);
