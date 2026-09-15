@@ -31,7 +31,7 @@ const benefits = [
         icon: Receipt,
         title: 'Repositório de Notas',
         description:
-            'Suas notas fiscais ficam guardadas e organizadas no app para consulta rápida, garantia e controle financeiro.',
+            'Suas notas fiscais ficam registradas e organizadas no app para consulta rápida e acompanhamento das suas doações.',
         iconBg: 'bg-app-navy/10 dark:bg-app-teal/20',
         iconColor: 'text-app-navy dark:text-app-teal',
     },
