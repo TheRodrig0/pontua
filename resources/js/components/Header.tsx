@@ -48,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({
     };
 
     return (
-        <header className="sticky top-0 z-50 bg-app-bg/90 dark:bg-app-darkbg/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800">
+        <header className="sticky top-0 z-50 bg-app-bg dark:bg-app-darkbg border-b border-slate-200/80 dark:border-slate-800 shadow-xs">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between">
 
                 {/* 1. Lado Esquerdo: Logo */}
@@ -112,7 +112,7 @@ const Header: React.FC<HeaderProps> = ({
 
             {/* Menu Dropdown para Tablet e Mobile (< lg) */}
             {isMenuOpen && shouldShowNav && (
-                <div className="lg:hidden border-t border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-app-darkbg/95 backdrop-blur-md px-6 py-5 shadow-lg">
+                <div className="lg:hidden border-t border-slate-200/80 dark:border-slate-800 bg-app-bg dark:bg-app-darkbg px-6 py-5 shadow-lg">
                     <nav className="flex flex-col gap-3">
                         {navItems.map((item) => (
                             <a
