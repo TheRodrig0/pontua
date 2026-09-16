@@ -11,10 +11,10 @@ import CtaSection from '@/components/landing-page/CtaSection';
 
 const LandingPage: React.FC = () => {
     return (
-        <div className="min-h-screen flex flex-col w-full overflow-x-hidden text-app-navy dark:text-gray-100 transition-colors">
+        <div className="min-h-screen flex flex-col w-full text-app-navy dark:text-gray-100 transition-colors">
             <Header />
 
-            <main className="flex-1">
+            <main className="flex-1 overflow-x-clip">
                 <HeroSection />
                 <ProofBand />
                 <HowItWorksSection />
