@@ -26,4 +26,7 @@ php artisan view:cache
 # 6. Recarrega o PHP 8.5 para atualizar o cache de código em memória
 sudo systemctl reload php8.5-fpm
 
+# 7. Reinicia os workers da fila para assumirem o novo código
+php artisan queue:restart
+
 echo "✅ Deploy concluído com sucesso!"
