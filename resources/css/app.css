@@ -1,59 +1,706 @@
+/* ==========================================================================
+   PONTUA PLATFORM - CONSOLIDATED CSS DESIGN SYSTEM & STYLESHEET
+   Project: PONTUA (Doação de Cupons Fiscais APAE + FATEC)
+   Target Architecture: Modern CSS3 / Tailwind v4 / Semantic Component Patterns
+   ========================================================================== */
+
+/* ==========================================================================
+   1. EXTERNAL IMPORTS & FONT DECLARATIONS
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+@source '../views/**/*.blade.php';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/* Tailwind v4 custom dark variant selector */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   2. DESIGN TOKENS & CSS CUSTOM PROPERTIES (:root)
+   ========================================================================== */
+:root {
+  /* Brand Core Palette */
+  --color-primary: #4bb9a6;       /* Vibrant Teal - Ações principais e destaque */
+  --color-primary-hover: #3da392; /* Teal escurecido para estados hover */
+  --color-navy: #3b475c;          /* Deep Blue-Gray - Tipografia e âncora visual */
+  --color-navy-dark: #273142;     /* Navy de alto contraste */
+  --color-coral: #ea7349;         /* Coral Quente - Alertas, coração APAE e badges */
+  --color-coral-hover: #d86238;   /* Hover para botões secundários */
+  --color-gold: #f2c84b;          /* Dourado Troféu - Pontos, ofensiva e rankings */
+  --color-gold-dark: #e0a96d;     /* Bronze / Dourado profundo */
+
+  /* Surface & Background Colors (Light Theme) */
+  --bg-light: #eff3f6;            /* Canvas de fundo suave */
+  --bg-card-light: #ffffff;       /* Superfície branca de cartões */
+  --bg-input-light: #f8fafc;      /* Campo de input em estado de repouso */
+
+  /* Surface & Background Colors (Dark Theme) */
+  --bg-dark: #111827;             /* Fundo no tema escuro (Gray-900) */
+  --bg-card-dark: #1f2937;        /* Superfície dos cartões no escuro (Gray-800) */
+  --bg-input-dark: #374151;       /* Campo de input no escuro (Gray-700) */
+
+  /* Neutral Typography & Borders */
+  --text-main-light: #3b475c;     /* Texto principal (Tema Claro) */
+  --text-main-dark: #f3f4f6;      /* Texto principal (Tema Escuro - Gray-100) */
+  --text-label: #7a889b;          /* Rótulos e textos secundários */
+  --text-placeholder: #9aa6b8;    /* Placeholders de inputs */
+  --border-subtle-light: #e2e8f0; /* Borda suave 1px para cards e inputs */
+  --border-subtle-dark: #374151;  /* Borda suave para o tema escuro */
+
+  /* Nested-Hierarchy Border Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  /* Elevation Shadows */
+  --shadow-app-light: 0 10px 30px -10px rgba(59, 71, 92, 0.08), 0 4px 6px -2px rgba(59, 71, 92, 0.04);
+  --shadow-app-dark: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* Typography Stacks */
+  --font-family-display: 'Poppins', sans-serif;
+  --font-family-body: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 
 @theme {
   --color-app-teal: #4bb9a6;
+  --color-app-teal-hover: #3da392;
   --color-app-navy: #3b475c;
+  --color-app-navy-dark: #273142;
   --color-app-coral: #ea7349;
-  --color-app-graytext: #7a889b;
+  --color-app-coral-hover: #d86238;
   --color-app-gold: #f2c84b;
+  --color-app-gold-dark: #e0a96d;
+  --color-app-graytext: #7a889b;
+  --color-app-placeholder: #9aa6b8;
   --color-app-bg: #eff3f6;
   --color-app-darkbg: #111827;
-
   --font-poppins: 'Poppins', sans-serif;
   --font-inter: 'Inter', sans-serif;
 }
 
+/* ==========================================================================
+   3. BASE RESET & GLOBAL CANVAS
+   ========================================================================== */
 @layer base {
-  body {
-    background-color: #eff3f6;
-    font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  html, body {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--bg-light);
+    color: var(--text-main-light);
+    font-family: var(--font-family-body);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  .dark body,
-  html.dark {
-    background-color: #111827;
+  /* Dark Theme Activation */
+  html.dark, .dark body {
+    background-color: var(--bg-dark);
+    color: var(--text-main-dark);
   }
 
-  #app {
-    min-height: 100vh;
+  #root, #app {
+    min-height: 100%;
     display: flex;
     flex-direction: column;
+    width: 100%;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
 }
 
+/* ==========================================================================
+   4. BRAND COLOR UTILITY CLASSES
+   ========================================================================== */
+/* Primary Teal */
+.bg-app-teal {
+  background-color: var(--color-primary);
+}
+.hover\:bg-app-teal-hover:hover {
+  background-color: var(--color-primary-hover);
+}
+.text-app-teal {
+  color: var(--color-primary);
+}
+.border-app-teal {
+  border-color: var(--color-primary);
+}
+.ring-app-teal {
+  --tw-ring-color: var(--color-primary);
+}
+
+/* Navy Blue */
+.bg-app-navy {
+  background-color: var(--color-navy);
+}
+.text-app-navy {
+  color: var(--color-navy);
+}
+.border-app-navy {
+  border-color: var(--color-navy);
+}
+
+/* Coral Red */
+.bg-app-coral {
+  background-color: var(--color-coral);
+}
+.text-app-coral {
+  color: var(--color-coral);
+}
+.border-app-coral {
+  border-color: var(--color-coral);
+}
+
+/* Gold / Rewards */
+.bg-app-gold {
+  background-color: var(--color-gold);
+}
+.text-app-gold {
+  color: var(--color-gold);
+}
+
+/* Text Support */
+.text-app-graytext {
+  color: var(--text-label);
+}
+.text-app-placeholder {
+  color: var(--text-placeholder);
+}
+
+/* ==========================================================================
+   5. SHADOWS & ELEVATION
+   ========================================================================== */
 .shadow-app {
-  box-shadow: 0 10px 30px -10px rgba(59, 71, 92, 0.08), 0 4px 6px -2px rgba(59, 71, 92, 0.04);
+  box-shadow: var(--shadow-app-light);
 }
 
 .dark .shadow-app {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-app-dark);
+}
+
+.shadow-modal-pop {
+  box-shadow: var(--shadow-modal);
+}
+
+/* ==========================================================================
+   6. KEYFRAME ANIMATIONS & TRANSITIONS
+   ========================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes heartFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
 }
 
 .fade-in {
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
+.animate-pulse-subtle {
+  animation: pulseSubtle 3s ease-in-out infinite;
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.animate-float-heart {
+  animation: heartFloat 4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   7. TYPOGRAPHY SYSTEM
+   ========================================================================== */
+.font-poppins {
+  font-family: var(--font-family-display);
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+/* ==========================================================================
+   8. CUSTOM SCROLLBAR
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: var(--radius-full);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+/* ==========================================================================
+   9. STRUCTURAL COMPONENT PATTERNS (STANDALONE CSS EQUIVALENTS)
+   ========================================================================== */
+
+/* 9.1 Split Screen 50/50 Layout (Login & Cadastro) */
+.auth-split-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  flex-direction: column;
+}
+@media (min-width: 1024px) {
+  .auth-split-container {
+    flex-direction: row;
   }
+  .auth-hero-half {
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(75, 185, 166, 0.08) 0%, rgba(234, 115, 73, 0.06) 100%);
+  }
+  .auth-form-half {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.5rem;
+    background-color: var(--bg-card-light);
+  }
+  .dark .auth-form-half {
+    background-color: var(--bg-card-dark);
+  }
+}
+
+/* 9.2 Form Input Styling with Prefix Icons */
+.input-group-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.input-icon-prefix {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-placeholder);
+  pointer-events: none;
+  font-size: 1rem;
+}
+.input-field-app {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  font-size: 0.9375rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle-light);
+  background-color: var(--bg-input-light);
+  color: var(--text-main-light);
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+.input-field-app:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(75, 185, 166, 0.2);
+  background-color: #ffffff;
+}
+.dark .input-field-app {
+  border-color: var(--border-subtle-dark);
+  background-color: var(--bg-input-dark);
+  color: var(--text-main-dark);
+}
+.dark .input-field-app:focus {
+  background-color: #1f2937;
+  border-color: var(--color-primary);
+}
+
+/* 9.3 Action Buttons (Brand Primary & Social) */
+.btn-primary-teal {
+  display: inline-flex;
+  width: auto;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #ffffff;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(75, 185, 166, 0.25);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.btn-primary-teal:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(75, 185, 166, 0.35);
+}
+.btn-primary-teal:active {
+  transform: translateY(0px);
+}
+.btn-primary-teal.w-full {
+  width: 100%;
+}
+
+.btn-social-auth {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-main-light);
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+}
+.btn-social-auth:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+.dark .btn-social-auth {
+  background-color: #1f2937;
+  color: var(--text-main-dark);
+  border-color: #374151;
+}
+.dark .btn-social-auth:hover {
+  background-color: #374151;
+}
+
+/* 9.4 Modals (Doação, Cosméticos, Certificado SIGA) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+  animation: fadeIn 0.25s ease-out;
+}
+.modal-card {
+  width: 100%;
+  max-width: 32rem;
+  background-color: #ffffff;
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-modal);
+  border: 1px solid var(--border-subtle-light);
+}
+.dark .modal-card {
+  background-color: #1f2937;
+  border-color: var(--border-subtle-dark);
+}
+
+/* 9.5 Ranking Badges */
+.rank-badge-gold {
+  background: linear-gradient(135deg, #fef08a, #facc15);
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+.rank-badge-silver {
+  background: linear-gradient(135deg, #f1f5f9, #cbd5e1);
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+.rank-badge-bronze {
+  background: linear-gradient(135deg, #ffedd5, #fdba74);
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+}
+
+/* ==========================================================================
+   10. COMPREHENSIVE DARK MODE THEME SYSTEM
+   ========================================================================== */
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0f172a !important;
+  color: #cbd5e1 !important;
+}
+
+/* 10.1 Sidebar & App Shell */
+html.dark #app-container {
+  background-color: #0f172a !important;
+}
+
+html.dark #main-sidebar {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark #sidebar-toggle-btn {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark #sidebar-toggle-btn:hover {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .sidebar-logo-link span:first-child {
+  color: #f8fafc !important;
+}
+
+html.dark .sidebar-logo-link span:last-child {
+  color: #94a3b8 !important;
+}
+
+html.dark .sidebar-nav-link:not(.bg-\[\#4bb9a6\]) {
+  color: #94a3b8 !important;
+}
+
+html.dark .sidebar-nav-link:not(.bg-\[\#4bb9a6\]):hover {
+  background-color: rgba(51, 65, 85, 0.6) !important;
+  color: #f8fafc !important;
+}
+
+html.dark .sidebar-theme-btn {
+  color: #94a3b8 !important;
+}
+
+html.dark .sidebar-theme-btn:hover {
+  background-color: rgba(51, 65, 85, 0.6) !important;
+  color: #f8fafc !important;
+}
+
+html.dark .sidebar-user-card {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border-color: #334155 !important;
+}
+
+html.dark .sidebar-user-card:hover {
+  background-color: rgba(51, 65, 85, 0.6) !important;
+}
+
+html.dark .sidebar-user-card .truncate {
+  color: #f8fafc !important;
+}
+
+html.dark .sidebar-logout-link:hover {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+}
+
+/* 10.2 Header / Topbar */
+html.dark header {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+  border-color: #334155 !important;
+}
+
+html.dark header h1 {
+  color: #f8fafc !important;
+}
+
+/* 10.3 Backgrounds & Surface Cards */
+html.dark .bg-white {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-slate-50\/80,
+html.dark .bg-slate-50\/70,
+html.dark .bg-slate-50\/50,
+html.dark .bg-\[\#f8fafc\] {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark .bg-slate-100,
+html.dark .bg-slate-100\/80,
+html.dark .bg-slate-100\/90,
+html.dark .bg-slate-100\/70 {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-slate-100\/80:hover,
+html.dark .hover\:bg-slate-100\/70:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-50\/80:hover {
+  background-color: rgba(51, 65, 85, 0.7) !important;
+}
+
+/* 10.4 Borders */
+html.dark .border-\[\#e2e8f0\],
+html.dark .border-\[\#e2e8f0\]\/80,
+html.dark .border-\[\#e2e8f0\]\/60,
+html.dark .border-slate-200,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-200\/70,
+html.dark .border-slate-200\/80,
+html.dark .border-slate-100,
+html.dark .border-slate-100\/80 {
+  border-color: #334155 !important;
+}
+
+/* 10.5 Typography */
+html.dark .text-\[\#273142\] {
+  color: #f8fafc !important;
+}
+
+html.dark .text-\[\#3b475c\] {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-\[\#7a889b\] {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-\[\#9aa6b8\] {
+  color: #64748b !important;
+}
+
+/* 10.6 Gradients (Hero Banners & Cards) */
+html.dark [class*="from-white"] {
+  --tw-gradient-from: #1e293b var(--tw-gradient-from-position) !important;
+}
+
+html.dark [class*="via-white"] {
+  --tw-gradient-stops: var(--tw-gradient-from), #1e293b var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+}
+
+/* 10.7 Inputs, Selects & Forms */
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #4bb9a6 !important;
+  background-color: #1e293b !important;
+}
+
+/* 10.8 Tables & Data Lists */
+html.dark table thead tr,
+html.dark table thead th {
+  background-color: #0f172a !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+html.dark table tbody tr {
+  border-color: #334155 !important;
+}
+
+html.dark table tbody tr:hover {
+  background-color: rgba(51, 65, 85, 0.35) !important;
+}
+
+/* 10.9 Modals & Overlays */
+html.dark .modal-card,
+html.dark #delete-account-modal > div,
+html.dark #transfer-confirm-modal > div,
+html.dark #scanner-modal-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark #scanner-modal-card > div:first-child {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark #scanner-tabs-bar {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark #tab-btn-camera.bg-white,
+html.dark #tab-btn-manual.bg-white {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* 10.10 Profile & Danger Zone adaptations */
+html.dark #avatar-display {
+  box-shadow: 0 0 0 4px #1e293b !important;
+}
+
+html.dark .bg-rose-50\/40 {
+  background-color: rgba(136, 19, 55, 0.15) !important;
+  border-color: rgba(225, 29, 72, 0.3) !important;
+}
+
+html.dark .text-rose-900,
+html.dark .text-rose-950 {
+  color: #fecdd3 !important;
+}
+
+html.dark .text-rose-700,
+html.dark .text-rose-700\/80 {
+  color: #fda4af !important;
+}
+
+html.dark .border-rose-100,
+html.dark .border-rose-200,
+html.dark .border-rose-200\/60,
+html.dark .border-rose-200\/80 {
+  border-color: rgba(225, 29, 72, 0.3) !important;
+}
+
+/* 10.11 Auth Split Screen in Dark Mode */
+html.dark .auth-form-half {
+  background-color: #1e293b !important;
+}
+
+html.dark .auth-hero-half {
+  background: linear-gradient(135deg, rgba(75, 185, 166, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
 }
