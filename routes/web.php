@@ -5,23 +5,13 @@ use Inertia\Inertia;
 
 Route::get('/', fn() => Inertia::render('LandingPage'));
 
-Route::get('/login', function () {
-    return view('auth.login');
-});
+Route::get('/login', fn() => Inertia::render('auth/Login'));
 
-Route::get('/register', function () {
-    return view('auth.register');
-});
-Route::get('/cadastro', function () {
-    return redirect('/register');
-});
+Route::get('/register', fn() => Inertia::render('auth/Register'));
+Route::get('/cadastro', fn() => redirect('/register'));
 
-Route::get('/forgot-password', function () {
-    return view('auth.forgot-password');
-});
-Route::get('/esqueci-senha', function () {
-    return redirect('/forgot-password');
-});
+Route::get('/forgot-password', fn() => Inertia::render('auth/ForgotPassword'));
+Route::get('/esqueci-senha', fn() => redirect('/forgot-password'));
 
 Route::get('/dashboard', function () {
     return view('dashboard');
