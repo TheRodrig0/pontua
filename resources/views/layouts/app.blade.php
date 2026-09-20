@@ -13,7 +13,7 @@
     <!-- Anti-flash script for Dark Mode -->
     <script>
         (function () {
-            const savedTheme = localStorage.getItem('pontua_theme');
+            const savedTheme = localStorage.getItem('theme') || localStorage.getItem('pontua_theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
                 document.documentElement.classList.add('dark');
@@ -495,6 +495,7 @@
 
             toggleBtn?.addEventListener('click', () => {
                 const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
                 localStorage.setItem('pontua_theme', isDark ? 'dark' : 'light');
                 syncThemeUI(isDark);
             });

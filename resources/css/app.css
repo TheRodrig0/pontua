@@ -120,64 +120,6 @@
 }
 
 /* ==========================================================================
-   4. BRAND COLOR UTILITY CLASSES
-   ========================================================================== */
-/* Primary Teal */
-.bg-app-teal {
-  background-color: var(--color-primary);
-}
-.hover\:bg-app-teal-hover:hover {
-  background-color: var(--color-primary-hover);
-}
-.text-app-teal {
-  color: var(--color-primary);
-}
-.border-app-teal {
-  border-color: var(--color-primary);
-}
-.ring-app-teal {
-  --tw-ring-color: var(--color-primary);
-}
-
-/* Navy Blue */
-.bg-app-navy {
-  background-color: var(--color-navy);
-}
-.text-app-navy {
-  color: var(--color-navy);
-}
-.border-app-navy {
-  border-color: var(--color-navy);
-}
-
-/* Coral Red */
-.bg-app-coral {
-  background-color: var(--color-coral);
-}
-.text-app-coral {
-  color: var(--color-coral);
-}
-.border-app-coral {
-  border-color: var(--color-coral);
-}
-
-/* Gold / Rewards */
-.bg-app-gold {
-  background-color: var(--color-gold);
-}
-.text-app-gold {
-  color: var(--color-gold);
-}
-
-/* Text Support */
-.text-app-graytext {
-  color: var(--text-label);
-}
-.text-app-placeholder {
-  color: var(--text-placeholder);
-}
-
-/* ==========================================================================
    5. SHADOWS & ELEVATION
    ========================================================================== */
 .shadow-app {
@@ -455,13 +397,13 @@ html.dark {
 }
 
 html.dark body {
-  background-color: #0f172a !important;
+  background-color: #111827 !important;
   color: #cbd5e1 !important;
 }
 
 /* 10.1 Sidebar & App Shell */
 html.dark #app-container {
-  background-color: #0f172a !important;
+  background-color: #111827 !important;
 }
 
 html.dark #main-sidebar {
@@ -525,84 +467,84 @@ html.dark .sidebar-logout-link:hover {
   background-color: rgba(244, 63, 94, 0.15) !important;
 }
 
-/* 10.2 Header / Topbar */
-html.dark header {
+/* 10.2 Header / Topbar (Internal Dashboard) */
+html.dark #app-container header {
   background-color: rgba(30, 41, 59, 0.85) !important;
   border-color: #334155 !important;
 }
 
-html.dark header h1 {
+html.dark #app-container header h1 {
   color: #f8fafc !important;
 }
 
-/* 10.3 Backgrounds & Surface Cards */
-html.dark .bg-white {
+/* 10.3 Backgrounds & Surface Cards (Internal Dashboard) */
+html.dark #app-container .bg-white {
   background-color: #1e293b !important;
   border-color: #334155 !important;
 }
 
-html.dark .bg-slate-50,
-html.dark .bg-slate-50\/80,
-html.dark .bg-slate-50\/70,
-html.dark .bg-slate-50\/50,
-html.dark .bg-\[\#f8fafc\] {
-  background-color: #0f172a !important;
+html.dark #app-container .bg-slate-50,
+html.dark #app-container .bg-slate-50\/80,
+html.dark #app-container .bg-slate-50\/70,
+html.dark #app-container .bg-slate-50\/50,
+html.dark #app-container .bg-\[\#f8fafc\] {
+  background-color: #111827 !important;
   border-color: #334155 !important;
 }
 
-html.dark .bg-slate-100,
-html.dark .bg-slate-100\/80,
-html.dark .bg-slate-100\/90,
-html.dark .bg-slate-100\/70 {
+html.dark #app-container .bg-slate-100,
+html.dark #app-container .bg-slate-100\/80,
+html.dark #app-container .bg-slate-100\/90,
+html.dark #app-container .bg-slate-100\/70 {
   background-color: #334155 !important;
   border-color: #475569 !important;
   color: #f1f5f9 !important;
 }
 
-html.dark .hover\:bg-slate-100:hover,
-html.dark .hover\:bg-slate-100\/80:hover,
-html.dark .hover\:bg-slate-100\/70:hover,
-html.dark .hover\:bg-slate-50:hover,
-html.dark .hover\:bg-slate-50\/80:hover {
+html.dark #app-container .hover\:bg-slate-100:hover,
+html.dark #app-container .hover\:bg-slate-100\/80:hover,
+html.dark #app-container .hover\:bg-slate-100\/70:hover,
+html.dark #app-container .hover\:bg-slate-50:hover,
+html.dark #app-container .hover\:bg-slate-50\/80:hover {
   background-color: rgba(51, 65, 85, 0.7) !important;
 }
 
-/* 10.4 Borders */
-html.dark .border-\[\#e2e8f0\],
-html.dark .border-\[\#e2e8f0\]\/80,
-html.dark .border-\[\#e2e8f0\]\/60,
-html.dark .border-slate-200,
-html.dark .border-slate-200\/60,
-html.dark .border-slate-200\/70,
-html.dark .border-slate-200\/80,
-html.dark .border-slate-100,
-html.dark .border-slate-100\/80 {
+/* 10.4 Borders (Internal Dashboard) */
+html.dark #app-container .border-\[\#e2e8f0\],
+html.dark #app-container .border-\[\#e2e8f0\]\/80,
+html.dark #app-container .border-\[\#e2e8f0\]\/60,
+html.dark #app-container .border-slate-200,
+html.dark #app-container .border-slate-200\/60,
+html.dark #app-container .border-slate-200\/70,
+html.dark #app-container .border-slate-200\/80,
+html.dark #app-container .border-slate-100,
+html.dark #app-container .border-slate-100\/80 {
   border-color: #334155 !important;
 }
 
-/* 10.5 Typography */
-html.dark .text-\[\#273142\] {
+/* 10.5 Typography (Internal Dashboard) */
+html.dark #app-container .text-\[\#273142\] {
   color: #f8fafc !important;
 }
 
-html.dark .text-\[\#3b475c\] {
+html.dark #app-container .text-\[\#3b475c\] {
   color: #cbd5e1 !important;
 }
 
-html.dark .text-\[\#7a889b\] {
+html.dark #app-container .text-\[\#7a889b\] {
   color: #94a3b8 !important;
 }
 
-html.dark .text-\[\#9aa6b8\] {
+html.dark #app-container .text-\[\#9aa6b8\] {
   color: #64748b !important;
 }
 
 /* 10.6 Gradients (Hero Banners & Cards) */
-html.dark [class*="from-white"] {
+html.dark #app-container [class*="from-white"] {
   --tw-gradient-from: #1e293b var(--tw-gradient-from-position) !important;
 }
 
-html.dark [class*="via-white"] {
+html.dark #app-container [class*="via-white"] {
   --tw-gradient-stops: var(--tw-gradient-from), #1e293b var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
 }
 
