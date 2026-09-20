@@ -1,18 +1,18 @@
 <!-- LEFT SIDE: Colorful Hero Illustration (Blobs + 3D/Vector Character with Puzzle Heart) -->
-<div class="lg:w-1/2 min-h-[400px] lg:min-h-screen relative overflow-hidden flex items-center justify-center p-8 bg-gradient-to-br from-teal-50/40 via-sky-50/30 to-amber-50/30 select-none">
+<div class="lg:w-1/2 min-h-[400px] lg:min-h-screen relative overflow-hidden flex items-center justify-center p-8 bg-gradient-to-br from-teal-50/40 via-sky-50/30 to-amber-50/30 dark:from-[#111827] dark:via-[#1e293b]/50 dark:to-[#111827] select-none transition-colors">
     
     <!-- Vibrant Abstract Blobs -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <!-- Green/Teal Blob -->
-        <div class="absolute top-[10%] -left-[10%] w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-[#38b2ac] to-[#4bb9a6] mix-blend-multiply filter blur-3xl opacity-70 animate-pulse-subtle"></div>
+        <div class="absolute top-[10%] -left-[10%] w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-[#38b2ac] to-[#4bb9a6] mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 dark:opacity-25 animate-pulse-subtle"></div>
         <!-- Blue Blob -->
-        <div class="absolute top-[25%] left-[5%] w-[420px] h-[420px] rounded-full bg-gradient-to-br from-[#3182ce] to-[#63b3ed] mix-blend-multiply filter blur-2xl opacity-60"></div>
+        <div class="absolute top-[25%] left-[5%] w-[420px] h-[420px] rounded-full bg-gradient-to-br from-[#3182ce] to-[#63b3ed] mix-blend-multiply dark:mix-blend-screen filter blur-2xl opacity-60 dark:opacity-25"></div>
         <!-- Orange/Coral Blob -->
-        <div class="absolute bottom-[5%] left-[0%] w-[460px] h-[460px] rounded-full bg-gradient-to-t from-[#ea7349] to-[#f6ad55] mix-blend-multiply filter blur-3xl opacity-75"></div>
+        <div class="absolute bottom-[5%] left-[0%] w-[460px] h-[460px] rounded-full bg-gradient-to-t from-[#ea7349] to-[#f6ad55] mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-75 dark:opacity-30"></div>
         <!-- Yellow/Gold Blob -->
-        <div class="absolute top-[30%] left-[25%] w-[380px] h-[380px] rounded-full bg-gradient-to-br from-[#f2c84b] to-[#faf089] mix-blend-multiply filter blur-2xl opacity-70"></div>
+        <div class="absolute top-[30%] left-[25%] w-[380px] h-[380px] rounded-full bg-gradient-to-br from-[#f2c84b] to-[#faf089] mix-blend-multiply dark:mix-blend-screen filter blur-2xl opacity-70 dark:opacity-25"></div>
         <!-- Violet accent Blob -->
-        <div class="absolute top-[5%] left-[30%] w-[320px] h-[320px] rounded-full bg-gradient-to-br from-[#9f7aea] to-[#b794f4] mix-blend-multiply filter blur-2xl opacity-50"></div>
+        <div class="absolute top-[5%] left-[30%] w-[320px] h-[320px] rounded-full bg-gradient-to-br from-[#9f7aea] to-[#b794f4] mix-blend-multiply dark:mix-blend-screen filter blur-2xl opacity-50 dark:opacity-20"></div>
     </div>
 
     <!-- Floating Particles / Dots -->

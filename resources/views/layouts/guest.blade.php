@@ -13,7 +13,7 @@
     <!-- Anti-flash script for Dark Mode -->
     <script>
         (function () {
-            const savedTheme = localStorage.getItem('pontua_theme');
+            const savedTheme = localStorage.getItem('theme') || localStorage.getItem('pontua_theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
                 document.documentElement.classList.add('dark');
@@ -25,7 +25,7 @@
 
     @vite(['resources/css/app.css'])
 </head>
-<body class="antialiased bg-[#eff3f6] dark:bg-[#0f172a] text-[#3b475c] dark:text-[#cbd5e1] min-h-screen font-sans">
+<body class="antialiased bg-[#eff3f6] dark:bg-[#111827] text-[#3b475c] dark:text-[#cbd5e1] min-h-screen font-sans">
     @yield('content')
 </body>
 </html>
