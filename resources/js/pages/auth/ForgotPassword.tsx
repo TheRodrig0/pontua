@@ -1,129 +1,141 @@
 import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Mail } from 'lucide-react';
-import LogoPontua from '@/components/LogoPontua';
-import ThemeToggle from '@/components/ThemeToggle';
-import AuthHero from '@/components/auth/AuthHero';
+import { Link } from '@inertiajs/react';
+import { Mail, ArrowLeft, CheckCircle2, ArrowRight } from 'lucide-react';
+import AuthLayout from '@/components/auth/AuthLayout';
+import FeedbackBanner, { FeedbackState } from '@/components/auth/FeedbackBanner';
 
 const ForgotPassword: React.FC = () => {
     const [email, setEmail] = useState('');
-    const [submitted, setSubmitted] = useState(false);
+    const [feedback, setFeedback] = useState<FeedbackState | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmitted(true);
+        const errors: Record<string, string> = {};
+
+        if (!email.trim()) {
+            errors.email = 'Informe o seu e-mail cadastrado';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            errors.email = 'Insira um formato de e-mail válido';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
+            setFeedback({
+                type: 'error',
+                message: 'Por favor, insira um e-mail válido para receber o link.'
+            });
+            return;
+        }
+
+        setFieldErrors({});
+        setIsSubmitting(true);
+
+        setTimeout(() => {
+            setIsSubmitting(false);
+            setIsSubmitted(true);
+        }, 500);
     };
 
     return (
-        <div className="min-h-screen w-full flex flex-col lg:flex-row bg-app-bg dark:bg-app-darkbg text-app-navy dark:text-gray-100 transition-colors relative">
-            <Head title="Recupere sua senha!" />
+        <AuthLayout currentPage="forgot-password">
+            <div className="bg-white dark:bg-[#1e2532] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#dbe3ec] dark:border-gray-800 transition-colors">
+                <FeedbackBanner feedback={feedback} onDismiss={() => setFeedback(null)} />
 
-            {/* Floating theme toggle */}
-            <div className="absolute top-4 right-4 z-50">
-                <ThemeToggle />
-            </div>
+                {isSubmitted ? (
+                    <div className="flex flex-col items-center text-center py-2">
+                        <div className="w-14 h-14 bg-[#4bb9a6]/15 text-[#4bb9a6] rounded-2xl flex items-center justify-center mb-3.5 shadow-sm">
+                            <CheckCircle2 size={32} />
+                        </div>
 
-            {/* LEFT SIDE: Reusable Hero Component */}
-            <AuthHero />
+                        <h3 className="text-base sm:text-lg font-extrabold text-[#3b475c] dark:text-white mb-1.5">
+                            Link de recuperação enviado!
+                        </h3>
 
-            {/* RIGHT SIDE: Forgot Password Form */}
-            <div className="lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
-                <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl p-8 sm:p-10 shadow-app border border-slate-200/80 dark:border-slate-700 transition-colors">
-                    {/* Logo & Header */}
-                    <div className="flex flex-col items-center text-center mb-6">
-                        <Link href="/" className="mb-3 inline-block hover:opacity-95 transition-opacity">
-                            <LogoPontua iconSize={44} textClassName="text-2xl font-black tracking-tight text-app-navy dark:text-white" />
-                        </Link>
-
-                        <h2 className="text-xl font-bold text-app-navy dark:text-white mb-1 leading-snug">
-                            Recupere sua senha!
-                        </h2>
-                        <p className="text-xs text-app-graytext dark:text-gray-400 max-w-xs leading-relaxed">
-                            Insira o seu e-mail para receber as instruções e o link de recuperação.
+                        <p className="text-xs sm:text-sm text-[#7a889b] dark:text-gray-300 mb-6 leading-relaxed max-w-[320px]">
+                            Enviamos as instruções e o link seguro para redefinir sua senha para{' '}
+                            <strong className="text-[#3b475c] dark:text-white font-bold">{email}</strong>.
                         </p>
 
-                        {/* 3 Solidary Badges */}
-                        <div className="flex flex-wrap items-center justify-center gap-2 mt-3.5">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-teal/15 text-app-teal text-[11px] font-semibold border border-app-teal/20">
-                                <span>🧾</span> DOE NOTAS
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-coral/15 text-app-coral text-[11px] font-semibold border border-app-coral/20">
-                                <span>❤️</span> AJUDE A APAE
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-gold/20 text-amber-700 dark:text-app-gold text-[11px] font-semibold border border-app-gold/30">
-                                <span>🎁</span> GANHE PRÊMIOS
-                            </span>
-                        </div>
+                        <Link
+                            href="/login"
+                            className="w-full bg-[#4bb9a6] hover:bg-[#3aa895] text-white font-bold py-3.5 rounded-xl shadow-[0_4px_16px_rgba(75,185,166,0.35)] transition-all text-xs sm:text-sm cursor-pointer active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2 text-center"
+                        >
+                            <ArrowLeft size={16} />
+                            <span>Voltar para o Login</span>
+                        </Link>
                     </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <p className="text-xs sm:text-sm text-[#7a889b] dark:text-gray-300 leading-relaxed">
+                            Informe o e-mail cadastrado na sua conta. Vamos gerar e enviar um link para você criar uma nova senha com total segurança.
+                        </p>
 
-                    {submitted ? (
-                        <div className="p-4 rounded-2xl bg-app-teal/10 border border-app-teal/30 text-center space-y-3">
-                            <p className="text-sm font-semibold text-app-navy dark:text-white">
-                                Link enviado com sucesso!
-                            </p>
-                            <p className="text-xs text-app-graytext dark:text-gray-300 leading-relaxed">
-                                Se houver uma conta associada a <strong>{email}</strong>, você receberá um e-mail com as instruções em instantes.
-                            </p>
-                            <Link
-                                href="/login"
-                                className="inline-flex items-center gap-2 text-xs font-bold text-app-teal hover:underline pt-2"
+                        {/* Campo de Entrada de E-mail */}
+                        <div>
+                            <div
+                                className={`bg-[#eff3f6] dark:bg-[#111827] border rounded-xl px-4 py-2.5 sm:py-3 transition-all ${
+                                    fieldErrors.email
+                                        ? 'border-red-500 ring-2 ring-red-500/20'
+                                        : 'border-[#dbe3ec] dark:border-gray-700/80 focus-within:border-[#4bb9a6] focus-within:ring-2 focus-within:ring-[#4bb9a6]/20'
+                                }`}
                             >
-                                <ArrowLeft size={14} />
-                                <span>Voltar para o login</span>
-                            </Link>
-                        </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <p className="text-xs text-app-graytext dark:text-gray-400 leading-relaxed mb-5 text-center sm:text-left">
-                                Informe o e-mail cadastrado na sua conta. Vamos gerar e enviar um link para você criar uma nova senha.
-                            </p>
-
-                            {/* Field: Email */}
-                            <div className="space-y-1.5">
-                                <label className="block text-[10px] font-bold text-app-graytext dark:text-gray-400 uppercase tracking-wider">
+                                <label className="block text-[10px] sm:text-[11px] font-extrabold text-[#7a889b] dark:text-gray-400 uppercase tracking-wider mb-1">
                                     E-mail Cadastrado
                                 </label>
-                                <div className="relative flex items-center">
+                                <div className="flex items-center gap-2">
+                                    <Mail className="w-4 h-4 text-[#7a889b] dark:text-gray-500 shrink-0" />
                                     <input
                                         type="email"
-                                        name="email"
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: '' }));
+                                        }}
                                         placeholder="seu.email@exemplo.com"
-                                        className="w-full px-4 py-3 pr-11 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-app-navy dark:text-white placeholder:text-app-graytext/60 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-slate-900 focus:border-app-teal focus:ring-2 focus:ring-app-teal/20 outline-none transition"
+                                        className="w-full bg-transparent border-none focus:outline-none text-[#3b475c] dark:text-white font-semibold text-xs sm:text-sm placeholder-[#9aa6b8] dark:placeholder-gray-500"
                                         required
                                     />
-                                    <div className="absolute right-3.5 text-slate-400 pointer-events-none p-1">
-                                        <Mail size={16} />
-                                    </div>
                                 </div>
                             </div>
+                            {fieldErrors.email && (
+                                <span className="text-[11px] text-red-500 font-medium mt-1 block">
+                                    {fieldErrors.email}
+                                </span>
+                            )}
+                        </div>
 
-                            {/* Submit Button */}
-                            <div className="pt-2">
-                                <button
-                                    type="submit"
-                                    className="w-full py-3.5 bg-app-teal hover:brightness-95 text-white font-bold rounded-xl shadow-md hover:shadow-lg uppercase tracking-wider text-xs sm:text-sm transition-all cursor-pointer active:scale-[0.99]"
-                                >
-                                    Enviar Link de Recuperação
-                                </button>
-                            </div>
+                        {/* Botão Enviar Link */}
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full bg-[#4bb9a6] hover:bg-[#3aa895] text-white font-bold py-3.5 rounded-xl shadow-[0_4px_16px_rgba(75,185,166,0.35)] transition-all text-xs sm:text-sm cursor-pointer active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2"
+                        >
+                            {isSubmitting ? (
+                                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                                <>
+                                    <span>ENVIAR LINK DE RECUPERAÇÃO</span>
+                                    <ArrowRight size={16} />
+                                </>
+                            )}
+                        </button>
 
-                            {/* Back to Login Link */}
-                            <div className="pt-3 text-center">
-                                <Link
-                                    href="/login"
-                                    className="text-xs font-semibold text-app-graytext dark:text-gray-400 hover:text-app-teal dark:hover:text-app-teal transition-colors inline-flex items-center gap-1.5"
-                                >
-                                    <ArrowLeft size={14} />
-                                    <span>Voltar para o Login</span>
-                                </Link>
-                            </div>
-                        </form>
-                    )}
-                </div>
+                        <div className="pt-2 text-center">
+                            <Link
+                                href="/login"
+                                className="text-xs font-semibold text-[#7a889b] dark:text-gray-400 hover:text-[#4bb9a6] dark:hover:text-[#4bb9a6] transition-colors inline-flex items-center gap-1.5"
+                            >
+                                <ArrowLeft size={14} />
+                                <span>Voltar para o Login</span>
+                            </Link>
+                        </div>
+                    </form>
+                )}
             </div>
-        </div>
+        </AuthLayout>
     );
 };
 
