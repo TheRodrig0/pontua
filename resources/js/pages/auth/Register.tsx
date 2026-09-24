@@ -6,6 +6,7 @@ import FeedbackBanner, { FeedbackState } from '@/components/auth/FeedbackBanner'
 
 const Register: React.FC = () => {
     const [showRegPassword, setShowRegPassword] = useState<boolean>(false);
+    const [showRegConfirmPassword, setShowRegConfirmPassword] = useState<boolean>(false);
     const [feedback, setFeedback] = useState<FeedbackState | null>(null);
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -13,6 +14,7 @@ const Register: React.FC = () => {
     const [regName, setRegName] = useState('');
     const [regEmail, setRegEmail] = useState('');
     const [regPassword, setRegPassword] = useState('');
+    const [regConfirmPassword, setRegConfirmPassword] = useState('');
 
     // Cálculo visual de força da senha
     const getPasswordStrength = (pass: string) => {
@@ -38,15 +40,23 @@ const Register: React.FC = () => {
         } else if (regName.trim().length < 3) {
             errors.regName = 'O nome deve ter no mínimo 3 caracteres';
         }
+
         if (!regEmail.trim()) {
-            errors.regEmail = 'Informe seu e-mail institucional ou pessoal';
+            errors.regEmail = 'Informe seu e-mail FATEC ou pessoal';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regEmail)) {
             errors.regEmail = 'Formato de e-mail inválido';
         }
+
         if (!regPassword) {
-            errors.regPassword = 'Crie uma senha';
+            errors.regPassword = 'Crie uma senha de acesso';
         } else if (regPassword.length < 6) {
             errors.regPassword = 'A senha precisa ter no mínimo 6 caracteres';
+        }
+
+        if (!regConfirmPassword) {
+            errors.regConfirmPassword = 'Confirme sua senha';
+        } else if (regPassword !== regConfirmPassword) {
+            errors.regConfirmPassword = 'As senhas não coincidem';
         }
 
         if (Object.keys(errors).length > 0) {
@@ -69,7 +79,7 @@ const Register: React.FC = () => {
 
     return (
         <AuthLayout currentPage="register">
-            <div className="bg-white dark:bg-[#1e2532] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#dbe3ec] dark:border-gray-800 transition-colors">
+            <div className="bg-white dark:bg-[#1e2532] rounded-2xl p-6 sm:p-8 shadow-xl border border-[#dbe3ec] dark:border-gray-800 transition-colors">
                 {/* Feedback Inline */}
                 <FeedbackBanner feedback={feedback} onDismiss={() => setFeedback(null)} />
 
@@ -95,20 +105,20 @@ const Register: React.FC = () => {
                                         setRegName(e.target.value);
                                         if (fieldErrors.regName) setFieldErrors((prev) => ({ ...prev, regName: '' }));
                                     }}
-                                    placeholder="Ex: Rodrigo Geronimo"
+                                    placeholder="Ex: Maria Clara da Silva"
                                     className="w-full bg-transparent border-none focus:outline-none text-[#3b475c] dark:text-white font-semibold text-xs sm:text-sm placeholder-[#9aa6b8] dark:placeholder-gray-500"
                                     required
                                 />
                             </div>
                         </div>
                         {fieldErrors.regName && (
-                            <span className="text-[11px] text-red-500 font-medium mt-1 block">
+                            <p className="text-[11px] font-semibold text-red-500 dark:text-red-400 mt-1 ml-2">
                                 {fieldErrors.regName}
-                            </span>
+                            </p>
                         )}
                     </div>
 
-                    {/* Campo E-mail */}
+                    {/* Campo E-mail FATEC ou Pessoal */}
                     <div>
                         <div
                             className={`bg-[#eff3f6] dark:bg-[#111827] border rounded-xl px-4 py-2.5 sm:py-3 transition-all ${
@@ -118,7 +128,7 @@ const Register: React.FC = () => {
                             }`}
                         >
                             <label className="block text-[10px] sm:text-[11px] font-extrabold text-[#7a889b] dark:text-gray-400 uppercase tracking-wider mb-1">
-                                E-mail Institucional ou Pessoal
+                                E-mail FATEC ou Pessoal
                             </label>
                             <div className="flex items-center gap-2">
                                 <Mail className="w-4 h-4 text-[#7a889b] dark:text-gray-500 shrink-0" />
@@ -136,13 +146,13 @@ const Register: React.FC = () => {
                             </div>
                         </div>
                         {fieldErrors.regEmail && (
-                            <span className="text-[11px] text-red-500 font-medium mt-1 block">
+                            <p className="text-[11px] font-semibold text-red-500 dark:text-red-400 mt-1 ml-2">
                                 {fieldErrors.regEmail}
-                            </span>
+                            </p>
                         )}
                     </div>
 
-                    {/* Campo Criar Senha */}
+                    {/* Campo Senha com Alternador de Visibilidade */}
                     <div>
                         <div
                             className={`bg-[#eff3f6] dark:bg-[#111827] border rounded-xl px-4 py-2.5 sm:py-3 transition-all ${
@@ -152,7 +162,7 @@ const Register: React.FC = () => {
                             }`}
                         >
                             <label className="block text-[10px] sm:text-[11px] font-extrabold text-[#7a889b] dark:text-gray-400 uppercase tracking-wider mb-1">
-                                Criar Senha
+                                Senha de Acesso (Mínimo 6 caracteres)
                             </label>
                             <div className="flex items-center gap-2">
                                 <Lock className="w-4 h-4 text-[#7a889b] dark:text-gray-500 shrink-0" />
@@ -163,7 +173,7 @@ const Register: React.FC = () => {
                                         setRegPassword(e.target.value);
                                         if (fieldErrors.regPassword) setFieldErrors((prev) => ({ ...prev, regPassword: '' }));
                                     }}
-                                    placeholder="Mínimo 6 caracteres"
+                                    placeholder="••••••••"
                                     className="w-full bg-transparent border-none focus:outline-none text-[#3b475c] dark:text-white font-semibold text-xs sm:text-sm placeholder-[#9aa6b8] dark:placeholder-gray-500"
                                     required
                                 />
@@ -179,44 +189,90 @@ const Register: React.FC = () => {
                         </div>
 
                         {/* Indicador de Força de Senha */}
-                        {regPassword && (
-                            <div className="mt-2 space-y-1">
-                                <div className="flex gap-1 h-1.5 w-full">
+                        {regPassword.length > 0 && (
+                            <div className="mt-2 px-1 flex items-center justify-between">
+                                <div className="flex gap-1.5 flex-1 max-w-[140px]">
                                     <div
-                                        className={`flex-1 rounded-full transition-all ${
+                                        className={`h-1.5 rounded-full flex-1 transition-all ${
                                             passwordStrength.score >= 1 ? passwordStrength.color : 'bg-gray-200 dark:bg-gray-700'
                                         }`}
                                     />
                                     <div
-                                        className={`flex-1 rounded-full transition-all ${
+                                        className={`h-1.5 rounded-full flex-1 transition-all ${
                                             passwordStrength.score >= 2 ? passwordStrength.color : 'bg-gray-200 dark:bg-gray-700'
                                         }`}
                                     />
                                     <div
-                                        className={`flex-1 rounded-full transition-all ${
+                                        className={`h-1.5 rounded-full flex-1 transition-all ${
                                             passwordStrength.score >= 3 ? passwordStrength.color : 'bg-gray-200 dark:bg-gray-700'
                                         }`}
                                     />
                                 </div>
-                                <div className="flex justify-between items-center text-[10px] text-[#7a889b] dark:text-gray-400">
-                                    <span>Nível de segurança:</span>
-                                    <span className="font-bold">{passwordStrength.label}</span>
-                                </div>
+                                <span className="text-[11px] font-semibold text-[#7a889b] dark:text-gray-400">
+                                    {passwordStrength.label}
+                                </span>
                             </div>
                         )}
 
                         {fieldErrors.regPassword && (
-                            <span className="text-[11px] text-red-500 font-medium mt-1 block">
+                            <p className="text-[11px] font-semibold text-red-500 dark:text-red-400 mt-1 ml-2">
                                 {fieldErrors.regPassword}
-                            </span>
+                            </p>
                         )}
                     </div>
+
+                    {/* Campo Confirmação de Senha */}
+                    <div>
+                        <div
+                            className={`bg-[#eff3f6] dark:bg-[#111827] border rounded-xl px-4 py-2.5 sm:py-3 transition-all ${
+                                fieldErrors.regConfirmPassword
+                                    ? 'border-red-500 ring-2 ring-red-500/20'
+                                    : 'border-[#dbe3ec] dark:border-gray-700/80 focus-within:border-[#4bb9a6] focus-within:ring-2 focus-within:ring-[#4bb9a6]/20'
+                            }`}
+                        >
+                            <label className="block text-[10px] sm:text-[11px] font-extrabold text-[#7a889b] dark:text-gray-400 uppercase tracking-wider mb-1">
+                                Confirmar Senha
+                            </label>
+                            <div className="flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-[#7a889b] dark:text-gray-500 shrink-0" />
+                                <input
+                                    type={showRegConfirmPassword ? 'text' : 'password'}
+                                    value={regConfirmPassword}
+                                    onChange={(e) => {
+                                        setRegConfirmPassword(e.target.value);
+                                        if (fieldErrors.regConfirmPassword) setFieldErrors((prev) => ({ ...prev, regConfirmPassword: '' }));
+                                    }}
+                                    placeholder="••••••••"
+                                    className="w-full bg-transparent border-none focus:outline-none text-[#3b475c] dark:text-white font-semibold text-xs sm:text-sm placeholder-[#9aa6b8] dark:placeholder-gray-500"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)}
+                                    aria-label={showRegConfirmPassword ? 'Ocultar senha' : 'Ver senha'}
+                                    className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer rounded-lg shrink-0"
+                                >
+                                    {showRegConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
+                        </div>
+                        {fieldErrors.regConfirmPassword && (
+                            <p className="text-[11px] font-semibold text-red-500 dark:text-red-400 mt-1 ml-2">
+                                {fieldErrors.regConfirmPassword}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Termo de Adesão ao Projeto (texto destacado pelo usuário) */}
+                    <p className="text-[11px] text-[#7a889b] dark:text-gray-400 leading-relaxed px-1">
+                        Ao cadastrar-se, você concorda em doar cupons fiscais do estado de SP para conversão de benefícios pela APAE e pontuação na FATEC.
+                    </p>
 
                     {/* Botão Criar Conta */}
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-[#4bb9a6] hover:bg-[#3aa895] text-white font-bold py-3.5 rounded-xl shadow-[0_4px_16px_rgba(75,185,166,0.35)] transition-all text-xs sm:text-sm cursor-pointer active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2 mt-2"
+                        className="w-full bg-[#4bb9a6] hover:bg-[#3aa895] text-white font-bold py-3.5 rounded-xl shadow-[0_4px_16px_rgba(75,185,166,0.35)] transition-all text-xs sm:text-sm uppercase tracking-wider cursor-pointer mt-1 active:scale-[0.99] flex items-center justify-center gap-2"
                     >
                         {isSubmitting ? (
                             <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -232,13 +288,13 @@ const Register: React.FC = () => {
                 {/* Alternar para Login */}
                 <div className="mt-5 text-center border-t border-[#dbe3ec] dark:border-gray-800 pt-5 transition-colors">
                     <p className="text-xs font-medium text-[#7a889b] dark:text-gray-400 mb-2.5">
-                        Já possui uma conta no PONTUA?
+                        Já tem uma conta cadastrada?
                     </p>
                     <Link
                         href="/login"
                         className="w-full bg-white dark:bg-[#111827] hover:bg-gray-50 dark:hover:bg-gray-800 text-[#3b475c] dark:text-white font-bold py-3 rounded-xl border border-[#dbe3ec] dark:border-gray-700 transition-all cursor-pointer text-xs sm:text-sm uppercase tracking-wider text-center block"
                     >
-                        FAZER LOGIN NA PLATAFORMA
+                        JÁ TENHO UMA CONTA • ENTRAR
                     </Link>
                 </div>
             </div>

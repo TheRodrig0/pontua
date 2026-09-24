@@ -41,7 +41,7 @@ const ForgotPassword: React.FC = () => {
 
     return (
         <AuthLayout currentPage="forgot-password">
-            <div className="bg-white dark:bg-[#1e2532] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#dbe3ec] dark:border-gray-800 transition-colors">
+            <div className="bg-white dark:bg-[#1e2532] rounded-2xl p-6 sm:p-8 shadow-xl border border-[#dbe3ec] dark:border-gray-800 transition-colors">
                 <FeedbackBanner feedback={feedback} onDismiss={() => setFeedback(null)} />
 
                 {isSubmitted ? (
