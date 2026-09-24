@@ -1,147 +1,123 @@
 import React, { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
-import { Eye, EyeOff } from 'lucide-react';
-import LogoPontua from '@/components/LogoPontua';
-import ThemeToggle from '@/components/ThemeToggle';
-import AuthHero from '@/components/auth/AuthHero';
+import { Link, router } from '@inertiajs/react';
+import { Eye, EyeOff, User, Lock, ArrowRight } from 'lucide-react';
+import AuthLayout from '@/components/auth/AuthLayout';
+import FeedbackBanner, { FeedbackState } from '@/components/auth/FeedbackBanner';
 
 const Login: React.FC = () => {
-    const [login, setLogin] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+    const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false);
+    const [feedback, setFeedback] = useState<FeedbackState | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [loginIdentifier, setLoginIdentifier] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+
+    const handleLoginSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Standard client-side navigation to dashboard
-        router.visit('/dashboard');
+        setIsSubmitting(true);
+
+        setTimeout(() => {
+            setIsSubmitting(false);
+            router.visit('/dashboard');
+        }, 250);
     };
 
     return (
-        <div className="min-h-screen w-full flex flex-col lg:flex-row bg-app-bg dark:bg-app-darkbg text-app-navy dark:text-gray-100 transition-colors relative">
-            <Head title="Login & Doação de Notas" />
+        <AuthLayout currentPage="login">
+            <div className="bg-white dark:bg-[#1e2532] rounded-2xl p-6 sm:p-8 shadow-xl border border-[#dbe3ec] dark:border-gray-800 transition-colors">
+                {/* Banner de Feedback */}
+                <FeedbackBanner feedback={feedback} onDismiss={() => setFeedback(null)} />
 
-            {/* Floating theme toggle on desktop */}
-            <div className="absolute top-4 right-4 z-50">
-                <ThemeToggle />
-            </div>
-
-            {/* LEFT SIDE: Reusable Hero Component */}
-            <AuthHero />
-
-            {/* RIGHT SIDE: Auth Card / Form */}
-            <div className="lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
-                <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl p-8 sm:p-10 shadow-app border border-slate-200/80 dark:border-slate-700 transition-colors">
-                    {/* Logo & Header */}
-                    <div className="flex flex-col items-center text-center mb-7">
-                        <Link href="/" className="mb-4 inline-block hover:opacity-95 transition-opacity">
-                            <LogoPontua iconSize={44} textClassName="text-2xl font-black tracking-tight text-app-navy dark:text-white" />
-                        </Link>
-
-                        <h2 className="text-xl font-bold text-app-navy dark:text-white mb-1.5 leading-snug">
-                            Transforme suas notas em prêmios!
-                        </h2>
-                        <p className="text-xs text-app-graytext dark:text-gray-400 max-w-xs leading-relaxed">
-                            Ajude a APAE escaneando cupons fiscais e ganhe recompensas na FATEC.
-                        </p>
-
-                        {/* 3 Solidary Badges */}
-                        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-teal/15 text-app-teal text-[11px] font-semibold border border-app-teal/20">
-                                <span>🧾</span> DOE NOTAS
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-coral/15 text-app-coral text-[11px] font-semibold border border-app-coral/20">
-                                <span>❤️</span> AJUDE A APAE
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-gold/20 text-amber-700 dark:text-app-gold text-[11px] font-semibold border border-app-gold/30">
-                                <span>🎁</span> GANHE PRÊMIOS
-                            </span>
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                    {/* Input E-mail / Nickname */}
+                    <div>
+                        <div className="bg-[#eff3f6] dark:bg-[#111827] border border-[#dbe3ec] dark:border-gray-700/80 rounded-xl px-4 py-2.5 sm:py-3 focus-within:border-[#4bb9a6] focus-within:ring-2 focus-within:ring-[#4bb9a6]/20 transition-all">
+                            <label className="block text-[10px] sm:text-[11px] font-extrabold text-[#7a889b] dark:text-gray-400 uppercase tracking-wider mb-1">
+                                E-mail ou @Nickname
+                            </label>
+                            <div className="flex items-center gap-2">
+                                <User className="w-4 h-4 text-[#7a889b] dark:text-gray-500 shrink-0" />
+                                <input
+                                    type="text"
+                                    value={loginIdentifier}
+                                    onChange={(e) => setLoginIdentifier(e.target.value)}
+                                    placeholder="seu.email@exemplo.com ou @seu_usuario"
+                                    className="w-full bg-transparent border-none focus:outline-none text-[#3b475c] dark:text-white font-semibold text-xs sm:text-sm placeholder-[#9aa6b8] dark:placeholder-gray-500"
+                                    required
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    {/* Login Form */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Field 1: Email or Nickname */}
-                        <div className="space-y-1.5">
-                            <label className="block text-[10px] font-bold text-app-graytext dark:text-gray-400 uppercase tracking-wider">
-                                E-mail ou @Nickname
-                            </label>
-                            <input
-                                type="text"
-                                name="login"
-                                value={login}
-                                onChange={(e) => setLogin(e.target.value)}
-                                placeholder="seu.email@exemplo.com ou @seu_usuario"
-                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-app-navy dark:text-white placeholder:text-app-graytext/60 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-slate-900 focus:border-app-teal focus:ring-2 focus:ring-app-teal/20 outline-none transition"
-                                required
-                            />
-                        </div>
-
-                        {/* Field 2: Password with Show/Hide toggle */}
-                        <div className="space-y-1.5">
-                            <label className="block text-[10px] font-bold text-app-graytext dark:text-gray-400 uppercase tracking-wider">
+                    {/* Input Senha */}
+                    <div>
+                        <div className="bg-[#eff3f6] dark:bg-[#111827] border border-[#dbe3ec] dark:border-gray-700/80 rounded-xl px-4 py-2.5 sm:py-3 focus-within:border-[#4bb9a6] focus-within:ring-2 focus-within:ring-[#4bb9a6]/20 transition-all">
+                            <label className="block text-[10px] sm:text-[11px] font-extrabold text-[#7a889b] dark:text-gray-400 uppercase tracking-wider mb-1">
                                 Senha
                             </label>
-                            <div className="relative flex items-center">
+                            <div className="flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-[#7a889b] dark:text-gray-500 shrink-0" />
                                 <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    name="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    type={showLoginPassword ? 'text' : 'password'}
+                                    value={loginPassword}
+                                    onChange={(e) => setLoginPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full px-4 py-3 pr-11 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-app-navy dark:text-white placeholder:text-app-graytext/60 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-slate-900 focus:border-app-teal focus:ring-2 focus:ring-app-teal/20 outline-none transition"
+                                    className="w-full bg-transparent border-none focus:outline-none text-[#3b475c] dark:text-white font-semibold text-xs sm:text-sm placeholder-[#9aa6b8] dark:placeholder-gray-500"
                                     required
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3.5 text-slate-400 hover:text-app-navy dark:hover:text-white cursor-pointer p-1 transition-colors"
-                                    aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
+                                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                                    aria-label={showLoginPassword ? 'Ocultar senha' : 'Ver senha'}
+                                    className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer rounded-lg shrink-0"
                                 >
-                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Forgot Password Link */}
-                        <div className="flex justify-end pt-0.5">
-                            <Link
-                                href="/forgot-password"
-                                className="text-xs font-semibold text-app-teal hover:brightness-90 transition-colors"
-                            >
-                                Esqueceu a senha?
-                            </Link>
-                        </div>
+                    {/* Esqueceu a Senha */}
+                    <div className="flex justify-end pt-0.5">
+                        <Link
+                            href="/forgot-password"
+                            className="text-xs font-bold text-[#4bb9a6] hover:text-[#3aa895] hover:underline transition-all cursor-pointer bg-transparent border-none p-0"
+                        >
+                            Esqueceu a senha?
+                        </Link>
+                    </div>
 
-                        {/* Submit Button */}
-                        <div className="pt-2">
-                            <button
-                                type="submit"
-                                className="w-full py-3.5 bg-app-teal hover:brightness-95 text-white font-bold rounded-xl shadow-md hover:shadow-lg uppercase tracking-wider text-sm transition-all cursor-pointer active:scale-[0.99]"
-                            >
-                                Entrar
-                            </button>
-                        </div>
+                    {/* Botão Entrar */}
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-[#4bb9a6] hover:bg-[#3aa895] text-white font-bold py-3.5 rounded-xl shadow-[0_4px_16px_rgba(75,185,166,0.35)] transition-all text-xs sm:text-sm cursor-pointer active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2"
+                    >
+                        {isSubmitting ? (
+                            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <>
+                                <span>ENTRAR NA PLATAFORMA</span>
+                                <ArrowRight size={16} />
+                            </>
+                        )}
+                    </button>
+                </form>
 
-                        {/* Divider */}
-                        <div className="text-center pt-2">
-                            <span className="text-xs text-app-graytext dark:text-gray-400">
-                                Ainda não participa do desafio?
-                            </span>
-                        </div>
-
-                        {/* Create Account Button */}
-                        <div>
-                            <Link
-                                href="/register"
-                                className="w-full py-3 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-app-navy dark:text-gray-200 font-bold rounded-xl text-xs uppercase tracking-wider transition-colors cursor-pointer text-center block"
-                            >
-                                Criar Nova Conta
-                            </Link>
-                        </div>
-                    </form>
+                {/* Alternar para Cadastro */}
+                <div className="mt-5 text-center border-t border-[#dbe3ec] dark:border-gray-800 pt-5 transition-colors">
+                    <p className="text-xs font-medium text-[#7a889b] dark:text-gray-400 mb-2.5">
+                        Ainda não tem conta no PONTUA?
+                    </p>
+                    <Link
+                        href="/register"
+                        className="w-full bg-white dark:bg-[#111827] hover:bg-gray-50 dark:hover:bg-gray-800 text-[#3b475c] dark:text-white font-bold py-3 rounded-xl border border-[#dbe3ec] dark:border-gray-700 transition-all cursor-pointer text-xs sm:text-sm uppercase tracking-wider text-center block"
+                    >
+                        CRIAR CONTA GRATUITAMENTE
+                    </Link>
                 </div>
             </div>
-        </div>
+        </AuthLayout>
     );
 };
 
