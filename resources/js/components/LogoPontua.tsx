@@ -11,27 +11,27 @@ export const PontuaLogoIcon: React.FC<{
     size?: number | string;
     className?: string;
     alt?: string;
-}> = ({ size = 36, className = '', alt = 'Logo Pontua' }) => {
+}> = ({ size = 40, className = '', alt = 'Logo Pontua' }) => {
     return (
         <img
             src={logo}
             alt={alt}
             style={{ width: size, height: size }}
-            className={`shrink-0 rounded-xl shadow-md shadow-app-teal/30 ${className}`}
+            className={`shrink-0 drop-shadow-sm ${className}`}
         />
     );
 };
 
 const LogoPontua: React.FC<LogoPontuaProps> = ({
     className = '',
-    iconSize = 36,
+    iconSize = 40,
     showText = true,
-    textClassName = 'text-lg sm:text-xl font-extrabold tracking-tight text-app-navy dark:text-white',
+    textClassName = 'text-xl sm:text-2xl font-black tracking-tight text-app-navy dark:text-white',
     ...props
 }) => {
     return (
         <div
-            className={`inline-flex items-center gap-2.5 select-none ${className}`}
+            className={`inline-flex items-center gap-3 select-none ${className}`}
             {...props}
         >
             <PontuaLogoIcon size={iconSize} />

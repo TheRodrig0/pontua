@@ -50,10 +50,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                         className="shrink-0 hover:opacity-90 transition-opacity"
                         title="PONTUA - Início"
                     >
-                        <LogoPontua
-                            iconSize={30}
-                            textClassName="text-base sm:text-xl font-extrabold tracking-tight text-app-navy dark:text-white"
-                        />
+                        <LogoPontua />
                     </Link>
 
                     <div className="flex items-center gap-2 sm:gap-4 shrink-0">
