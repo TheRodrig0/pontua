@@ -18,7 +18,6 @@ use Laravel\Sanctum\HasApiTokens;
     'nick',
     'email',
     'password',
-    'role',
     'avatar_url',
     'scan_streak',
     'longest_streak',

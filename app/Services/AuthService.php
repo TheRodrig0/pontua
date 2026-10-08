@@ -16,14 +16,26 @@ class AuthService
             'password' => $data['password'],
         ];
 
-        if (! Auth::attempt($credentials, true)) {
+        $isInvalidCredentials = !Auth::attempt($credentials, true);
+        if ($isInvalidCredentials) {
             abort(401, 'As credenciais fornecidas estão incorretas.');
         }
 
-        request()->session()->regenerate();
+        $hasSession = request()->hasSession();
+        if ($hasSession) {
+            request()->session()
+                ->regenerate();
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        $token = $user->createToken('auth_token')
+            ->plainTextToken;
 
         return [
-            'user' => Auth::user(),
+            'user' => $user,
+            'token' => $token,
             'message' => 'Autenticado com sucesso.',
         ];
     }
@@ -31,18 +43,28 @@ class AuthService
     public function register(array $data): array
     {
         return DB::transaction(function () use ($data) {
-            $user = User::create([
+            $user = new User([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => $data['password'],
-                'role' => UserRole::USER,
             ]);
+            $user->role = UserRole::USER;
+            $user->save();
 
             Auth::login($user, true);
-            request()->session()->regenerate();
+
+            $hasSession = request()->hasSession();
+            if ($hasSession) {
+                request()->session()
+                    ->regenerate();
+            }
+
+            $token = $user->createToken('auth_token')
+                ->plainTextToken;
 
             return [
                 'user' => $user,
+                'token' => $token,
                 'message' => 'Cadastro realizado com sucesso.',
             ];
         });
@@ -50,9 +72,27 @@ class AuthService
 
     public function logout(?User $user = null): array
     {
-        Auth::logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
+        $currentUser = $user ?? Auth::user();
+
+        if ($currentUser) {
+            $currentUser->currentAccessToken()
+                    ?->delete();
+        }
+
+        $isWebAuthenticated = Auth::guard('web')->check();
+        if ($isWebAuthenticated) {
+            Auth::guard('web')
+                ->logout();
+        }
+
+        $hasSession = request()->hasSession();
+        if ($hasSession) {
+            request()->session()
+                ->invalidate();
+
+            request()->session()
+                ->regenerateToken();
+        }
 
         return [
             'message' => 'Desconectado com sucesso.',
