@@ -4,31 +4,27 @@ namespace App\Services;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
     public function login(array $data): array
     {
-        $user = User::where('email', $data['email'])
-            ->first();
+        $credentials = [
+            'email' => $data['email'],
+            'password' => $data['password'],
+        ];
 
-        $isValidPassword = Hash::check(
-            $data['password'] ?? '',
-            $user->password ?? ''
-        );
-
-        if (! $user || ! $isValidPassword) {
+        if (! Auth::attempt($credentials, true)) {
             abort(401, 'As credenciais fornecidas estão incorretas.');
         }
 
-        $token = $user->createToken('auth_token')
-            ->plainTextToken;
+        request()->session()->regenerate();
 
         return [
-            'user' => $user,
-            'token' => $token,
+            'user' => Auth::user(),
+            'message' => 'Autenticado com sucesso.',
         ];
     }
 
@@ -42,20 +38,21 @@ class AuthService
                 'role' => UserRole::USER,
             ]);
 
-            $token = $user->createToken('auth_token')
-                ->plainTextToken;
+            Auth::login($user, true);
+            request()->session()->regenerate();
 
             return [
                 'user' => $user,
-                'token' => $token,
+                'message' => 'Cadastro realizado com sucesso.',
             ];
         });
     }
 
-    public function logout(User $user): array
+    public function logout(?User $user = null): array
     {
-        $user->currentAccessToken()
-            ->delete();
+        Auth::logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
 
         return [
             'message' => 'Desconectado com sucesso.',

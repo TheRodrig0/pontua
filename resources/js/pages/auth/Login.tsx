@@ -1,119 +1,106 @@
 import React, { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import { Eye, EyeOff, User, Lock, ArrowRight } from 'lucide-react';
+import { User, Lock } from 'lucide-react';
 import AuthLayout from '@/components/auth/AuthLayout';
 import FeedbackBanner, { FeedbackState } from '@/components/auth/FeedbackBanner';
+import AuthInput from '@/components/auth/AuthInput';
+import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
 
 const Login: React.FC = () => {
-    const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false);
     const [feedback, setFeedback] = useState<FeedbackState | null>(null);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     const [loginIdentifier, setLoginIdentifier] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
 
-    const handleLoginSubmit = (e: React.FormEvent) => {
+    const handleLoginSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setFeedback(null);
 
-        setTimeout(() => {
-            setIsSubmitting(false);
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({
+                    email: loginIdentifier,
+                    password: loginPassword,
+                }),
+            });
+
+            const data = await response.json();
+            const isResponseError = !response.ok;
+
+            if (isResponseError) {
+                throw new Error(data.message || 'As credenciais fornecidas estão incorretas.');
+            }
+
             router.visit('/dashboard');
-        }, 250);
+        } catch (error: any) {
+            setFeedback({
+                type: 'error',
+                message: error.message || 'Falha ao autenticar. Tente novamente.',
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <AuthLayout currentPage="login">
-            <div className="bg-white dark:bg-[#1e2532] rounded-2xl p-6 sm:p-8 shadow-xl border border-[#dbe3ec] dark:border-gray-800 transition-colors">
-                {/* Banner de Feedback */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl border border-slate-200/80 dark:border-slate-700/80 transition-colors">
                 <FeedbackBanner feedback={feedback} onDismiss={() => setFeedback(null)} />
 
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
-                    {/* Input E-mail / Nickname */}
-                    <div>
-                        <div className="bg-[#eff3f6] dark:bg-[#111827] border border-[#dbe3ec] dark:border-gray-700/80 rounded-xl px-4 py-2.5 sm:py-3 focus-within:border-[#4bb9a6] focus-within:ring-2 focus-within:ring-[#4bb9a6]/20 transition-all">
-                            <label className="block text-[10px] sm:text-[11px] font-extrabold text-[#7a889b] dark:text-gray-400 uppercase tracking-wider mb-1">
-                                E-mail ou @Nickname
-                            </label>
-                            <div className="flex items-center gap-2">
-                                <User className="w-4 h-4 text-[#7a889b] dark:text-gray-500 shrink-0" />
-                                <input
-                                    type="text"
-                                    value={loginIdentifier}
-                                    onChange={(e) => setLoginIdentifier(e.target.value)}
-                                    placeholder="seu.email@exemplo.com ou @seu_usuario"
-                                    className="w-full bg-transparent border-none focus:outline-none text-[#3b475c] dark:text-white font-semibold text-xs sm:text-sm placeholder-[#9aa6b8] dark:placeholder-gray-500"
-                                    required
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    <AuthInput
+                        id="login-identifier"
+                        label="E-mail ou @Nickname"
+                        icon={User}
+                        type="text"
+                        value={loginIdentifier}
+                        onChange={(e) => setLoginIdentifier(e.target.value)}
+                        placeholder="seu.email@exemplo.com ou @seu_usuario"
+                        required
+                    />
 
-                    {/* Input Senha */}
-                    <div>
-                        <div className="bg-[#eff3f6] dark:bg-[#111827] border border-[#dbe3ec] dark:border-gray-700/80 rounded-xl px-4 py-2.5 sm:py-3 focus-within:border-[#4bb9a6] focus-within:ring-2 focus-within:ring-[#4bb9a6]/20 transition-all">
-                            <label className="block text-[10px] sm:text-[11px] font-extrabold text-[#7a889b] dark:text-gray-400 uppercase tracking-wider mb-1">
-                                Senha
-                            </label>
-                            <div className="flex items-center gap-2">
-                                <Lock className="w-4 h-4 text-[#7a889b] dark:text-gray-500 shrink-0" />
-                                <input
-                                    type={showLoginPassword ? 'text' : 'password'}
-                                    value={loginPassword}
-                                    onChange={(e) => setLoginPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full bg-transparent border-none focus:outline-none text-[#3b475c] dark:text-white font-semibold text-xs sm:text-sm placeholder-[#9aa6b8] dark:placeholder-gray-500"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowLoginPassword(!showLoginPassword)}
-                                    aria-label={showLoginPassword ? 'Ocultar senha' : 'Ver senha'}
-                                    className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer rounded-lg shrink-0"
-                                >
-                                    {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <AuthInput
+                        id="login-password"
+                        label="Senha"
+                        icon={Lock}
+                        type="password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        placeholder="••••••••"
+                        required
+                    />
 
-                    {/* Esqueceu a Senha */}
                     <div className="flex justify-end pt-0.5">
                         <Link
                             href="/forgot-password"
-                            className="text-xs font-bold text-[#4bb9a6] hover:text-[#3aa895] hover:underline transition-all cursor-pointer bg-transparent border-none p-0"
+                            className="text-xs font-bold text-app-teal hover:underline transition-all"
                         >
                             Esqueceu a senha?
                         </Link>
                     </div>
 
-                    {/* Botão Entrar */}
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full bg-[#4bb9a6] hover:bg-[#3aa895] text-white font-bold py-3.5 rounded-xl shadow-[0_4px_16px_rgba(75,185,166,0.35)] transition-all text-xs sm:text-sm cursor-pointer active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2"
-                    >
-                        {isSubmitting ? (
-                            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                            <>
-                                <span>ENTRAR NA PLATAFORMA</span>
-                                <ArrowRight size={16} />
-                            </>
-                        )}
-                    </button>
+                    <AuthSubmitButton isSubmitting={isSubmitting}>
+                        Entrar na plataforma
+                    </AuthSubmitButton>
                 </form>
 
-                {/* Alternar para Cadastro */}
-                <div className="mt-5 text-center border-t border-[#dbe3ec] dark:border-gray-800 pt-5 transition-colors">
-                    <p className="text-xs font-medium text-[#7a889b] dark:text-gray-400 mb-2.5">
+                <div className="mt-5 text-center border-t border-slate-200/80 dark:border-slate-700/80 pt-5 transition-colors">
+                    <p className="text-xs font-medium text-app-graytext dark:text-gray-400 mb-2.5">
                         Ainda não tem conta no PONTUA?
                     </p>
                     <Link
                         href="/register"
-                        className="w-full bg-white dark:bg-[#111827] hover:bg-gray-50 dark:hover:bg-gray-800 text-[#3b475c] dark:text-white font-bold py-3 rounded-xl border border-[#dbe3ec] dark:border-gray-700 transition-all cursor-pointer text-xs sm:text-sm uppercase tracking-wider text-center block"
+                        className="w-full bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-app-navy dark:text-white font-bold py-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm uppercase tracking-wider text-center block"
                     >
-                        CRIAR CONTA GRATUITAMENTE
+                        Criar conta gratuitamente
                     </Link>
                 </div>
             </div>
