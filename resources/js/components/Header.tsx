@@ -30,10 +30,7 @@ const Header: React.FC = () => {
                     className="shrink-0"
                     onClick={() => handleNavClick(navItems[0].href)}
                 >
-                    <LogoPontua
-                        iconSize={30}
-                        textClassName="text-base sm:text-xl font-extrabold tracking-tight text-app-navy dark:text-white"
-                    />
+                    <LogoPontua />
                 </Link>
 
                 {/* 2. Centro: Navegação Desktop */}
