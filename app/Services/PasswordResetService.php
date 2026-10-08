@@ -14,7 +14,8 @@ class PasswordResetService
     {
         $status = Password::sendResetLink($data);
 
-        if ($status !== Password::RESET_LINK_SENT) {
+        $isSent = $status === Password::RESET_LINK_SENT;
+        if (! $isSent) {
             throw ValidationException::withMessages([
                 'email' => [__($status)],
             ]);
@@ -40,7 +41,8 @@ class PasswordResetService
             }
         );
 
-        if ($status !== Password::PASSWORD_RESET) {
+        $isReset = $status === Password::PASSWORD_RESET;
+        if (! $isReset) {
             throw ValidationException::withMessages([
                 'email' => [__($status)],
             ]);
