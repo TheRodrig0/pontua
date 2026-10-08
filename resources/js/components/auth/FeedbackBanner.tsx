@@ -12,33 +12,40 @@ interface FeedbackBannerProps {
 }
 
 export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, onDismiss }) => {
-    if (!feedback) return null;
+    const hasFeedback = Boolean(feedback);
+    if (!hasFeedback) {
+        return null;
+    }
+
+    const isSuccess = feedback?.type === 'success';
+    const isError = feedback?.type === 'error';
+    const isInfo = feedback?.type === 'info';
 
     return (
         <div
-            className={`mb-4 p-3 rounded-2xl flex items-start gap-2.5 text-xs sm:text-sm font-medium transition-all ${
-                feedback.type === 'success'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                    : feedback.type === 'error'
-                    ? 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
-                    : 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+            className={`mb-4 p-3.5 rounded-xl flex items-start gap-2.5 text-xs sm:text-sm font-medium transition-all ${
+                isSuccess
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
+                    : isError
+                    ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60'
+                    : 'bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800/60'
             }`}
         >
-            {feedback.type === 'success' && (
+            {isSuccess && (
                 <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
             )}
-            {feedback.type === 'error' && (
-                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600 dark:text-red-400" />
+            {isError && (
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-rose-600 dark:text-rose-400" />
             )}
-            {feedback.type === 'info' && (
-                <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-blue-600 dark:text-blue-400" />
+            {isInfo && (
+                <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-app-teal" />
             )}
-            <div className="flex-1 leading-snug">{feedback.message}</div>
+            <div className="flex-1 leading-snug">{feedback?.message}</div>
             <button
                 type="button"
                 onClick={onDismiss}
                 aria-label="Fechar mensagem"
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer p-0.5"
+                className="text-app-graytext hover:text-app-navy dark:hover:text-gray-200 cursor-pointer p-0.5 transition-colors rounded"
             >
                 <X className="w-3.5 h-3.5" />
             </button>
