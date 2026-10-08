@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\TaxReceiptStatus;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class UserService
 {
@@ -26,7 +27,8 @@ class UserService
 
     public function update(User $user, array $data): User
     {
-        if (isset($data['avatar_id'])) {
+        $hasAvatarId = isset($data['avatar_id']);
+        if ($hasAvatarId) {
             $data['avatar_url'] = asset("avatars/{$data['avatar_id']}.png");
             unset($data['avatar_id']);
         }
@@ -38,10 +40,15 @@ class UserService
 
     public function delete(User $user): array
     {
-        $user->tokens()
-            ->delete();
+        DB::transaction(function () use ($user) {
+            $user->tokens()
+                ->delete();
 
-        $user->delete();
+            $user->donationsReceived()
+                ->delete();
+
+            $user->delete();
+        });
 
         $successPayload = [
             'message' => 'Conta deletada com sucesso.',
@@ -49,5 +56,4 @@ class UserService
 
         return $successPayload;
     }
-
 }
