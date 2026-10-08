@@ -15,13 +15,24 @@ class NfceScraper
         $timeout = 10;
         $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
 
-        $response = Http::withoutVerifying()
-            ->withUserAgent($userAgent)
+        $response = Http::withUserAgent($userAgent)
             ->timeout($timeout)
             ->get($url)
             ->throw();
 
-        $crawler = new Crawler($response->body());
+        $body = $response->body();
+        $maxBodyBytes = 2 * 1024 * 1024;
+        $isPayloadTooLarge = strlen($body) > $maxBodyBytes;
+        if ($isPayloadTooLarge) {
+            return [
+                'status' => SefazReceiptStatus::NOT_FOUND,
+                'rejectionReason' => 'Tamanho de resposta da SEFAZ excede o limite de segurança.',
+                'value' => 0,
+                'issueDate' => null,
+            ];
+        }
+
+        $crawler = new Crawler($body);
 
         $errorStatuses = [
             '.panelConsulta, #Conteudo_txtChaveAcesso' => SefazReceiptStatus::NOT_FOUND,
@@ -30,7 +41,8 @@ class NfceScraper
         ];
 
         foreach ($errorStatuses as $selector => $status) {
-            $hasError = $crawler->filter($selector)->count() > 0;
+            $hasError = $crawler->filter($selector)
+                ->count() > 0;
 
             if ($hasError) {
                 return [
@@ -55,7 +67,8 @@ class NfceScraper
         $text = $crawler->filter('#totalNota .txtMax')
             ->text('');
 
-        if (!$text) {
+        $isEmptyText = ! $text;
+        if ($isEmptyText) {
             return null;
         }
 
@@ -64,7 +77,8 @@ class NfceScraper
             ->replace(',', '.')
             ->trim();
 
-        if (is_numeric($normalized)) {
+        $isNumeric = is_numeric($normalized);
+        if ($isNumeric) {
             return (float) $normalized;
         }
 
@@ -78,7 +92,8 @@ class NfceScraper
 
         $date = Str::match('/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}/', $text);
 
-        if ($date) {
+        $hasDate = (bool) $date;
+        if ($hasDate) {
             return Carbon::createFromFormat('d/m/Y H:i:s', $date)
                 ->toDateTimeString();
         }
