@@ -20,6 +20,7 @@
    2. DESIGN TOKENS & CSS CUSTOM PROPERTIES (:root)
    ========================================================================== */
 :root {
+  color-scheme: light dark;
   /* Brand Core Palette */
   --color-primary: #4bb9a6;       /* Vibrant Teal - Ações principais e destaque */
   --color-primary-hover: #3da392; /* Teal escurecido para estados hover */
@@ -390,6 +391,10 @@
 /* ==========================================================================
    10. COMPREHENSIVE DARK MODE THEME SYSTEM
    ========================================================================== */
+
+html:not(.dark) {
+  color-scheme: light;
+}
 
 html.dark {
   color-scheme: dark;

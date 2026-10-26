@@ -23,6 +23,35 @@ class DonationService
         return $donation;
     }
 
+    public function searchUsers(int $currentUserId, string $search)
+    {
+        $trimmed = trim($search);
+        if ($trimmed === '') {
+            return collect();
+        }
+
+        $startsWithAt = str_starts_with($trimmed, '@');
+        $term = ltrim($trimmed, '@');
+
+        $query = User::query()
+            ->select(['id', 'name', 'nick', 'avatar_url'])
+            ->where('id', '!=', $currentUserId);
+
+        if ($startsWithAt) {
+            $query->whereNotNull('nick');
+            if ($term !== '') {
+                $query->where('nick', 'like', "%{$term}%");
+            }
+        } else {
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                    ->orWhere('nick', 'like', "%{$term}%");
+            });
+        }
+
+        return $query->orderBy('name')->limit(15)->get();
+    }
+
     public function create(int $userId, array $data): Donation
     {
         $donationSucessfull = DB::transaction(function () use ($userId, $data) {

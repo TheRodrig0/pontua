@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BPMN 2.0 — Processo de Doação e Resgate Pontua</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #1e293b;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      z-index: 10;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      background-color: #3b82f6;
+      color: #ffffff;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 500;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      background-color: #475569;
+      border-color: #64748b;
+    }
+
+    button.primary {
+      background-color: #2563eb;
+      border-color: #3b82f6;
+    }
+
+    button.primary:hover {
+      background-color: #1d4ed8;
+    }
+
+    button.secondary {
+      background-color: #0f766e;
+      border-color: #14b8a6;
+    }
+
+    button.secondary:hover {
+      background-color: #115e59;
+    }
+
+    button.purple {
+      background-color: #7c3aed;
+      border-color: #8b5cf6;
+    }
+
+    button.purple:hover {
+      background-color: #6d28d9;
+    }
+
+    button.emerald {
+      background-color: #059669;
+      border-color: #10b981;
+    }
+
+    button.emerald:hover {
+      background-color: #047857;
+    }
+
+    #viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+      background: radial-gradient(circle, #1e293b 10%, #0f172a 90%);
+    }
+
+    #viewport:active {
+      cursor: grabbing;
+    }
+
+    #svg-container {
+      transform-origin: 0 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: transform 0.05s ease-out;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    #info-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>
+      <span>📊 Mapa de Processo BPMN 2.0 — Doação e Resgate</span>
+      <span class="badge">Visualização Unificada &amp; Semântica Perfeita</span>
+    </h1>
+    <div class="controls">
+      <button onclick="zoomIn()">➕ Zoom In</button>
+      <button onclick="zoomOut()">➖ Zoom Out</button>
+      <button onclick="resetZoom()">↺ 100%</button>
+      <button class="primary" onclick="downloadPNG(2)">📄 PNG Word Web (2x)</button>
+      <button class="primary" style="background-color: #0284c7; border-color: #38bdf8;" onclick="copyToClipboard(2)">📋
+        Copiar p/ Word (Ctrl+V)</button>
+      <button class="purple" onclick="downloadPNG(4)">🌟 PNG 4x</button>
+      <button class="emerald" onclick="downloadPNG(8)">🔥 PNG 8x Máxima</button>
+      <button class="secondary" onclick="downloadSVG()">📐 Vetor SVG</button>
+    </div>
+  </header>
+
+  <div id="viewport">
+    <div id="svg-container">
+      <svg id="bpmn-svg" xmlns="http://www.w3.org/2000/svg" width="2350" height="980" viewBox="0 0 2350 980"
+        preserveAspectRatio="xMidYMid meet"
+        style="background-color: #ffffff; font-family: Arial, Helvetica, sans-serif; text-rendering: geometricPrecision; shape-rendering: geometricPrecision;">
+        <style>
+          text {
+            font-family: Arial, Helvetica, sans-serif;
+            user-select: none;
+          }
+
+          .pool-title {
+            font-weight: bold;
+            fill: #000000;
+            letter-spacing: 1.5px;
+            font-size: 20px;
+          }
+
+          .lane-label {
+            font-weight: bold;
+            fill: #000000;
+            font-size: 17px;
+          }
+
+          .task-title {
+            font-weight: 600;
+            font-size: 15.5px;
+            fill: #000000;
+            text-anchor: middle;
+            dominant-baseline: middle;
+          }
+
+          .gw-label {
+            font-weight: bold;
+            font-size: 15px;
+            fill: #000000;
+            text-anchor: middle;
+          }
+
+          .cond-label {
+            font-weight: bold;
+            font-size: 14px;
+            fill: #000000;
+          }
+
+          .event-label {
+            font-weight: bold;
+            font-size: 15px;
+            fill: #000000;
+            text-anchor: middle;
+          }
+        </style>
+
+        <defs>
+          <!-- PONTA DE SETA PRETA SÓLIDA NÍTIDA -->
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#000000" stroke="#000000" stroke-width="0.5" />
+          </marker>
+        </defs>
+
+        <!-- FUNDO TOTALMENTE BRANCO CONTÍNUO (SEM BARRAS ESCURAS) -->
+        <rect width="100%" height="100%" fill="#ffffff" />
+
+        <!-- ==================== POOL PRINCIPAL UNIFICADO ==================== -->
+        <rect x="20" y="20" width="2310" height="940" fill="#ffffff" stroke="#000000" stroke-width="1.5" />
+        <rect x="20" y="20" width="40" height="940" fill="#ffffff" stroke="#000000" stroke-width="1.5" />
+        <text x="-490" y="45" transform="rotate(-90)" class="pool-title" text-anchor="middle">
+          DOAÇÃO DE NOTAS FISCAIS E RESGATE DE PRÊMIOS
+        </text>
+
+        <!-- Divisórias das 4 Raias (Cinza médio nítido #64748b) -->
+        <line x1="60" y1="280" x2="2330" y2="280" stroke="#64748b" stroke-width="1.2" />
+        <line x1="60" y1="650" x2="2330" y2="650" stroke="#64748b" stroke-width="1.2" />
+        <line x1="60" y1="830" x2="2330" y2="830" stroke="#64748b" stroke-width="1.2" />
+
+        <!-- Cabeçalhos das Raias -->
+        <rect x="60" y="20" width="35" height="260" fill="#ffffff" stroke="#64748b" stroke-width="1.2" />
+        <text x="-150" y="82" transform="rotate(-90)" class="lane-label" text-anchor="middle">Comunidade Acadêmica (Doador)</text>
+
+        <rect x="60" y="280" width="35" height="370" fill="#ffffff" stroke="#64748b" stroke-width="1.2" />
+        <text x="-465" y="82" transform="rotate(-90)" class="lane-label" text-anchor="middle">Sistema Pontua</text>
+
+        <rect x="60" y="650" width="35" height="180" fill="#ffffff" stroke="#64748b" stroke-width="1.2" />
+        <text x="-740" y="82" transform="rotate(-90)" class="lane-label" text-anchor="middle">Administração</text>
+
+        <rect x="60" y="830" width="35" height="130" fill="#ffffff" stroke="#64748b" stroke-width="1.2" />
+        <text x="-895" y="82" transform="rotate(-90)" class="lane-label" text-anchor="middle">APAE</text>
+
+
+        <!-- ==================== CAMADA 1: FORMAS E ELEMENTOS ==================== -->
+        <!-- RAIA 1: COMUNIDADE ACADÊMICA (DOADOR) -->
+        <circle cx="110" cy="85" r="14" fill="#d5e8d4" stroke="#82b366" stroke-width="1.5" />
+        <rect x="140" y="56" width="95" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <polygon points="286,67 304,85 286,103 268,85" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+
+        <!-- Gateway Deseja realizar cadastro? -->
+        <polygon points="286,142 304,160 286,178 268,160" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+        <circle cx="286" cy="235" r="12" fill="#f8cecc" stroke="#b85450" stroke-width="3" />
+        <rect x="140" y="131" width="95" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <rect x="345" y="56" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- Retorno de recusa na Raia 1 (Puxado para a direita com folga ampla após x=490) -->
+        <rect x="517.5" y="56" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <circle cx="700" cy="85" r="13" fill="#f8cecc" stroke="#b85450" stroke-width="3.5" />
+
+        <!-- Receber pontos na Raia 1 -->
+        <rect x="1058" y="56" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- GATEWAY OU UNIFICADO (XOR com 'X'): Como deseja utilizar os pontos? -->
+        <polygon points="1255,67 1273,85 1255,103 1237,85" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+        <line x1="1248" y1="78" x2="1262" y2="92" stroke="#000000" stroke-width="2.2" />
+        <line x1="1262" y1="78" x2="1248" y2="92" stroke="#000000" stroke-width="2.2" />
+        <circle cx="1255" cy="190" r="13" fill="#f8cecc" stroke="#b85450" stroke-width="3.5" />
+
+        <!-- RAMO DOAR PONTOS: Informar destinatário e quantidade -->
+        <rect x="1315" y="160" width="150" height="62" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- RAMO RESGATAR: Acessar Loja de Itens -->
+        <rect x="1380" y="56" width="135" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- Gateway Tem Pontos Suficientes -->
+        <polygon points="1565,67 1583,85 1565,103 1547,85" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+        <circle cx="1565" cy="190" r="13" fill="#f8cecc" stroke="#b85450" stroke-width="3.5" />
+
+        <!-- Solicitar resgate de prêmio -->
+        <rect x="1637.5" y="56" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- AÇÃO DO DOADOR: Apresentar código de resgate na Administração -->
+        <rect x="1830" y="56" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+
+        <!-- RAIA 2: SISTEMA PONTUA -->
+        <!-- EMPILHAMENTO 1: Receber nota (topo) e Validar dados (baixo) -->
+        <rect x="345" y="303" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <rect x="345" y="386" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- Gateway Nota Válida? (Alinhado horizontalmente na linha central y=415) -->
+        <polygon points="590,397 608,415 590,433 572,415" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+
+        <!-- Gateway Paralelo (+) dividindo o fluxo do Doador e da APAE (Alinhado em y=415) -->
+        <polygon points="675,397 693,415 675,433 657,415" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+        <line x1="675" y1="405" x2="675" y2="425" stroke="#000000" stroke-width="2.5" />
+        <line x1="665" y1="415" x2="685" y2="415" stroke="#000000" stroke-width="2.5" />
+
+        <!-- Pontuação do Doador (Gateway Sequência em y=415, com folga ampla) -->
+        <polygon points="775,397 793,415 775,433 757,415" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+        <rect x="875" y="310" width="150" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <rect x="875" y="420" width="150" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <rect x="1058" y="386" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- SISTEMA: Validação de Saldo e Transferência (Ramo Doação de Pontos) -->
+        <polygon points="1390,327 1408,345 1390,363 1372,345" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+        <circle cx="1390" cy="440" r="12" fill="#f8cecc" stroke="#b85450" stroke-width="3" />
+        <rect x="1465" y="316" width="140" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <circle cx="1535" cy="440" r="12" fill="#f8cecc" stroke="#b85450" stroke-width="3" />
+
+        <!-- EMPILHAMENTO 2: Gerar código (topo) e Enviar e-mail (baixo) -->
+        <rect x="1637.5" y="303" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <rect x="1637.5" y="386" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- PROCESSO NOTURNO (ROTINA DE ENVIO DE LOTE À APAE LIGADA AO ARMAZENAMENTO) -->
+        <rect x="602.5" y="521" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+        <!-- Cronômetro Marrom: Evento Intermediário de Temporizador (Aguardar 00:00) -->
+        <circle cx="810" cy="550" r="15" fill="#ffe6cc" stroke="#b45309" stroke-width="1.6" />
+        <circle cx="810" cy="550" r="12" fill="none" stroke="#b45309" stroke-width="1.2" />
+        <line x1="810" y1="550" x2="810" y2="543" stroke="#78350f" stroke-width="1.6" stroke-linecap="round" />
+        <line x1="810" y1="550" x2="815" y2="550" stroke="#78350f" stroke-width="1.3" stroke-linecap="round" />
+        <circle cx="810" cy="550" r="1.2" fill="#78350f" />
+        <line x1="810" y1="539" x2="810" y2="541" stroke="#78350f" stroke-width="1" />
+        <line x1="810" y1="559" x2="810" y2="561" stroke="#78350f" stroke-width="1" />
+        <line x1="799" y1="550" x2="801" y2="550" stroke="#78350f" stroke-width="1" />
+        <line x1="819" y1="550" x2="821" y2="550" stroke="#78350f" stroke-width="1" />
+
+        <rect x="875" y="521" width="150" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <rect x="1058" y="521" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+
+
+        <!-- RAIA 3: ADMINISTRAÇÃO -->
+        <rect x="1830" y="711" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <polygon points="2025,722 2043,740 2025,758 2007,740" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+        <rect x="2110" y="665" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <rect x="2110" y="757" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <circle cx="2290" cy="740" r="12" fill="#f8cecc" stroke="#b85450" stroke-width="3" />
+
+
+        <!-- RAIA 4: APAE (Apenas recepção do lote externo e finalização) -->
+        <rect x="1058" y="866" width="145" height="58" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5" />
+        <circle cx="1240" cy="895" r="14" fill="#f8cecc" stroke="#b85450" stroke-width="3.5" />
+
+
+        <!-- ==================== CAMADA 2: LINHAS DE FLUXO DE SEQUÊNCIA ==================== -->
+        <!-- Raia 1 conexões -->
+        <path d="M 124 85 L 140 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 235 85 L 268 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 286 103 L 286 142" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 286 178 L 286 223" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 268 160 L 235 160" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 187.5 131 L 187.5 114" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 304 85 L 345 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 417.5 114 L 417.5 303" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Retorno recusa conexões: Visualizar motivo -> Fim -->
+        <path d="M 662.5 85 L 687 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Raia 2 conexões da doação (EMPILHADA E ALINHADA 100% RETILÍNEA) -->
+        <!-- Receber nota desce diretamente para Validar dados -->
+        <path d="M 417.5 361 L 417.5 386" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Validar dados sai pela direita e entra em linha reta horizontal no Gateway Nota Válida? -->
+        <path d="M 490 415 L 572 415" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Não do Nota Válida sobe direto para Visualizar motivo da recusa -->
+        <path d="M 590 397 L 590 114" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Sim do Nota Válida entra em linha reta horizontal no Gateway Paralelo (+) -->
+        <path d="M 608 415 L 657 415" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Ramo 1: Gateway Paralelo (+) vai em linha reta horizontal para Sequência Ativa do Doador -->
+        <path d="M 693 415 L 757 415" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Ramo 2: Gateway Paralelo (+) desce direto para Armazenar nota para envio à APAE -->
+        <path d="M 675 433 L 675 521" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Sequência Ativa e Cálculo de Pontos (Com folga limpa) -->
+        <path d="M 793 415 L 850 415 L 850 339 L 875 339" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 775 433 L 775 449 L 875 449" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 1025 339 L 1042 339 L 1042 405 L 1058 405" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 1025 449 L 1042 449 L 1042 425 L 1058 425" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 1130.5 386 L 1130.5 114" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Decisão de Uso dos Pontos: Gateway OU Unificado -->
+        <path d="M 1203 85 L 1237 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Ramo Manter Saldo: desce para o Fim -->
+        <path d="M 1255 103 L 1255 177" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- RAMO DOAR PONTOS: sai do Gateway OU e desce para Informar Destinatário -->
+        <path d="M 1273 85 L 1290 85 L 1290 191 L 1315 191" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Doador envia para o Sistema validar o saldo -->
+        <path d="M 1390 222 L 1390 327" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Gateway Saldo suficiente? -> Não (desce ao Fim) -->
+        <path d="M 1390 363 L 1390 428" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Gateway Saldo suficiente? -> Sim (vai para Transferir pontos) -->
+        <path d="M 1408 345 L 1465 345" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Transferir pontos desce ao Fim -->
+        <path d="M 1535 374 L 1535 428" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- RAMO RESGATAR PRÊMIO: segue reto para Loja de Itens -->
+        <path d="M 1273 85 L 1380 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 1515 85 L 1547 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Gateway Tem pontos suficientes -> Não (desce ao Fim) -->
+        <path d="M 1565 103 L 1565 177" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Gateway Tem pontos suficientes -> Sim (segue reto horizontal para Solicitar Resgate) -->
+        <path d="M 1583 85 L 1637.5 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Resgate desce para o Sistema (EMPILHADA: Gerar Código em cima, Enviar E-mail embaixo) -->
+        <path d="M 1710 114 L 1710 303" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <!-- Gerar código desce para Enviar e-mail -->
+        <path d="M 1710 361 L 1710 386" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Enviar e-mail com o código -> sobe para Doador apresentar código na Administração -->
+        <path d="M 1782.5 415 L 1805 415 L 1805 85 L 1830 85" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Doador apresenta código -> desce em LINHA RETA DIRETA para Administração validar -->
+        <path d="M 1902.5 114 L 1902.5 711" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Administração valida o código -->
+        <path d="M 1975 740 L 2007 740" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 2043 740 L 2075 740 L 2075 694 L 2110 694" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 2025 758 L 2025 786 L 2110 786" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 2255 694 L 2273 694 L 2273 740" fill="none" stroke="#000000" stroke-width="1.5" />
+        <path d="M 2255 786 L 2273 786 L 2273 740" fill="none" stroke="#000000" stroke-width="1.5" />
+        <path d="M 2273 740 L 2278 740" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Processamento do Lote Noturno (Ligado ao Armazenamento de Notas) -->
+        <path d="M 747.5 550 L 795 550" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 825 550 L 875 550" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M 1025 550 L 1058 550" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- Envio do lote do Sistema para a APAE (desce da Raia 2 para a Raia 4) -->
+        <path d="M 1130.5 579 L 1130.5 866" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- APAE recebe internamente e finaliza -->
+        <path d="M 1203 895 L 1226 895" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#arrow)" />
+
+
+        <!-- ==================== CAMADA 3: RÓTULOS E TEXTOS ==================== -->
+        <!-- Raia 1 Textos -->
+        <text x="110" y="115" class="event-label">Início</text>
+        <text x="187.5" y="75.5" class="task-title">Acessar</text>
+        <text x="187.5" y="94.5" class="task-title">Login</text>
+        <text x="286" y="48" class="gw-label">Tem cadastro?</text>
+        <text x="300" y="120" class="cond-label">Não</text>
+
+        <text x="312" y="145" style="font-weight: bold; font-size: 13.5px; fill: #000000; text-anchor: start;">Deseja</text>
+        <text x="312" y="160" style="font-weight: bold; font-size: 13.5px; fill: #000000; text-anchor: start;">realizar</text>
+        <text x="312" y="175" style="font-weight: bold; font-size: 13.5px; fill: #000000; text-anchor: start;">cadastro?</text>
+        <text x="251.5" y="148" class="cond-label" text-anchor="middle">Sim</text>
+        <text x="300" y="202" class="cond-label">Não</text>
+        <text x="286" y="264" class="event-label">Fim</text>
+
+        <text x="187.5" y="150.5" class="task-title">Realizar</text>
+        <text x="187.5" y="169.5" class="task-title">Cadastro</text>
+        <text x="324.5" y="74" class="cond-label" text-anchor="middle">Sim</text>
+        <text x="417.5" y="75.5" class="task-title">Fazer doação</text>
+        <text x="417.5" y="94.5" class="task-title">de notas</text>
+
+        <!-- Retorno recusa Textos (Perspectiva do Usuário na Raia 1) -->
+        <text x="590" y="75.5" class="task-title">Visualizar motivo</text>
+        <text x="590" y="94.5" class="task-title">da recusa</text>
+        <text x="700" y="115" class="event-label">Fim</text>
+
+        <!-- Raia 2 Textos -->
+        <!-- EMPILHAMENTO 1: Textos -->
+        <text x="417.5" y="322.5" class="task-title">Receber nota e</text>
+        <text x="417.5" y="341.5" class="task-title">enviar para a fila</text>
+        <text x="417.5" y="405.5" class="task-title">Validar dados</text>
+        <text x="417.5" y="424.5" class="task-title">da nota fiscal</text>
+
+        <text x="590" y="460" class="gw-label">Nota Válida?</text>
+        <text x="605" y="250" class="cond-label">Não</text>
+        <text x="632.5" y="405" class="cond-label" text-anchor="middle">Sim</text>
+
+        <!-- Streak e Pontos -->
+        <text x="775" y="362" class="gw-label" style="font-size: 14.5px;">Possui sequência</text>
+        <text x="775" y="380" class="gw-label" style="font-size: 14.5px;">de doação ativa?</text>
+        <text x="821.5" y="405" class="cond-label" text-anchor="middle">Sim</text>
+        <text x="950" y="329.5" class="task-title">Calcular pontos</text>
+        <text x="950" y="348.5" class="task-title">com multiplicador</text>
+        <text x="787" y="442" class="cond-label">Não</text>
+        <text x="950" y="439.5" class="task-title">Calcular</text>
+        <text x="950" y="458.5" class="task-title">pontos padrão</text>
+        <text x="1130.5" y="405.5" class="task-title">Creditar pontos</text>
+        <text x="1130.5" y="424.5" class="task-title">na carteira</text>
+
+        <!-- Rotina Noturna APAE -->
+        <text x="675" y="540.5" class="task-title">Armazenar nota</text>
+        <text x="675" y="559.5" class="task-title">para envio à APAE</text>
+
+        <text x="810" y="579" class="event-label">Aguardar</text>
+        <text x="810" y="595" class="event-label">Meia-Noite</text>
+        <text x="810" y="611" class="event-label">(00:00)</text>
+        <text x="950" y="540.5" class="task-title">Consolidar lote</text>
+        <text x="950" y="559.5" class="task-title">diário de notas</text>
+        <text x="1130.5" y="540.5" class="task-title">Enviar lote</text>
+        <text x="1130.5" y="559.5" class="task-title">para a APAE</text>
+
+        <!-- Recebimento dos Pontos -->
+        <text x="1130.5" y="75.5" class="task-title">Receber pontos</text>
+        <text x="1130.5" y="94.5" class="task-title">na carteira</text>
+
+        <!-- GATEWAY OU UNIFICADO: Deseja utilizar os pontos? -->
+        <text x="1255" y="42" class="gw-label">Deseja utilizar</text>
+        <text x="1255" y="58" class="gw-label">os pontos?</text>
+        <text x="1243" y="135" class="cond-label" text-anchor="end">Não</text>
+        <text x="1255" y="218" class="event-label">Fim</text>
+        <text x="1302" y="135" class="cond-label">Doar</text>
+        <text x="1335" y="74" class="cond-label" text-anchor="middle">Resgatar</text>
+
+        <!-- Ramo Doar Pontos (Formatado com 3 linhas balanceadas sem risco de estourar a caixa) -->
+        <text x="1390" y="173" class="task-title">Informar</text>
+        <text x="1390" y="191" class="task-title">destinatário</text>
+        <text x="1390" y="209" class="task-title">e quantidade</text>
+
+        <text x="1368" y="298" style="font-weight: bold; font-size: 15px; fill: #000000; text-anchor: end;">Saldo</text>
+        <text x="1368" y="316" style="font-weight: bold; font-size: 15px; fill: #000000; text-anchor: end;">suficiente?</text>
+        <text x="1402" y="390" class="cond-label">Não</text>
+        <text x="1390" y="466" class="event-label">Fim</text>
+        <text x="1436.5" y="335" class="cond-label" text-anchor="middle">Sim</text>
+
+        <text x="1535" y="335.5" class="task-title">Transferir pontos</text>
+        <text x="1535" y="354.5" class="task-title">ao destinatário</text>
+        <text x="1535" y="466" class="event-label">Fim</text>
+
+        <!-- Ramo Resgatar Prêmio -->
+        <text x="1447.5" y="75.5" class="task-title">Acessar Loja</text>
+        <text x="1447.5" y="94.5" class="task-title">de Itens</text>
+
+        <!-- Gateway Saldo suficiente? (Resgate) -->
+        <text x="1565" y="42" class="gw-label">Saldo</text>
+        <text x="1565" y="58" class="gw-label">suficiente?</text>
+        <text x="1577" y="135" class="cond-label">Não</text>
+        <text x="1565" y="218" class="event-label">Fim</text>
+        <text x="1610" y="74" class="cond-label" text-anchor="middle">Sim</text>
+
+        <!-- Resgate (EMPILHADA) -->
+        <text x="1710" y="75.5" class="task-title">Solicitar resgate</text>
+        <text x="1710" y="94.5" class="task-title">de prêmio</text>
+
+        <!-- EMPILHAMENTO 2: Textos -->
+        <text x="1710" y="322.5" class="task-title">Gerar código</text>
+        <text x="1710" y="341.5" class="task-title">de resgate</text>
+        <text x="1710" y="405.5" class="task-title">Enviar e-mail</text>
+        <text x="1710" y="424.5" class="task-title">com o código</text>
+
+        <!-- Atividade Humana do Doador -->
+        <text x="1902.5" y="75.5" class="task-title">Apresentar código</text>
+        <text x="1902.5" y="94.5" class="task-title">na Administração</text>
+
+        <!-- Administração Textos -->
+        <text x="1902.5" y="730.5" class="task-title">Validar código</text>
+        <text x="1902.5" y="749.5" class="task-title">de resgate</text>
+
+        <text x="2025" y="670" class="gw-label">Código</text>
+        <text x="2025" y="688" class="gw-label">válido?</text>
+        <text x="2092.5" y="684" class="cond-label" text-anchor="middle">Sim</text>
+        <text x="2182.5" y="684.5" class="task-title">Entregar prêmio</text>
+        <text x="2182.5" y="703.5" class="task-title">ao usuário</text>
+        <text x="2037" y="776" class="cond-label">Não</text>
+        <text x="2182.5" y="776.5" class="task-title">Recusar entrega</text>
+        <text x="2182.5" y="795.5" class="task-title">e orientar usuário</text>
+        <text x="2290" y="768" class="event-label">Fim</text>
+
+        <!-- APAE Textos -->
+        <text x="1130.5" y="885.5" class="task-title">Receber lote</text>
+        <text x="1130.5" y="904.5" class="task-title">de notas</text>
+        <text x="1240" y="925" class="event-label">Fim</text>
+
+      </svg>
+    </div>
+    <div id="info-bar">💡 Dica: Use a roda do mouse para zoom e clique + arraste para navegar.</div>
+  </div>
+
+  <canvas id="export-canvas" style="display: none;"></canvas>
+
+  <script>
+    let scale = 0.94;
+    let translateX = 20;
+    let translateY = 15;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    const container = document.getElementById('svg-container');
+    const viewport = document.getElementById('viewport');
+
+    function updateTransform() {
+      container.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }
+
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = 1.12;
+      const rect = viewport.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      let newScale = e.deltaY < 0 ? scale * zoomFactor : scale / zoomFactor;
+      newScale = Math.min(Math.max(0.3, newScale), 4.0);
+
+      translateX = mouseX - (mouseX - translateX) * (newScale / scale);
+      translateY = mouseY - (mouseY - translateY) * (newScale / scale);
+      scale = newScale;
+
+      updateTransform();
+    }, { passive: false });
+
+    viewport.addEventListener('mousedown', (e) => {
+      if (e.button === 0) {
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        updateTransform();
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    function zoomIn() {
+      scale = Math.min(scale * 1.25, 4.0);
+      updateTransform();
+    }
+
+    function zoomOut() {
+      scale = Math.max(scale / 1.25, 0.3);
+      updateTransform();
+    }
+
+    function resetZoom() {
+      scale = 0.94;
+      translateX = 20;
+      translateY = 15;
+      updateTransform();
+    }
+
+    function downloadPNG(scaleFactor = 4) {
+      const svg = document.getElementById('bpmn-svg');
+
+      // Clona o SVG e define dimensões absolutas escaladas
+      // Isso força o renderizador SVG nativo a rasterizar vetores e fontes diretamente na resolução alvo
+      const clonedSvg = svg.cloneNode(true);
+      const targetWidth = Math.round(2350 * scaleFactor);
+      const targetHeight = Math.round(980 * scaleFactor);
+      clonedSvg.setAttribute('width', targetWidth.toString());
+      clonedSvg.setAttribute('height', targetHeight.toString());
+
+      const svgData = new XMLSerializer().serializeToString(clonedSvg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const URL = window.URL || window.webkitURL || window;
+      const blobURL = URL.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.getElementById('export-canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+        const a = document.createElement('a');
+        a.download = `bpmn_doacao_pontua_${scaleFactor}x_${targetWidth}x${targetHeight}.png`;
+        a.href = canvas.toDataURL('image/png', 1.0);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobURL);
+      };
+      img.src = blobURL;
+    }
+
+    function downloadSVG() {
+      const svg = document.getElementById('bpmn-svg');
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const URL = window.URL || window.webkitURL || window;
+      const blobURL = URL.createObjectURL(svgBlob);
+
+      const a = document.createElement('a');
+      a.download = 'bpmn_doacao_pontua_vetorial.svg';
+      a.href = blobURL;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobURL);
+    }
+
+    async function copyToClipboard(scaleFactor = 2) {
+      const svg = document.getElementById('bpmn-svg');
+      const clonedSvg = svg.cloneNode(true);
+      const targetWidth = Math.round(2350 * scaleFactor);
+      const targetHeight = Math.round(980 * scaleFactor);
+      clonedSvg.setAttribute('width', targetWidth.toString());
+      clonedSvg.setAttribute('height', targetHeight.toString());
+
+      const svgData = new XMLSerializer().serializeToString(clonedSvg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const URL = window.URL || window.webkitURL || window;
+      const blobURL = URL.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.onload = async function () {
+        const canvas = document.getElementById('export-canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+        canvas.toBlob(async (blob) => {
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            alert('✅ Imagem copiada com sucesso! Basta ir no Word Web e pressionar Ctrl + V.');
+          } catch (err) {
+            console.error(err);
+            downloadPNG(scaleFactor);
+          }
+          URL.revokeObjectURL(blobURL);
+        }, 'image/png', 1.0);
+      };
+      img.src = blobURL;
+    }
+
+    updateTransform();
+  </script>
+</body>
+
+</html>

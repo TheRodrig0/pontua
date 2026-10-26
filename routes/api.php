@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\PasswordResetController;
@@ -44,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('donation')->group(function () {
         Route::get('/', [DonationController::class, 'index']);
+        Route::get('/users', [DonationController::class, 'searchUsers']);
         Route::post('/', [DonationController::class, 'create'])->middleware('throttle:30,1');
     });
 
@@ -61,5 +63,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('/{id}', [RewardController::class, 'update']);
             Route::delete('/{id}', [RewardController::class, 'destroy']);
         });
+    });
+
+    Route::prefix('admin')->middleware('can:admin')->group(function () {
+        Route::get('/overview', [AdminController::class, 'overview']);
+        Route::patch('/users/{id}', [AdminController::class, 'updateUser']);
     });
 });

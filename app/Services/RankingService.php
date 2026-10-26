@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class RankingService
 {
-    public function index(int $limit = 10): Collection
+    public function index(int $limit = 10): array
     {
         $cacheKey = "ranking_top_{$limit}";
         $timeToLive = now()->addMinutes(5);
@@ -30,7 +30,8 @@ class RankingService
                 ->each(function (User $user, int $index) {
                     $user->position = $index + 1;
                     $user->total_donated = (int) $user->total_donated;
-                });
+                })
+                ->toArray();
         });
 
         return $ranking;

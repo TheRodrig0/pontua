@@ -19,12 +19,14 @@ export function useTheme() {
 
         if (willBeDark) {
             document.documentElement.classList.add('dark');
+            document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', 'dark');
             localStorage.setItem('theme', 'dark');
             setIsDark(true);
             return;
         }
 
         document.documentElement.classList.remove('dark');
+        document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', 'light');
         localStorage.setItem('theme', 'light');
         setIsDark(false);
     };

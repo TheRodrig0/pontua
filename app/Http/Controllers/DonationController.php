@@ -25,6 +25,19 @@ class DonationController extends Controller
             ->json($donations);
     }
 
+    public function searchUsers(Request $request): JsonResponse
+    {
+        $userId = $request->user()->id;
+        $query = (string) $request->query('q', '');
+
+        $users = $this->donationService->searchUsers(
+            currentUserId: $userId,
+            search: $query,
+        );
+
+        return response()->json($users);
+    }
+
     public function create(CreateDonationRequest $request): JsonResponse
     {
         $userId = $request->user()->id;
