@@ -25,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
         $isProduction = $this->app->environment('production');
         if ($isProduction) {
             URL::forceScheme('https');
+
+            // Nunca expor stack traces, SQL ou caminhos em produção.
+            config(['app.debug' => false]);
         }
 
         Gate::define('admin', fn(User $user) => $user->isAdmin());

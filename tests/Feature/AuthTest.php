@@ -32,7 +32,6 @@ class AuthTest extends TestCase
                     'created_at',
                     'updated_at',
                 ],
-                'token',
             ]);
 
         $this->assertDatabaseHas('users', [
@@ -166,19 +165,21 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('password_reset_tokens', [
-            'email' => 'rodrigo@example.com',
+        $this->assertDatabaseHas('password_reset_requests', [
+            'user_id' => $user->id,
         ]);
     }
 
-    public function test_forgot_password_fails_with_unregistered_email(): void
+    public function test_forgot_password_does_not_reveal_unregistered_email(): void
     {
         $response = $this->postJson('/api/auth/forgot-password', [
             'email' => 'naoexiste@example.com',
         ]);
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
+        $response->assertStatus(200)
+            ->assertJsonStructure(['message']);
+
+        $this->assertDatabaseCount('password_reset_requests', 0);
     }
 
     public function test_user_can_reset_password_with_valid_token(): void
@@ -188,11 +189,10 @@ class AuthTest extends TestCase
             'password' => 'antiga123',
         ]);
 
-        $token = Password::createToken($user);
+        $token = $this->issueResetToken($user);
 
         $response = $this->postJson('/api/auth/reset-password', [
             'token' => $token,
-            'email' => 'rodrigo@example.com',
             'password' => 'novaSenha123',
             'password_confirmation' => 'novaSenha123',
         ]);
@@ -201,5 +201,62 @@ class AuthTest extends TestCase
 
         $user->refresh();
         $this->assertTrue(Hash::check('novaSenha123', $user->password));
+        $this->assertDatabaseCount('password_reset_requests', 0);
+    }
+
+    public function test_reset_token_is_single_use(): void
+    {
+        $user = User::factory()->create();
+        $token = $this->issueResetToken($user);
+
+        $payload = [
+            'token' => $token,
+            'password' => 'novaSenha123',
+            'password_confirmation' => 'novaSenha123',
+        ];
+
+        $this->postJson('/api/auth/reset-password', $payload)->assertStatus(200);
+        $this->postJson('/api/auth/reset-password', $payload)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['token']);
+    }
+
+    public function test_reset_fails_with_wrong_verifier_or_expired_token(): void
+    {
+        $user = User::factory()->create();
+        $token = $this->issueResetToken($user);
+        [$selector] = explode('.', $token);
+
+        $this->postJson('/api/auth/reset-password', [
+            'token' => $selector . '.' . str_repeat('x', 40),
+            'password' => 'novaSenha123',
+            'password_confirmation' => 'novaSenha123',
+        ])->assertStatus(422)->assertJsonValidationErrors(['token']);
+
+        \Illuminate\Support\Facades\DB::table('password_reset_requests')
+            ->update(['expires_at' => now()->subMinute()]);
+
+        $this->postJson('/api/auth/reset-password', [
+            'token' => $token,
+            'password' => 'novaSenha123',
+            'password_confirmation' => 'novaSenha123',
+        ])->assertStatus(422)->assertJsonValidationErrors(['token']);
+    }
+
+    private function issueResetToken(User $user): string
+    {
+        $selector = \Illuminate\Support\Str::random(24);
+        $verifier = \Illuminate\Support\Str::random(40);
+
+        \Illuminate\Support\Facades\DB::table('password_reset_requests')->insert([
+            'user_id' => $user->id,
+            'selector' => $selector,
+            'verifier_hash' => hash('sha256', $verifier),
+            'expires_at' => now()->addHour(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return $selector . '.' . $verifier;
     }
 }

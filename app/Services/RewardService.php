@@ -16,9 +16,16 @@ class RewardService
         return $rewards;
     }
 
-    public function show(int $id): Reward
+    public function show(int $id, bool $isAdmin = false): Reward
     {
-        $reward = Reward::findOrFail($id);
+        $query = Reward::query();
+
+        // Recompensas inativas não podem ser vistas por usuários comuns.
+        if (! $isAdmin) {
+            $query->where('is_active', true);
+        }
+
+        $reward = $query->findOrFail($id);
 
         return $reward;
     }
@@ -36,6 +43,7 @@ class RewardService
             'tag' => $data['tag'],
             'url_image' => $data['url_image'] ?? null,
             'cost' => $data['cost'],
+            'stock' => $data['stock'] ?? null,
             'is_active' => $data['is_active'] ?? true,
         ]);
 
