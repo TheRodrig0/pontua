@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Send, User, Sparkles, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import ModalDialog from '@/components/ui/ModalDialog';
-import { apiRequest } from '@/lib/api';
+import { donationService } from '@/services/donationService';
 import type { PointDonationItem, RankingUser } from '@/types/dashboard';
 
 interface DonatePointsModalProps {
@@ -50,32 +50,33 @@ export const DonatePointsModal: React.FC<DonatePointsModalProps> = ({
         const parsedRecipientId = parseInt(recipientId, 10);
         const parsedAmount = parseInt(amount, 10);
 
-        if (!parsedRecipientId || Number.isNaN(parsedRecipientId)) {
+        const isRecipientInvalid = !parsedRecipientId || Number.isNaN(parsedRecipientId);
+        if (isRecipientInvalid) {
             setErrorMessage('Informe o ID ou selecione um colega destinatário.');
             return;
         }
-        if (parsedRecipientId === currentUserId) {
+
+        const isSelfTransfer = parsedRecipientId === currentUserId;
+        if (isSelfTransfer) {
             setErrorMessage('Você não pode transferir pontos para sua própria conta.');
             return;
         }
-        if (!parsedAmount || parsedAmount < 1) {
+
+        const isAmountInvalid = !parsedAmount || parsedAmount < 1;
+        if (isAmountInvalid) {
             setErrorMessage('Informe uma quantidade mínima de 1 ponto.');
             return;
         }
-        if (parsedAmount > currentBalance) {
+
+        const hasInsufficientBalance = parsedAmount > currentBalance;
+        if (hasInsufficientBalance) {
             setErrorMessage('Você não possui saldo suficiente para esta transferência.');
             return;
         }
 
         setIsSubmitting(true);
         try {
-            const created = await apiRequest<PointDonationItem>('/api/donation', {
-                method: 'POST',
-                body: JSON.stringify({
-                    recipient_id: parsedRecipientId,
-                    amount: parsedAmount,
-                }),
-            });
+            const created = await donationService.create(parsedRecipientId, parsedAmount);
 
             setSuccessMessage(`Transferência de ${parsedAmount} pts realizada com sucesso!`);
             setAmount('');

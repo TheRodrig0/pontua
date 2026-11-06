@@ -38,7 +38,7 @@ const projectPillars = [
         icon: Handshake,
         title: 'Parceria Ensino Público & Terceiro Setor',
         subtitle:
-            'Conecta a Fatec Franco da Rocha à APAE de Caieiras garantindo recursos antes do vencimento.',
+            'Conecta a Fatec Franco da Rocha à APAE garantindo recursos antes do vencimento.',
         badge: 'ODS 17 · ONU',
         badgeStyle:
             'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25',
@@ -65,7 +65,7 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
                 <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
-                            Aprovação Estudantil
+                            Pesquisa com Estudantes
                         </span>
                         <Sparkles className="w-4 h-4 text-[#4bb9a6]" />
                     </div>
@@ -75,13 +75,13 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
                             95%
                         </span>
                         <span className="text-xs font-extrabold text-[#4bb9a6] uppercase tracking-wider">
-                            ADESÃO
+                            DOS ENTREVISTADOS
                         </span>
                     </div>
 
                     <div className="pt-1">
                         <span className="text-[11px] text-app-graytext dark:text-slate-400">
-                            Participam mais com pontos e horas AACC
+                            Acham que prêmios tornam mais atrativo doar notas fiscais
                         </span>
                     </div>
                 </div>
@@ -125,7 +125,7 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
 
                     <div className="pt-1">
                         <span className="text-[11px] text-app-graytext dark:text-slate-400">
-                            Notas destinadas à APAE de Caieiras
+                            Notas destinadas integralmente à APAE
                         </span>
                     </div>
                 </div>

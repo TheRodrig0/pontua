@@ -5,6 +5,7 @@ import AuthLayout from '@/components/auth/AuthLayout';
 import FeedbackBanner, { FeedbackState } from '@/components/auth/FeedbackBanner';
 import AuthInput from '@/components/auth/AuthInput';
 import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
+import { authService } from '@/services/authService';
 
 const Login: React.FC = () => {
     const [feedback, setFeedback] = useState<FeedbackState | null>(null);
@@ -19,26 +20,7 @@ const Login: React.FC = () => {
         setFeedback(null);
 
         try {
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify({
-                    email: loginIdentifier,
-                    password: loginPassword,
-                }),
-            });
-
-            const data = await response.json();
-            const isResponseError = !response.ok;
-
-            if (isResponseError) {
-                throw new Error(data.message || 'As credenciais fornecidas estão incorretas.');
-            }
-
+            await authService.login(loginIdentifier, loginPassword);
             router.visit('/dashboard');
         } catch (error: any) {
             setFeedback({
@@ -100,7 +82,7 @@ const Login: React.FC = () => {
                         href="/register"
                         className="w-full bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-app-navy dark:text-white font-bold py-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm uppercase tracking-wider text-center block"
                     >
-                        Criar conta gratuitamente
+                        Criar conta
                     </Link>
                 </div>
             </div>

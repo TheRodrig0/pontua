@@ -10,7 +10,7 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ pa
         return null;
     }
 
-    const isTooShort = password.length < 6;
+    const isTooShort = password.length < 8;
     if (isTooShort) {
         return (
             <div className="mt-2 px-1 flex items-center justify-between">
@@ -19,7 +19,9 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ pa
                     <div className="h-1.5 rounded-full flex-1 transition-all bg-slate-200 dark:bg-slate-700" />
                     <div className="h-1.5 rounded-full flex-1 transition-all bg-slate-200 dark:bg-slate-700" />
                 </div>
-                <span className="text-[11px] font-semibold text-rose-500">Muito curta</span>
+                <span className="text-[11px] font-semibold text-rose-500">
+                    Mínimo de 8 caracteres ({password.length}/8)
+                </span>
             </div>
         );
     }
@@ -29,12 +31,12 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ pa
     const hasSpecial = /[^a-zA-Z0-9]/.test(password);
     const varietyCount = [hasLetters, hasNumbers, hasSpecial].filter(Boolean).length;
 
-    const isStrongPassword = password.length >= 8 && varietyCount >= 3;
-    const isMediumPassword = password.length >= 6 && varietyCount >= 2;
+    const isStrongPassword = password.length >= 10 && varietyCount >= 3;
+    const isMediumPassword = password.length >= 8 && varietyCount >= 2;
 
     let score = 1;
-    let label = 'Senha Fraca';
-    let color = 'bg-rose-400';
+    let label = 'Senha Básica';
+    let color = 'bg-amber-400';
 
     if (isStrongPassword) {
         score = 3;
