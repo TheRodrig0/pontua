@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\RankingController;
+use App\Http\Controllers\RedemptionController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\TaxReceiptController;
 use App\Http\Controllers\UserController;
@@ -23,7 +24,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
     Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])->middleware('throttle:6,1');
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])
-        ->name('password.reset')
+        ->name('api.password.reset')
         ->middleware('throttle:6,1');
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -45,7 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('donation')->group(function () {
         Route::get('/', [DonationController::class, 'index']);
-        Route::get('/users', [DonationController::class, 'searchUsers']);
+        Route::get('/users', [DonationController::class, 'searchUsers'])->middleware('throttle:30,1');
         Route::post('/', [DonationController::class, 'create'])->middleware('throttle:30,1');
     });
 
@@ -65,8 +66,15 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
+    Route::prefix('redemptions')->group(function () {
+        Route::get('/', [RedemptionController::class, 'index']);
+        Route::post('/', [RedemptionController::class, 'create'])->middleware('throttle:10,1');
+    });
+
     Route::prefix('admin')->middleware('can:admin')->group(function () {
         Route::get('/overview', [AdminController::class, 'overview']);
         Route::patch('/users/{id}', [AdminController::class, 'updateUser']);
+        Route::get('/redemptions', [AdminController::class, 'redemptions']);
+        Route::patch('/redemptions/{id}', [AdminController::class, 'updateRedemption'])->middleware('throttle:60,1');
     });
 });

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,8 +16,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trustProxies(at: '*');
+        // Em produção confia só em proxies definidos em TRUSTED_PROXIES (lista separada por vírgula)
+        // ou, por padrão, nas redes privadas. Evita spoof de X-Forwarded-For e burla do throttle.
+        $trustedProxies = env('TRUSTED_PROXIES');
+        $middleware->trustProxies(at: match (true) {
+            filled($trustedProxies) => array_map('trim', explode(',', $trustedProxies)),
+            env('APP_ENV') === 'production' => ['127.0.0.1', '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'],
+            default => '*',
+        });
         $middleware->statefulApi();
+
+        $middleware->append(SecurityHeaders::class);
 
         $middleware->web(append: [
             HandleInertiaRequests::class,
