@@ -27,12 +27,12 @@ Route::prefix('auth')->group(function () {
         ->name('api.password.reset')
         ->middleware('throttle:6,1');
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum,web')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
     });
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum,web')->group(function () {
     Route::prefix('me')->group(function () {
         Route::get('/', [UserController::class, 'me']);
         Route::patch('/', [UserController::class, 'update']);

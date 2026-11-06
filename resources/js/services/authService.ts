@@ -50,6 +50,10 @@ export const authService = {
             throw new Error(message || 'As credenciais fornecidas estão incorretas.');
         }
 
+        if (data?.token) {
+            setAuthToken(data.token);
+        }
+
         return data as AuthResponse;
     },
 
@@ -95,6 +99,10 @@ export const authService = {
             const err: any = new Error(firstTranslatedError);
             err.fieldErrors = translatedFieldErrors;
             throw err;
+        }
+
+        if (data?.token) {
+            setAuthToken(data.token);
         }
 
         return data as AuthResponse;
