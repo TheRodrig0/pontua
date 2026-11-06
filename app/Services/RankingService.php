@@ -23,10 +23,13 @@ class RankingService
                 'scan_streak',
             ])
                 ->withSum('pointBuckets as total_donated', 'initial_points')
-                ->orderByDesc('total_donated')
-                ->orderBy('id', 'asc')
-                ->limit($limit)
                 ->get()
+                ->sortBy([
+                    ['total_donated', 'desc'],
+                    ['id', 'asc'],
+                ])
+                ->values()
+                ->take($limit)
                 ->each(function (User $user, int $index) {
                     $user->position = $index + 1;
                     $user->total_donated = (int) $user->total_donated;
