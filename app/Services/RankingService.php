@@ -83,7 +83,7 @@ class RankingService
             $nextPosition = null;
 
             if ($data->points_ahead !== null) {
-                $pointsToNextPosition = (int) $data->points_ahead - (int) $data->total_donated;
+                $pointsToNextPosition = max(0, (int) $data->points_ahead - (int) $data->total_donated);
                 $nextPosition = (int) $data->position - 1;
             }
 
