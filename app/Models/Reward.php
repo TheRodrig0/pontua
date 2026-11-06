@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
     'tag',
     'url_image',
     'cost',
+    'stock',
     'is_active'
 ])]
 class Reward extends Model
@@ -26,6 +27,7 @@ class Reward extends Model
         return [
             'tag' => RewardTag::class,
             'cost' => 'integer',
+            'stock' => 'integer',
             'is_active' => 'boolean',
         ];
     }

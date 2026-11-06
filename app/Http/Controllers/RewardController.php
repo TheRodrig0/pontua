@@ -26,10 +26,11 @@ class RewardController extends Controller
             ->json($rewards);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
         $reward = $this->rewardService->show(
-            id: $id
+            id: $id,
+            isAdmin: (bool) $request->user()?->isAdmin()
         );
 
         return response()

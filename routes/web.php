@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordResetController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -18,6 +19,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/forgot-password', fn() => Inertia::render('auth/ForgotPassword'))->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])->name('password.email')->middleware('throttle:6,1');
     Route::get('/esqueci-senha', fn() => redirect()->route('password.request'));
+
+    Route::get('/reset-password', fn(Request $request) => Inertia::render('auth/ResetPassword', [
+        'token' => $request->query('token'),
+    ]))->name('password.reset');
+    Route::get('/redefinir-senha', fn(Request $request) => redirect()->route('password.reset', $request->query()));
 });
 
 Route::middleware('auth')->group(function () {

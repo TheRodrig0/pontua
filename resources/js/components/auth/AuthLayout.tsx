@@ -4,7 +4,7 @@ import LogoPontua from '@/components/LogoPontua';
 import ThemeToggle from '@/components/ThemeToggle';
 
 interface AuthLayoutProps {
-    currentPage: 'login' | 'register' | 'forgot-password';
+    currentPage: 'login' | 'register' | 'forgot-password' | 'reset-password';
     children: React.ReactNode;
 }
 
@@ -14,6 +14,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 }) => {
     const isRegister = currentPage === 'register';
     const isForgotPassword = currentPage === 'forgot-password';
+    const isResetPassword = currentPage === 'reset-password';
 
     let info = {
         tag: 'Acesso',
@@ -35,6 +36,13 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
             title: 'Recuperar senha',
             subtitle: 'Digite seu e-mail cadastrado para redefinir sua senha.',
             headTitle: 'Recuperar Senha',
+        };
+    } else if (isResetPassword) {
+        info = {
+            tag: 'Nova Senha',
+            title: 'Redefinir senha',
+            subtitle: 'Crie uma nova senha segura para acessar a sua conta.',
+            headTitle: 'Redefinir Senha',
         };
     }
 
