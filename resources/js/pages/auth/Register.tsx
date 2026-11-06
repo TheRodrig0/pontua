@@ -6,6 +6,7 @@ import FeedbackBanner, { FeedbackState } from '@/components/auth/FeedbackBanner'
 import AuthInput from '@/components/auth/AuthInput';
 import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
 import PasswordStrengthMeter from '@/components/auth/PasswordStrengthMeter';
+import { authService } from '@/services/authService';
 
 const Register: React.FC = () => {
     const [feedback, setFeedback] = useState<FeedbackState | null>(null);
@@ -17,8 +18,7 @@ const Register: React.FC = () => {
     const [regPassword, setRegPassword] = useState('');
     const [regConfirmPassword, setRegConfirmPassword] = useState('');
 
-    const handleRegisterSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const validateForm = (): Record<string, string> => {
         const errors: Record<string, string> = {};
 
         const isNameEmpty = !regName.trim();
@@ -38,11 +38,11 @@ const Register: React.FC = () => {
         }
 
         const isPasswordEmpty = !regPassword;
-        const isPasswordTooShort = regPassword.length < 6;
+        const isPasswordTooShort = regPassword.length < 8;
         if (isPasswordEmpty) {
             errors.regPassword = 'Crie uma senha de acesso';
         } else if (isPasswordTooShort) {
-            errors.regPassword = 'A senha precisa ter no mínimo 6 caracteres';
+            errors.regPassword = 'A senha precisa ter no mínimo 8 caracteres';
         }
 
         const isConfirmEmpty = !regConfirmPassword;
@@ -53,7 +53,14 @@ const Register: React.FC = () => {
             errors.regConfirmPassword = 'As senhas não coincidem';
         }
 
+        return errors;
+    };
+
+    const handleRegisterSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const errors = validateForm();
         const hasValidationErrors = Object.keys(errors).length > 0;
+
         if (hasValidationErrors) {
             setFieldErrors(errors);
             setFeedback({
@@ -68,49 +75,32 @@ const Register: React.FC = () => {
         setFeedback(null);
 
         try {
-            const response = await fetch('/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify({
-                    name: regName,
-                    email: regEmail,
-                    password: regPassword,
-                    password_confirmation: regConfirmPassword,
-                }),
+            await authService.register({
+                name: regName.trim(),
+                email: regEmail.trim(),
+                password: regPassword,
+                password_confirmation: regConfirmPassword,
             });
-
-            const data = await response.json();
-            const isResponseError = !response.ok;
-
-            if (isResponseError) {
-                if (data.errors) {
-                    const serverErrors: Record<string, string> = {};
-                    if (data.errors.name) {
-                        serverErrors.regName = data.errors.name[0];
-                    }
-                    if (data.errors.email) {
-                        serverErrors.regEmail = data.errors.email[0];
-                    }
-                    if (data.errors.password) {
-                        serverErrors.regPassword = data.errors.password[0];
-                    }
-                    setFieldErrors(serverErrors);
-                }
-                throw new Error(data.message || 'Falha ao realizar cadastro.');
-            }
 
             router.visit('/dashboard');
         } catch (error: any) {
+            const hasServerFieldErrors = Boolean(error?.fieldErrors);
+            if (hasServerFieldErrors) {
+                setFieldErrors(error.fieldErrors);
+            }
             setFeedback({
                 type: 'error',
                 message: error.message || 'Erro inesperado ao cadastrar.',
             });
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const clearFieldError = (fieldName: string) => {
+        const hasError = Boolean(fieldErrors[fieldName]);
+        if (hasError) {
+            setFieldErrors((prev) => ({ ...prev, [fieldName]: '' }));
         }
     };
 
@@ -128,10 +118,7 @@ const Register: React.FC = () => {
                         value={regName}
                         onChange={(e) => {
                             setRegName(e.target.value);
-                            const hasNameError = Boolean(fieldErrors.regName);
-                            if (hasNameError) {
-                                setFieldErrors((prev) => ({ ...prev, regName: '' }));
-                            }
+                            clearFieldError('regName');
                         }}
                         error={fieldErrors.regName}
                         placeholder="Ex: Maria Clara da Silva"
@@ -146,10 +133,7 @@ const Register: React.FC = () => {
                         value={regEmail}
                         onChange={(e) => {
                             setRegEmail(e.target.value);
-                            const hasEmailError = Boolean(fieldErrors.regEmail);
-                            if (hasEmailError) {
-                                setFieldErrors((prev) => ({ ...prev, regEmail: '' }));
-                            }
+                            clearFieldError('regEmail');
                         }}
                         error={fieldErrors.regEmail}
                         placeholder="seu.email@fatec.sp.gov.br"
@@ -159,16 +143,13 @@ const Register: React.FC = () => {
                     <div>
                         <AuthInput
                             id="reg-password"
-                            label="Senha de Acesso (Mínimo 6 caracteres)"
+                            label="Senha de Acesso (Mínimo 8 caracteres)"
                             icon={Lock}
                             type="password"
                             value={regPassword}
                             onChange={(e) => {
                                 setRegPassword(e.target.value);
-                                const hasPasswordError = Boolean(fieldErrors.regPassword);
-                                if (hasPasswordError) {
-                                    setFieldErrors((prev) => ({ ...prev, regPassword: '' }));
-                                }
+                                clearFieldError('regPassword');
                             }}
                             error={fieldErrors.regPassword}
                             placeholder="••••••••"
@@ -185,10 +166,7 @@ const Register: React.FC = () => {
                         value={regConfirmPassword}
                         onChange={(e) => {
                             setRegConfirmPassword(e.target.value);
-                            const hasConfirmError = Boolean(fieldErrors.regConfirmPassword);
-                            if (hasConfirmError) {
-                                setFieldErrors((prev) => ({ ...prev, regConfirmPassword: '' }));
-                            }
+                            clearFieldError('regConfirmPassword');
                         }}
                         error={fieldErrors.regConfirmPassword}
                         placeholder="••••••••"

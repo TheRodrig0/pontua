@@ -11,8 +11,12 @@ class AuthService
 {
     public function login(array $data): array
     {
+        $loginInput = trim($data['email']);
+        $field = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'nick';
+        $loginInput = ltrim($loginInput, '@');
+
         $credentials = [
-            'email' => $data['email'],
+            $field => $loginInput,
             'password' => $data['password'],
         ];
 

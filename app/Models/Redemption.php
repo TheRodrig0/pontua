@@ -16,7 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'points_cost',
     'status',
     'voucher_code',
-    'redeemed_at'
+    'points_expires_at',
+    'redeemed_at',
+    'processed_by'
 ])]
 class Redemption extends Model
 {
@@ -37,6 +39,7 @@ class Redemption extends Model
         return [
             'status' => RedemptionStatus::class,
             'points_cost' => 'integer',
+            'points_expires_at' => 'datetime',
             'redeemed_at' => 'datetime',
         ];
     }

@@ -23,7 +23,9 @@
     "dependencies": {
         "@inertiajs/react": "^3.10.0",
         "axios": "^1.20.0",
+        "jsqr": "^1.4.0",
         "lucide-react": "^1.67.0",
+        "qr-scanner": "^1.4.2",
         "react": "^19.3.0",
         "react-dom": "^19.3.1"
     }
