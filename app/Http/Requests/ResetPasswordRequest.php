@@ -28,12 +28,6 @@ class ResetPasswordRequest extends FormRequest
                 'string'
             ],
 
-            'email' => [
-                'required',
-                'string',
-                'email'
-            ],
-
             'password' => [
                 'required',
                 'string',
