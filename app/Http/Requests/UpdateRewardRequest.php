@@ -47,6 +47,13 @@ class UpdateRewardRequest extends FormRequest
                 'min:1'
             ],
 
+            'stock' => [
+                'sometimes',
+                'nullable',
+                'integer',
+                'min:0'
+            ],
+
             'is_active' => [
                 'sometimes',
                 'boolean'

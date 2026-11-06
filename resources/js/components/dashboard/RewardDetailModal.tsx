@@ -6,39 +6,47 @@ import {
     Shirt,
     Watch,
     Gift,
+    CheckCircle2,
+    KeyRound,
 } from 'lucide-react';
 import ModalDialog from '@/components/ui/ModalDialog';
-import { apiRequest } from '@/lib/api';
-import type { RewardItem, RewardTagValue } from '@/types/dashboard';
+import { REWARD_TAG_LABELS } from '@/enums/dashboard';
+import { redemptionService } from '@/services/redemptionService';
+import { rewardService } from '@/services/rewardService';
+import type { RewardItem, RewardTagValue, UserProfile } from '@/types/dashboard';
 
 interface RewardDetailModalProps {
     rewardId: number | null;
     currentBalance: number;
+    profile?: UserProfile | null;
     onClose: () => void;
+    /** Chamado após um resgate criado com sucesso, para recarregar o saldo. */
+    onRedeemed?: () => void;
 }
 
-const TAG_LABELS: Record<RewardTagValue, string> = {
-    clothing: 'Vestuário',
-    accessory: 'Acessório',
-    cosmetic: 'Cosmético',
-    other: 'Outros',
-};
+const TAG_LABELS = REWARD_TAG_LABELS;
 
 export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
     rewardId,
     currentBalance,
     onClose,
+    onRedeemed,
 }) => {
     const [reward, setReward] = useState<RewardItem | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
+    const [requestedProtocol, setRequestedProtocol] = useState<string | null>(null);
+    const [isRedeeming, setIsRedeeming] = useState(false);
+    const [redeemError, setRedeemError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!rewardId) {
             setReward(null);
             setErrorMessage(null);
             setImageError(false);
+            setRequestedProtocol(null);
+            setRedeemError(null);
             return;
         }
 
@@ -46,8 +54,11 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
         setIsLoading(true);
         setErrorMessage(null);
         setImageError(false);
+        setRequestedProtocol(null);
+        setRedeemError(null);
 
-        apiRequest<RewardItem>(`/api/rewards/${rewardId}`)
+        rewardService
+            .show(rewardId)
             .then((data) => {
                 if (isMounted) {
                     setReward(data);
@@ -71,7 +82,28 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
         };
     }, [rewardId]);
 
+    const isOutOfStock = reward ? reward.stock === 0 : false;
     const canAfford = reward ? currentBalance >= reward.cost : false;
+    const canRedeem = canAfford && !isOutOfStock && !isRedeeming;
+
+    const handleRequestRedemption = async () => {
+        if (!reward || !canRedeem) {
+            return;
+        }
+
+        setIsRedeeming(true);
+        setRedeemError(null);
+
+        try {
+            const created = await redemptionService.create(reward.id);
+            setRequestedProtocol(created.voucher_code);
+            onRedeemed?.();
+        } catch (error: any) {
+            setRedeemError(error.message || 'Não foi possível solicitar o resgate.');
+        } finally {
+            setIsRedeeming(false);
+        }
+    };
 
     const renderFallbackIcon = (tag?: RewardTagValue) => {
         if (tag === 'clothing') return <Shirt className="w-10 h-10 text-white" />;
@@ -140,25 +172,59 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                         )}
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 bg-[#4bb9a6]/10 dark:bg-[#112a2e]/50 border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 rounded-xl p-3.5 text-xs">
-                        <span className="text-app-graytext dark:text-slate-300">
-                            Seu saldo atual:{' '}
-                            <strong className="text-app-navy dark:text-white">
-                                {currentBalance.toLocaleString('pt-BR')} pts
-                            </strong>
-                        </span>
-                        <span
-                            className={`font-bold ${
-                                canAfford ? 'text-[#4bb9a6]' : 'text-amber-600 dark:text-amber-400'
-                            }`}
+                                        {redeemError && (
+                        <div
+                            role="alert"
+                            className="bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 rounded-xl p-3.5 text-xs flex items-start gap-2.5"
                         >
-                            {canAfford
-                                ? 'Saldo suficiente'
-                                : `Faltam ${(reward.cost - currentBalance).toLocaleString('pt-BR')} pts`}
-                        </span>
-                    </div>
+                            <AlertCircle className="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0 mt-0.5" />
+                            <span>{redeemError}</span>
+                        </div>
+                    )}
 
-                    <div className="flex items-center justify-end gap-3 pt-2">
+                    {requestedProtocol ? (
+                        <div className="bg-[#4bb9a6]/15 border border-[#4bb9a6]/35 rounded-xl p-4 space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#4bb9a6]">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Pedido de resgate enviado!
+                                </span>
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-mono font-extrabold bg-white dark:bg-slate-900 text-app-navy dark:text-white border border-[#4bb9a6]/40">
+                                    <KeyRound className="w-3 h-3 text-[#4bb9a6]" />
+                                    {requestedProtocol}
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-app-graytext dark:text-slate-300 leading-relaxed">
+                                Apresente o protocolo <strong>{requestedProtocol}</strong> na coordenação/administração para validar a retirada do seu prêmio. Os pontos já foram reservados e voltam para o seu saldo se o pedido for cancelado.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-between gap-3 bg-[#4bb9a6]/10 dark:bg-[#112a2e]/50 border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 rounded-xl p-3.5 text-xs">
+                            <span className="text-app-graytext dark:text-slate-300">
+                                Seu saldo atual:{' '}
+                                <strong className="text-app-navy dark:text-white">
+                                    {currentBalance.toLocaleString('pt-BR')} pts
+                                </strong>
+                            </span>
+                            <span
+                                className={`font-bold ${
+                                    isOutOfStock
+                                        ? 'text-rose-500 dark:text-rose-400'
+                                        : canAfford
+                                          ? 'text-[#4bb9a6]'
+                                          : 'text-amber-600 dark:text-amber-400'
+                                }`}
+                            >
+                                {isOutOfStock
+                                    ? 'Recompensa esgotada'
+                                    : canAfford
+                                      ? 'Saldo suficiente'
+                                      : `Faltam ${(reward.cost - currentBalance).toLocaleString('pt-BR')} pts`}
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="flex items-center justify-end gap-2.5 pt-2">
                         <button
                             type="button"
                             onClick={onClose}
@@ -166,6 +232,27 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                         >
                             Fechar
                         </button>
+
+                        {!requestedProtocol && (
+                            <button
+                                type="button"
+                                disabled={!canRedeem}
+                                onClick={handleRequestRedemption}
+                                className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-45 disabled:pointer-events-none text-white shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                            >
+                                {isRedeeming ? (
+                                    <>
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        <span>Solicitando...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Gift className="w-3.5 h-3.5" />
+                                        <span>{isOutOfStock ? 'Esgotado' : 'Solicitar Resgate'}</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             ) : null}
