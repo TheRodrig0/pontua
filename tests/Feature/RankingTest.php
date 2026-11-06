@@ -247,4 +247,35 @@ class RankingTest extends TestCase
 
         $this->assertTrue(Cache::has("ranking_performance_{$userLast->id}"));
     }
+
+    public function test_users_with_points_rank_above_users_with_zero_points(): void
+    {
+        Cache::flush();
+        $userZeroA = User::factory()->create(['name' => 'Murilo']);
+        $userZeroB = User::factory()->create(['name' => 'Joao']);
+        $userWithPoints = User::factory()->create(['name' => 'Rodrigo']);
+
+        PointBucket::create([
+            'user_id' => $userWithPoints->id,
+            'initial_points' => 31,
+            'remaining_points' => 31,
+            'expires_at' => now()->addDays(30),
+            'status' => PointBucketStatus::ACTIVE,
+        ]);
+
+        $service = new \App\Services\RankingService();
+        $ranking = $service->index();
+
+        $this->assertSame($userWithPoints->id, $ranking[0]['id']);
+        $this->assertSame(1, $ranking[0]['position']);
+        $this->assertSame(31, $ranking[0]['total_donated']);
+
+        $this->assertSame($userZeroA->id, $ranking[1]['id']);
+        $this->assertSame(2, $ranking[1]['position']);
+        $this->assertSame(0, $ranking[1]['total_donated']);
+
+        $this->assertSame($userZeroB->id, $ranking[2]['id']);
+        $this->assertSame(3, $ranking[2]['position']);
+        $this->assertSame(0, $ranking[2]['total_donated']);
+    }
 }

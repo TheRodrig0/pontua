@@ -10,6 +10,7 @@ use App\Models\PointTransaction;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class PointService
@@ -56,6 +57,9 @@ class PointService
                 'point_bucket_id' => $bucket->id,
                 'balance_after' => $newBalance,
             ]);
+
+            Cache::forget('ranking_top_10');
+            Cache::forget("ranking_performance_{$userId}");
         });
     }
 
@@ -133,6 +137,9 @@ class PointService
                     'balance_after' => $runningBalance,
                 ]);
             }
+
+            Cache::forget('ranking_top_10');
+            Cache::forget("ranking_performance_{$userId}");
 
             return $earliestExpiration;
         });

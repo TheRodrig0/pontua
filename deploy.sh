@@ -11,6 +11,7 @@ git pull origin main
 composer install --no-dev --prefer-dist -a --no-interaction
 
 # 3. Baixa dependências e compila os assets do Vite para produção
+rm -rf node_modules/.cache
 npm ci --no-audit --prefer-offline
 npm run build
 
@@ -18,6 +19,7 @@ npm run build
 php artisan migrate --force
 
 # 5. Otimização e cache (configurações, rotas, eventos e views Blade)
+php artisan cache:clear
 php artisan config:cache
 php artisan route:cache
 php artisan event:cache
