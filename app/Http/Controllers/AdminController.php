@@ -5,15 +5,46 @@ namespace App\Http\Controllers;
 use App\Enums\TaxReceiptStatus;
 use App\Enums\UserRole;
 use App\Models\PointBucket;
+use App\Models\Redemption;
 use App\Models\Reward;
 use App\Models\TaxReceipt;
 use App\Models\User;
+use App\Enums\RedemptionStatus;
+use App\Http\Requests\UpdateRedemptionStatusRequest;
+use App\Services\RedemptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
+    public function __construct(
+        private readonly RedemptionService $redemptionService
+    ) {}
+
+    public function redemptions(Request $request): JsonResponse
+    {
+        $redemptions = $this->redemptionService->indexForAdmin(
+            status: $request->query('status')
+        );
+
+        $redemptions->through(fn($redemption) => $redemption->makeHidden(['processed_by']));
+
+        return response()->json($redemptions);
+    }
+
+    public function updateRedemption(UpdateRedemptionStatusRequest $request, int $id): JsonResponse
+    {
+        $adminId = $request->user()->id;
+        $status = $request->validated()['status'];
+
+        $redemption = $status === 'completed'
+            ? $this->redemptionService->complete($id, $adminId)
+            : $this->redemptionService->cancel($id, $adminId);
+
+        return response()->json($redemption->makeHidden(['processed_by']));
+    }
+
     public function overview(): JsonResponse
     {
         $stats = [
@@ -25,6 +56,7 @@ class AdminController extends Controller
             'total_value_donated' => (float) TaxReceipt::where('status', TaxReceiptStatus::APPROVED)->sum('value'),
             'total_points_distributed' => (int) PointBucket::sum('initial_points'),
             'total_rewards' => Reward::count(),
+            'pending_redemptions' => Redemption::where('status', RedemptionStatus::PENDING)->count(),
         ];
 
         $recentReceipts = TaxReceipt::with('user:id,name,nick,email')
