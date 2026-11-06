@@ -65,6 +65,7 @@ export interface RewardItem {
     tag: RewardTagType;
     url_image: string | null;
     cost: number;
+    stock?: number | null;
     is_active: boolean;
     created_at?: string;
     updated_at?: string;
@@ -101,6 +102,7 @@ export interface AdminOverviewData {
         total_value_donated: number;
         total_points_distributed: number;
         total_rewards: number;
+        pending_redemptions?: number;
     };
     recent_receipts: TaxReceiptItem[];
     users: AdminUserData[];
