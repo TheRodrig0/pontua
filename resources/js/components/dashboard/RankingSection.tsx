@@ -157,7 +157,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
 
                     <div className="my-3 flex items-baseline gap-2">
                         <span className="text-3xl sm:text-4xl font-extrabold text-app-navy dark:text-white tracking-tight tabular-nums">
-                            {myPosition ? `#${myPosition}` : '#-'}
+                            {myPosition ? `#${myPosition}` : '#0'}
                         </span>
                         <span className="text-xs font-bold text-[#4bb9a6] uppercase tracking-wider">
                             de {ranking.length} alunos

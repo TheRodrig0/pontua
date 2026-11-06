@@ -191,7 +191,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
 
                     <div className="my-3">
                         <span className="text-3xl sm:text-4xl font-extrabold text-app-navy dark:text-white tracking-tight">
-                            {rankPosition ? `#${rankPosition}` : '#-'}
+                            {rankPosition ? `#${rankPosition}` : '#0'}
                         </span>
                     </div>
 
