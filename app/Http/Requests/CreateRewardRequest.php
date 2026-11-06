@@ -55,6 +55,12 @@ class CreateRewardRequest extends FormRequest
                 'integer',
                 'min:1'
             ],
+
+            'stock' => [
+                'nullable',
+                'integer',
+                'min:0'
+            ],
         ];
     }
 }
