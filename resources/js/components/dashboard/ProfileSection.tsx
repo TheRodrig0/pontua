@@ -14,7 +14,8 @@ import {
     AlertCircle,
     CheckCircle2,
 } from 'lucide-react';
-import { apiRequest, setAuthToken } from '@/lib/api';
+import { setAuthToken } from '@/lib/api';
+import { userService } from '@/services/userService';
 import type { UserProfile } from '@/types/dashboard';
 
 interface ProfileSectionProps {
@@ -25,11 +26,13 @@ interface ProfileSectionProps {
 const AVATAR_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 function getInitials(name?: string): string {
-    if (!name || !name.trim()) {
+    const hasName = Boolean(name && name.trim());
+    if (!hasName) {
         return 'AL';
     }
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) {
+    const parts = name!.trim().split(/\s+/);
+    const isSingleWord = parts.length === 1;
+    if (isSingleWord) {
         return parts[0].slice(0, 2).toUpperCase();
     }
     return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
@@ -54,14 +57,15 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
     const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
-        if (profile) {
-            setName(profile.name || '');
-            setNick(profile.nick || '');
-            setAvatarLoadError(false);
-
-            const match = profile.avatar_url?.match(/avatars\/(\d+)\.png/);
-            setSelectedAvatarId(match ? parseInt(match[1], 10) : null);
+        if (!profile) {
+            return;
         }
+        setName(profile.name || '');
+        setNick(profile.nick || '');
+        setAvatarLoadError(false);
+
+        const match = profile.avatar_url?.match(/avatars\/(\d+)\.png/);
+        setSelectedAvatarId(match ? parseInt(match[1], 10) : null);
     }, [profile]);
 
     const handleUpdateSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -69,7 +73,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
         setErrorMessage(null);
         setUpdateMessage(null);
 
-        const payload: Record<string, unknown> = {};
+        const payload: { name?: string; nick?: string; avatar_id?: number } = {};
         if (name.trim()) {
             payload.name = name.trim();
         }
@@ -82,10 +86,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
 
         setIsUpdating(true);
         try {
-            const updated = await apiRequest<UserProfile>('/api/me', {
-                method: 'PATCH',
-                body: JSON.stringify(payload),
-            });
+            const updated = await userService.update(payload);
 
             setUpdateMessage('Perfil atualizado com sucesso!');
             onProfileUpdated({
@@ -105,19 +106,15 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
         e.preventDefault();
         setErrorMessage(null);
 
-        if (!deletePassword) {
+        const isPasswordEmpty = !deletePassword;
+        if (isPasswordEmpty) {
             setErrorMessage('Digite sua senha atual para confirmar a exclusão da conta.');
             return;
         }
 
         setIsDeleting(true);
         try {
-            await apiRequest<{ message: string }>('/api/me', {
-                method: 'DELETE',
-                body: JSON.stringify({
-                    password: deletePassword,
-                }),
-            });
+            await userService.deleteAccount(deletePassword);
 
             setAuthToken(null);
             router.visit('/');

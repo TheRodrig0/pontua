@@ -7,13 +7,12 @@ import {
     Plus,
     Pencil,
     Trash2,
-    Upload,
     Loader2,
-    AlertCircle,
     type LucideIcon,
 } from 'lucide-react';
-import ModalDialog from '@/components/ui/ModalDialog';
-import { apiRequest } from '@/lib/api';
+import { RewardFormModal } from '@/components/dashboard/admin/RewardFormModal';
+import { REWARD_TAG_LABELS } from '@/enums/dashboard';
+import { rewardService } from '@/services/rewardService';
 import type { RewardItem, RewardTagValue } from '@/types/dashboard';
 
 interface RewardsStoreSectionProps {
@@ -38,22 +37,22 @@ const TAG_CONFIG: Record<
     }
 > = {
     clothing: {
-        label: 'Vestuário',
+        label: REWARD_TAG_LABELS.clothing,
         coverBgClass: 'bg-gradient-to-br from-[#1e3a5f] to-[#1e293b]',
         Icon: Shirt,
     },
     accessory: {
-        label: 'Acessório',
+        label: REWARD_TAG_LABELS.accessory,
         coverBgClass: 'bg-gradient-to-br from-[#134e4a] to-[#0f3d3e]',
         Icon: Watch,
     },
     cosmetic: {
-        label: 'Cosmético',
+        label: REWARD_TAG_LABELS.cosmetic,
         coverBgClass: 'bg-gradient-to-br from-[#2e1f47] to-[#312e81]',
         Icon: Sparkles,
     },
     other: {
-        label: 'Outros',
+        label: REWARD_TAG_LABELS.other,
         coverBgClass: 'bg-gradient-to-br from-[#0f3d3e] to-[#134e4a]',
         Icon: Gift,
     },
@@ -106,12 +105,13 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
         setIsAdminModalOpen(true);
     };
 
-    const handleSaveReward = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    const handleSaveReward = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setFormError(null);
 
         const parsedCost = parseInt(formCost, 10);
-        if (!formName.trim() || Number.isNaN(parsedCost) || parsedCost < 1) {
+        const isFormInvalid = !formName.trim() || Number.isNaN(parsedCost) || parsedCost < 1;
+        if (isFormInvalid) {
             setFormError('Preencha o nome e um custo válido (mínimo 1 ponto).');
             return;
         }
@@ -130,16 +130,9 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
         setIsSaving(true);
         try {
             if (editingReward) {
-                formData.append('_method', 'PATCH');
-                await apiRequest<RewardItem>(`/api/rewards/${editingReward.id}`, {
-                    method: 'POST',
-                    body: formData,
-                });
+                await rewardService.update(editingReward.id, formData);
             } else {
-                await apiRequest<RewardItem>('/api/rewards', {
-                    method: 'POST',
-                    body: formData,
-                });
+                await rewardService.store(formData);
             }
 
             setIsAdminModalOpen(false);
@@ -156,9 +149,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
     const handleDeleteReward = async (id: number) => {
         setDeletingId(id);
         try {
-            await apiRequest<{ message: string }>(`/api/rewards/${id}`, {
-                method: 'DELETE',
-            });
+            await rewardService.destroy(id);
             onRewardsMutated?.();
         } catch {
             // Ignore if already deleted
@@ -168,7 +159,8 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
     };
 
     const filteredRewards = rewards.filter((reward) => {
-        if (activeFilter === 'all') {
+        const isShowingAll = activeFilter === 'all';
+        if (isShowingAll) {
             return true;
         }
         return reward.tag === activeFilter;
@@ -266,7 +258,6 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                 key={reward.id}
                                 className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all"
                             >
-                                {/* Cover: Real DB url_image if present, otherwise styled fallback */}
                                 <div
                                     className={`relative h-44 sm:h-48 w-full ${tagConfig.coverBgClass} border-b border-white/10 flex items-center justify-center overflow-hidden`}
                                 >
@@ -292,7 +283,6 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                         </div>
                                     )}
 
-                                    {/* Admin Actions on Card */}
                                     {isAdmin && (
                                         <div className="absolute top-3 right-3 flex items-center gap-1.5">
                                             <button
@@ -319,13 +309,11 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                         </div>
                                     )}
 
-                                    {/* Bottom-right cost pill from DB (reward.cost) */}
                                     <span className="absolute bottom-3.5 right-3.5 bg-slate-950/90 text-[#4bb9a6] text-xs font-black uppercase px-3 py-1.5 rounded-lg border border-slate-700/80">
                                         {reward.cost} PTS
                                     </span>
                                 </div>
 
-                                {/* Card Body - strictly DB fields (name, tag, description, cost) */}
                                 <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
                                     <div>
                                         <div className="flex items-start justify-between gap-3">
@@ -386,149 +374,24 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                 </div>
             )}
 
-            {/* Admin Create/Update Reward Modal (POST /api/rewards & PATCH /api/rewards/{id}) */}
-            <ModalDialog
+            <RewardFormModal
                 isOpen={isAdminModalOpen}
+                editingReward={editingReward}
+                formName={formName}
+                formDescription={formDescription}
+                formTag={formTag}
+                formCost={formCost}
+                formImage={formImage}
+                formError={formError}
+                isSaving={isSaving}
                 onClose={() => setIsAdminModalOpen(false)}
-                title={editingReward ? 'Editar Recompensa' : 'Nova Recompensa'}
-                subtitle="Gerencie os itens disponíveis na Loja de Recompensas."
-            >
-                <form onSubmit={handleSaveReward} className="space-y-4">
-                    {formError && (
-                        <div
-                            role="alert"
-                            className="bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 rounded-xl p-3 text-xs flex items-start gap-2"
-                        >
-                            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                            <span>{formError}</span>
-                        </div>
-                    )}
-
-                    <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3">
-                        <label
-                            htmlFor="reward-name"
-                            className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1"
-                        >
-                            Nome (máx. 50 caracteres)
-                        </label>
-                        <input
-                            id="reward-name"
-                            type="text"
-                            maxLength={50}
-                            value={formName}
-                            onChange={(e) => setFormName(e.target.value)}
-                            className="w-full bg-transparent text-xs sm:text-sm font-semibold text-app-navy dark:text-white focus:outline-none"
-                            required
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3">
-                            <label
-                                htmlFor="reward-tag"
-                                className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1"
-                            >
-                                Tag (RewardTag)
-                            </label>
-                            <select
-                                id="reward-tag"
-                                value={formTag}
-                                onChange={(e) =>
-                                    setFormTag(e.target.value as RewardTagValue)
-                                }
-                                className="w-full bg-transparent text-xs sm:text-sm font-semibold text-app-navy dark:text-white focus:outline-none"
-                            >
-                                <option value="clothing" className="bg-white dark:bg-[#111827]">
-                                    Vestuário (clothing)
-                                </option>
-                                <option value="accessory" className="bg-white dark:bg-[#111827]">
-                                    Acessório (accessory)
-                                </option>
-                                <option value="cosmetic" className="bg-white dark:bg-[#111827]">
-                                    Cosmético (cosmetic)
-                                </option>
-                                <option value="other" className="bg-white dark:bg-[#111827]">
-                                    Outros (other)
-                                </option>
-                            </select>
-                        </div>
-
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3">
-                            <label
-                                htmlFor="reward-cost"
-                                className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1"
-                            >
-                                Custo (Pontos)
-                            </label>
-                            <input
-                                id="reward-cost"
-                                type="number"
-                                min={1}
-                                value={formCost}
-                                onChange={(e) => setFormCost(e.target.value)}
-                                className="w-full bg-transparent text-xs sm:text-sm font-semibold text-app-navy dark:text-white focus:outline-none"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3">
-                        <label
-                            htmlFor="reward-description"
-                            className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1"
-                        >
-                            Descrição (máx. 200 caracteres)
-                        </label>
-                        <textarea
-                            id="reward-description"
-                            maxLength={200}
-                            rows={2}
-                            value={formDescription}
-                            onChange={(e) => setFormDescription(e.target.value)}
-                            className="w-full bg-transparent text-xs sm:text-sm font-medium text-app-navy dark:text-white focus:outline-none resize-none"
-                        />
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3">
-                        <label
-                            htmlFor="reward-image"
-                            className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1.5"
-                        >
-                            Imagem (PNG, JPG, WEBP até 2MB)
-                        </label>
-                        <div className="flex items-center gap-2">
-                            <Upload className="w-4 h-4 text-[#4bb9a6] shrink-0" />
-                            <input
-                                id="reward-image"
-                                type="file"
-                                accept="image/png,image/jpeg,image/webp"
-                                onChange={(e) =>
-                                    setFormImage(e.target.files?.[0] || null)
-                                }
-                                className="w-full text-xs text-app-graytext dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#4bb9a6]/15 file:text-[#4bb9a6] cursor-pointer"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-2 pt-2">
-                        <button
-                            type="button"
-                            onClick={() => setIsAdminModalOpen(false)}
-                            className="px-4 py-2.5 rounded-xl text-xs font-bold text-app-graytext dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSaving}
-                            className="bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 cursor-pointer"
-                        >
-                            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                            <span>{isSaving ? 'Salvando...' : 'Salvar'}</span>
-                        </button>
-                    </div>
-                </form>
-            </ModalDialog>
+                onChangeName={setFormName}
+                onChangeDescription={setFormDescription}
+                onChangeTag={setFormTag}
+                onChangeCost={setFormCost}
+                onChangeImage={setFormImage}
+                onSubmit={handleSaveReward}
+            />
         </div>
     );
 };

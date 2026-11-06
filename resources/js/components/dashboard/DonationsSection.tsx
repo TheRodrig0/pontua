@@ -11,15 +11,12 @@ import {
     ArrowUpRight,
     X,
 } from 'lucide-react';
-import { apiRequest } from '@/lib/api';
+import {
+    donationService,
+    type DonationRecipientCandidate as RecipientCandidate,
+} from '@/services/donationService';
 import type { PointDonationItem, RankingUser } from '@/types/dashboard';
-
-interface RecipientCandidate {
-    id: number;
-    name: string;
-    nick: string | null;
-    avatar_url: string | null;
-}
+import { normalizeSearchText } from '@/utils/formatters';
 
 interface DonationsSectionProps {
     currentBalance: number;
@@ -33,22 +30,16 @@ interface DonationsSectionProps {
 }
 
 function getInitials(name: string): string {
-    if (!name || !name.trim()) {
+    const hasName = Boolean(name && name.trim());
+    if (!hasName) {
         return 'AL';
     }
     const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) {
+    const isSingleWord = parts.length === 1;
+    if (isSingleWord) {
         return parts[0].slice(0, 2).toUpperCase();
     }
     return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-}
-
-function normalizeText(value: string): string {
-    return value
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim();
 }
 
 export const DonationsSection: React.FC<DonationsSectionProps> = ({
@@ -74,7 +65,8 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
     // Busca no servidor (/api/donation/users?q=...) por nome ou @nick
     useEffect(() => {
         const trimmed = searchQuery.trim();
-        if (!trimmed) {
+        const isQueryEmpty = !trimmed;
+        if (isQueryEmpty) {
             setRemoteUsers([]);
             setIsSearchingUsers(false);
             return;
@@ -85,11 +77,9 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
 
         const timer = setTimeout(async () => {
             try {
-                const res = await apiRequest<RecipientCandidate[]>(
-                    `/api/donation/users?q=${encodeURIComponent(trimmed)}`
-                );
+                const res = await donationService.searchUsers(trimmed);
                 if (!cancelled) {
-                    setRemoteUsers(Array.isArray(res) ? res : []);
+                    setRemoteUsers(res);
                 }
             } catch {
                 if (!cancelled) {
@@ -116,13 +106,13 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
         }
 
         const startsWithAt = raw.startsWith('@');
-        const cleanQuery = normalizeText(raw.replace(/^@+/, ''));
+        const cleanQuery = normalizeSearchText(raw.replace(/^@+/, ''));
 
         const localMatches: RecipientCandidate[] = rankingUsers
             .filter((u) => u.id !== currentUserId)
             .filter((user) => {
-                const normalizedNick = user.nick ? normalizeText(user.nick) : '';
-                const normalizedName = normalizeText(user.name);
+                const normalizedNick = user.nick ? normalizeSearchText(user.nick) : '';
+                const normalizedName = normalizeSearchText(user.name);
 
                 if (startsWithAt) {
                     if (!normalizedNick) {
@@ -174,25 +164,22 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
         }
 
         const parsedAmount = parseInt(amount, 10);
+        const isAmountInvalid = !parsedAmount || parsedAmount < 1;
 
-        if (!parsedAmount || parsedAmount < 1) {
+        if (isAmountInvalid) {
             setErrorMessage('Informe uma quantidade mínima de 1 ponto.');
             return;
         }
-        if (parsedAmount > currentBalance) {
+
+        const hasInsufficientBalance = parsedAmount > currentBalance;
+        if (hasInsufficientBalance) {
             setErrorMessage('Você não possui saldo suficiente para realizar esta transferência.');
             return;
         }
 
         setIsSubmitting(true);
         try {
-            const created = await apiRequest<PointDonationItem>('/api/donation', {
-                method: 'POST',
-                body: JSON.stringify({
-                    recipient_id: selectedRecipient.id,
-                    amount: parsedAmount,
-                }),
-            });
+            const created = await donationService.create(selectedRecipient.id, parsedAmount);
 
             setSuccessMessage(
                 `Você transferiu ${parsedAmount.toLocaleString('pt-BR')} pts para ${selectedRecipient.name}${selectedRecipient.nick ? ` (@${selectedRecipient.nick})` : ''}.`
