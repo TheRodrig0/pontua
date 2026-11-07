@@ -35,7 +35,7 @@ const NAV_ITEMS: NavItemConfig[] = [
     { id: 'rewards', label: 'Loja de Prêmios', icon: Gift },
     { id: 'ranking', label: 'Ranking FATEC', icon: Trophy },
     { id: 'donations', label: 'Doar Pontos', icon: Send },
-    { id: 'about', label: 'Sobre a APAE', icon: HeartHandshake },
+    { id: 'about', label: 'Sobre o Projeto', icon: HeartHandshake },
 ];
 
 export default function DashboardPage(): React.ReactElement {

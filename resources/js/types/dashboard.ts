@@ -107,6 +107,9 @@ export interface AdminOverviewData {
     recent_receipts: TaxReceiptItem[];
     users: AdminUserData[];
     rewards: RewardItem[];
+    settings?: {
+        apae_email: string;
+    };
 }
 
 export interface CursorPaginatedResponse<T> {

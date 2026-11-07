@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Models\PointBucket;
 use App\Models\Redemption;
 use App\Models\Reward;
+use App\Models\Setting;
 use App\Models\TaxReceipt;
 use App\Models\User;
 use App\Enums\RedemptionStatus;
@@ -15,6 +16,7 @@ use App\Services\RedemptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
@@ -81,11 +83,41 @@ class AdminController extends Controller
 
         $rewards = Reward::orderBy('id', 'desc')->get();
 
+        $settings = [
+            'apae_email' => Setting::get('apae_email', config('services.apae.email') ?: env('APAE_EMAIL') ?: config('mail.from.address')),
+        ];
+
         return response()->json([
             'stats' => $stats,
             'recent_receipts' => $recentReceipts,
             'users' => $users,
             'rewards' => $rewards,
+            'settings' => $settings,
+        ]);
+    }
+
+    public function getSettings(): JsonResponse
+    {
+        $apaeEmail = Setting::get('apae_email', config('services.apae.email') ?: env('APAE_EMAIL') ?: config('mail.from.address'));
+
+        return response()->json([
+            'apae_email' => $apaeEmail,
+        ]);
+    }
+
+    public function updateSettings(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'apae_email' => ['required', 'string', 'email', 'max:255'],
+        ]);
+
+        Setting::set('apae_email', $validated['apae_email']);
+
+        return response()->json([
+            'message' => 'Configuração salva com sucesso.',
+            'settings' => [
+                'apae_email' => $validated['apae_email'],
+            ],
         ]);
     }
 
@@ -100,6 +132,13 @@ class AdminController extends Controller
             'role' => ['required', Rule::enum(UserRole::class)],
             'password' => ['nullable', 'string', 'min:8'],
         ]);
+
+        $targetRole = $validated['role'] instanceof UserRole ? $validated['role'] : UserRole::tryFrom($validated['role']);
+        if ($request->user()->id === $user->id && $targetRole !== UserRole::ADMIN) {
+            throw ValidationException::withMessages([
+                'role' => ['Você não pode remover o privilégio de administrador da sua própria conta.'],
+            ]);
+        }
 
         if (array_key_exists('nick', $validated) && $validated['nick'] !== null) {
             $cleanNick = ltrim(trim($validated['nick']), '@');

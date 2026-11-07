@@ -19,6 +19,7 @@ use App\Enums\TaxReceiptStatus;
     'issue_date',
     'status',
     'rejection_reason',
+    'sent_to_apae_at',
     'original_url'
 ])]
 class TaxReceipt extends Model
@@ -37,6 +38,7 @@ class TaxReceipt extends Model
             'value' => 'decimal:2',
             'points_earned' => 'integer',
             'issue_date' => 'datetime',
+            'sent_to_apae_at' => 'datetime',
             'original_url' => AsUri::class
         ];
     }

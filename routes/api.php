@@ -76,5 +76,7 @@ Route::middleware('auth:sanctum,web')->group(function () {
         Route::patch('/users/{id}', [AdminController::class, 'updateUser']);
         Route::get('/redemptions', [AdminController::class, 'redemptions']);
         Route::patch('/redemptions/{id}', [AdminController::class, 'updateRedemption'])->middleware('throttle:60,1');
+        Route::get('/settings', [AdminController::class, 'getSettings']);
+        Route::patch('/settings', [AdminController::class, 'updateSettings']);
     });
 });
