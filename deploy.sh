@@ -18,6 +18,9 @@ npm run build
 # 4. Executa migrations pendentes sem confirmação interativa
 php artisan migrate --force
 
+# 4.1. Garante que o link simbólico do storage público exista
+php artisan storage:link || true
+
 # 5. Otimização e cache (configurações, rotas, eventos e views Blade)
 php artisan config:cache
 php artisan route:cache
