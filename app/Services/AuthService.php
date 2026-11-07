@@ -20,7 +20,7 @@ class AuthService
             'password' => $data['password'],
         ];
 
-        $isInvalidCredentials = !Auth::attempt($credentials, true);
+        $isInvalidCredentials = !Auth::attempt($credentials, false);
         if ($isInvalidCredentials) {
             abort(401, 'As credenciais fornecidas estão incorretas.');
         }
@@ -34,7 +34,11 @@ class AuthService
         /** @var User $user */
         $user = Auth::user();
 
-        $token = $user->createToken('auth_token')
+        $user->tokens()
+            ->where('expires_at', '<=', now())
+            ->delete();
+
+        $token = $user->createToken('auth_token', ['*'], now()->addDay())
             ->plainTextToken;
 
         return [
@@ -55,7 +59,7 @@ class AuthService
             $user->role = UserRole::USER;
             $user->save();
 
-            Auth::login($user, true);
+            Auth::login($user, false);
 
             $hasSession = request()->hasSession();
             if ($hasSession) {
@@ -63,7 +67,11 @@ class AuthService
                     ->regenerate();
             }
 
-            $token = $user->createToken('auth_token')
+            $user->tokens()
+                ->where('expires_at', '<=', now())
+                ->delete();
+
+            $token = $user->createToken('auth_token', ['*'], now()->addDay())
                 ->plainTextToken;
 
             return [
