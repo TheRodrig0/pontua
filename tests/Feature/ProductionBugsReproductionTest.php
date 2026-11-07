@@ -117,6 +117,7 @@ class ProductionBugsReproductionTest extends TestCase
         $response->assertStatus(202);
         $this->assertDatabaseHas('tax_receipts', [
             'access_key' => $key,
+            'original_url' => "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1",
         ]);
     }
 
@@ -140,6 +141,25 @@ class ProductionBugsReproductionTest extends TestCase
         $response->assertStatus(202);
         $this->assertDatabaseHas('tax_receipts', [
             'access_key' => $key,
+            'original_url' => "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1",
         ]);
+    }
+
+    /**
+     * Fix 5: NfceScraper identifica modal de erro spnErroProsseguirMaster da SEFAZ como NOT_FOUND.
+     */
+    public function test_nfce_scraper_detects_sefaz_qrcode_modal_error_as_not_found(): void
+    {
+        $key = '35' . str_repeat('5', 42);
+        $errorHtml = "<html><body><script>\$('#spnErroProsseguirMaster').html('<ul><li>Problemas na consulta via QR Code</li></ul>');</script></body></html>";
+
+        Http::fake([
+            '*' => Http::response($errorHtml, 200),
+        ]);
+
+        $scraper = new \App\Scrapers\NfceScraper();
+        $result = $scraper->scrape("https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1");
+
+        $this->assertEquals(\App\Enums\SefazReceiptStatus::NOT_FOUND, $result['status']);
     }
 }

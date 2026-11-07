@@ -87,24 +87,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
             setIsSubmitting(true);
 
             try {
-                // Decodificacao inteligente para scanners USB em layout US sobre Windows ABNT2:
-                let normalizedPayload = trimmed;
-                const spKeyMatch = trimmed.match(/(35\d{42})/);
-                if (spKeyMatch) {
-                    const accessKey = spKeyMatch[1];
-                    const tailMatch = trimmed.match(/[|"](\d+)[|"](\d+)/);
-                    const tailParams = tailMatch ? `${tailMatch[1]}%7C${tailMatch[2]}` : '2%7C1%7C1';
-                    normalizedPayload = `https://www.nfce.fazenda.sp.gov.br/qrcode?p=${accessKey}%7C${tailParams}`;
-                } else if (trimmed.includes('>&&') || trimmed.includes('&qrcode')) {
-                    normalizedPayload = trimmed
-                        .replace(/>&&/g, '://')
-                        .replace(/&qrcode_p\)/g, '/qrcode?p=')
-                        .replace(/&qrcode\?p=/g, '/qrcode?p=')
-                        .replace(/&qrcode/g, '/qrcode')
-                        .replace(/"/g, '|');
-                }
-
-                const createdReceipt = await taxReceiptService.store(normalizedPayload);
+                const createdReceipt = await taxReceiptService.store(trimmed);
 
                 setSuccessMessage(
                     'QR Code lido com sucesso! Cupom enviado para validação na SEFAZ-SP.'
