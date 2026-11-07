@@ -173,9 +173,9 @@ class ProductionBugsReproductionTest extends TestCase
     }
 
     /**
-     * Hardening 1: Reciclagem de notas fiscais com falha temporária de comunicação (Deadlock fix).
+     * Validação estrita: unique:tax_receipts,access_key impede qualquer inserção duplicada.
      */
-    public function test_tax_receipt_rejected_due_to_communication_failure_can_be_resubmitted_and_recycled(): void
+    public function test_tax_receipt_cannot_be_duplicated_due_to_unique_access_key_rule(): void
     {
         Queue::fake([ProcessTaxReceiptJob::class]);
 
@@ -184,8 +184,7 @@ class ProductionBugsReproductionTest extends TestCase
         $key = '35' . str_repeat('6', 42);
         $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1";
 
-        // Cria a nota previamente rejeitada por instabilidade na SEFAZ
-        $receipt = TaxReceipt::create([
+        TaxReceipt::create([
             'user_id' => $user->id,
             'access_key' => $key,
             'original_url' => $url,
@@ -195,22 +194,11 @@ class ProductionBugsReproductionTest extends TestCase
             'rejection_reason' => 'Falha de comunicação com o portal da SEFAZ-SP. Tente novamente mais tarde.',
         ]);
 
-        // Reenvio da mesma nota pelo usuário via API
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->postJson('/api/tax-receipts', ['url' => $url]);
 
-        $response->assertStatus(202);
-
-        $receipt->refresh();
-        $this->assertEquals(TaxReceiptStatus::PENDING, $receipt->status);
-        $this->assertNull($receipt->rejection_reason);
-        $this->assertEquals(0, $receipt->points_earned);
-        $this->assertEquals(0, (float) $receipt->value);
-
-        // Garante que o job de processamento foi redispechado
-        Queue::assertPushed(ProcessTaxReceiptJob::class, function ($job) use ($receipt) {
-            return true;
-        });
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['access_key']);
     }
 
     /**

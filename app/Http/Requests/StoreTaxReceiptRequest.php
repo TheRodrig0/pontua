@@ -57,6 +57,7 @@ class StoreTaxReceiptRequest extends FormRequest
                 'string',
                 'size:44',
                 'starts_with:35',
+                'unique:tax_receipts,access_key',
             ],
         ];
     }
