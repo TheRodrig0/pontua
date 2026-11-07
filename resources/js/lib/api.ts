@@ -68,6 +68,18 @@ export async function apiRequest<T>(
     const data = isJson ? await response.json() : null;
 
     if (!response.ok) {
+        if (response.status === 401) {
+            setAuthToken(null);
+
+            if (
+                typeof window !== 'undefined' &&
+                !window.location.pathname.startsWith('/login') &&
+                !window.location.pathname.startsWith('/register')
+            ) {
+                window.location.href = '/login';
+            }
+        }
+
         const firstValidationError = data?.errors
             ? (Object.values(data.errors)[0] as string[])?.[0]
             : null;

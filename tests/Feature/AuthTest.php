@@ -243,6 +243,43 @@ class AuthTest extends TestCase
         ])->assertStatus(422)->assertJsonValidationErrors(['token']);
     }
 
+    public function test_login_issues_token_that_expires_in_one_day_and_no_remember_cookie(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'rodrigo@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => 'rodrigo@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(200);
+
+        $cookies = $response->headers->getCookies();
+        foreach ($cookies as $cookie) {
+            $this->assertStringStartsNotWith('remember_web_', $cookie->getName());
+        }
+
+        $tokenModel = $user->tokens()->first();
+        $this->assertNotNull($tokenModel);
+        $this->assertNotNull($tokenModel->expires_at);
+        $this->assertTrue(
+            $tokenModel->expires_at->between(now()->addHours(23), now()->addHours(25))
+        );
+
+        $plainToken = $response->json('token');
+
+        \Illuminate\Support\Facades\Auth::forgetGuards();
+        $this->flushSession();
+        $this->travel(25)->hours();
+
+        $this->withHeader('Authorization', 'Bearer ' . $plainToken)
+            ->getJson('/api/me')
+            ->assertStatus(401);
+    }
+
     private function issueResetToken(User $user): string
     {
         $selector = \Illuminate\Support\Str::random(24);
