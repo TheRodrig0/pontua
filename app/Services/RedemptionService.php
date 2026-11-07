@@ -7,6 +7,7 @@ use App\Enums\RedemptionStatus;
 use App\Models\Redemption;
 use App\Models\Reward;
 use App\Models\User;
+use App\Notifications\RewardRedeemedNotification;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -46,20 +47,28 @@ class RedemptionService
         // Em caso (raríssimo) de colisão do código único, tenta de novo.
         for ($attempt = 1; ; $attempt++) {
             try {
-                return $this->createOnce($userId, $rewardId);
+                $redemption = $this->createOnce($userId, $rewardId);
+                break;
             } catch (UniqueConstraintViolationException $e) {
                 if ($attempt >= 3) {
                     throw $e;
                 }
             }
         }
+
+        // Dispara e-mail com o código de resgate para o aluno
+        if ($redemption->user) {
+            $redemption->user->notify(new RewardRedeemedNotification($redemption));
+        }
+
+        return $redemption;
     }
 
     private function createOnce(int $userId, int $rewardId): Redemption
     {
         return DB::transaction(function () use ($userId, $rewardId) {
             // Serializa pedidos concorrentes do mesmo aluno.
-            User::where('id', $userId)->lockForUpdate()->firstOrFail();
+            $user = User::where('id', $userId)->lockForUpdate()->firstOrFail();
 
             $reward = Reward::where('id', $rewardId)->lockForUpdate()->first();
             if (! $reward || ! $reward->is_active) {
@@ -101,7 +110,7 @@ class RedemptionService
                 $reward->decrement('stock');
             }
 
-            return $redemption->load('reward:id,name,tag,url_image');
+            return $redemption->load(['reward:id,name,tag,url_image', 'user:id,name,email']);
         });
     }
 

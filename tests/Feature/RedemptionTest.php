@@ -10,8 +10,10 @@ use App\Models\PointBucket;
 use App\Models\Redemption;
 use App\Models\Reward;
 use App\Models\User;
+use App\Notifications\RewardRedeemedNotification;
 use App\Services\PointService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -321,6 +323,69 @@ class RedemptionTest extends TestCase
         $this->patchJson("/api/admin/redemptions/{$id}", ['status' => 'pending'])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['status']);
+    }
+
+    public function test_student_receives_email_notification_with_voucher_on_redemption(): void
+    {
+        Notification::fake();
+
+        $user = $this->studentWithPoints(250);
+        $reward = $this->reward(['name' => 'Caneca FATEC', 'cost' => 100]);
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson('/api/redemptions', ['reward_id' => $reward->id]);
+        $response->assertStatus(201);
+        $voucherCode = $response->json('voucher_code');
+
+        Notification::assertSentTo(
+            $user,
+            RewardRedeemedNotification::class,
+            function (RewardRedeemedNotification $notification) use ($reward, $voucherCode) {
+                return $notification->redemption->voucher_code === $voucherCode
+                    && $notification->redemption->reward_id === $reward->id
+                    && $notification->redemption->points_cost === 100;
+            }
+        );
+    }
+
+    public function test_email_notification_is_not_sent_when_balance_insufficient(): void
+    {
+        Notification::fake();
+
+        $user = $this->studentWithPoints(50);
+        $reward = $this->reward(['cost' => 100]);
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/redemptions', ['reward_id' => $reward->id])->assertStatus(400);
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_email_notification_is_not_sent_when_out_of_stock(): void
+    {
+        Notification::fake();
+
+        $user = $this->studentWithPoints(500);
+        $reward = $this->reward(['stock' => 0]);
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/redemptions', ['reward_id' => $reward->id])->assertStatus(409);
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_email_notification_is_not_sent_on_duplicate_pending(): void
+    {
+        Notification::fake();
+
+        $user = $this->studentWithPoints(500);
+        $reward = $this->reward(['cost' => 100]);
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/redemptions', ['reward_id' => $reward->id])->assertStatus(201);
+        $this->postJson('/api/redemptions', ['reward_id' => $reward->id])->assertStatus(409);
+
+        Notification::assertSentTimes(RewardRedeemedNotification::class, 1);
     }
 }
 
