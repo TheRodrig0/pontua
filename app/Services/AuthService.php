@@ -87,8 +87,12 @@ class AuthService
         $currentUser = $user ?? Auth::user();
 
         if ($currentUser) {
-            $currentUser->currentAccessToken()
-                    ?->delete();
+            $token = $currentUser->currentAccessToken();
+            if ($token && method_exists($token, 'delete')) {
+                $token->delete();
+            } elseif ($bearerToken = request()->bearerToken()) {
+                \Laravel\Sanctum\Sanctum::$personalAccessTokenModel::findToken($bearerToken)?->delete();
+            }
         }
 
         $isWebAuthenticated = Auth::guard('web')->check();

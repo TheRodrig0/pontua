@@ -18,14 +18,24 @@ class StoreTaxReceiptRequest extends FormRequest
             return;
         }
 
-        $pattern = '/\d{44}/';
-        $accessKey = Str::match($pattern, $this->url);
+        $url = trim((string) $this->url);
 
-        if (!$accessKey) {
-            return;
+        // Suporte para quando for enviado apenas a chave de acesso de 44 dígitos iniciando em 35
+        if (preg_match('/^35\d{42}$/', $url)) {
+            $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$url}%7C2%7C1%7C1";
+        } elseif (str_contains($url, '|')) {
+            $url = str_replace('|', '%7C', $url);
         }
 
-        $this->merge(['access_key' => $accessKey]);
+        $pattern = '/\d{44}/';
+        $accessKey = Str::match($pattern, $url);
+
+        $merges = ['url' => $url];
+        if ($accessKey) {
+            $merges['access_key'] = $accessKey;
+        }
+
+        $this->merge($merges);
     }
 
     public function rules(): array
