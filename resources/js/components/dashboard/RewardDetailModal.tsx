@@ -195,7 +195,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                                 </span>
                             </div>
                             <p className="text-[11px] text-app-graytext dark:text-slate-300 leading-relaxed">
-                                Apresente o protocolo <strong>{requestedProtocol}</strong> na coordenação/administração para validar a retirada do seu prêmio. Os pontos já foram reservados e voltam para o seu saldo se o pedido for cancelado.
+                                Enviamos o código de resgate para o seu e-mail cadastrado! Apresente o código <strong>{requestedProtocol}</strong> na Administração da FATEC para validar a retirada do seu prêmio. Os pontos já foram reservados e voltam para o seu saldo se o pedido for cancelado.
                             </p>
                         </div>
                     ) : (
