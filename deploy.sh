@@ -19,7 +19,10 @@ npm run build
 php artisan migrate --force
 
 # 4.1. Garante que o link simbólico do storage público exista
-php artisan storage:link || true
+if [ -d public/storage ] && [ ! -L public/storage ]; then
+    rm -rf public/storage
+fi
+php artisan storage:link --force || true
 
 # 5. Otimização e cache (configurações, rotas, eventos e views Blade)
 php artisan config:cache
