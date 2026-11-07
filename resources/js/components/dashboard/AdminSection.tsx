@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, Clock, KeyRound, RefreshCw, Search, X } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
+import { CheckCircle2, Clock, KeyRound, RefreshCw, Search, Settings, X } from 'lucide-react';
 import { AdminReceiptsList } from '@/components/dashboard/admin/AdminReceiptsList';
 import { AdminRedemptionsList } from '@/components/dashboard/admin/AdminRedemptionsList';
 import { AdminRewardsList } from '@/components/dashboard/admin/AdminRewardsList';
+import { AdminSettingsCard } from '@/components/dashboard/admin/AdminSettingsCard';
 import { AdminStatsGrid, type AdminSubTab } from '@/components/dashboard/admin/AdminStatsGrid';
 import { AdminUsersList } from '@/components/dashboard/admin/AdminUsersList';
 import { RewardFormModal } from '@/components/dashboard/admin/RewardFormModal';
@@ -26,6 +28,8 @@ interface AdminSectionProps {
 }
 
 export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) => {
+    const { props } = usePage<any>();
+    const currentUserId = (props?.auth?.user as any)?.id;
     const [data, setData] = useState<AdminOverviewData | null>(null);
     const [redemptions, setRedemptions] = useState<RewardRedemptionRequest[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -197,6 +201,11 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
             return;
         }
 
+        if (editingUser?.id === currentUserId && userFormRole !== 'admin') {
+            setUserFormError('Você não pode remover o privilégio de administrador da sua própria conta.');
+            return;
+        }
+
         setIsSavingUser(true);
         try {
             const payload: Record<string, unknown> = {
@@ -363,12 +372,14 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                             {subTab === 'redemptions' && 'Validação de Pedidos de Resgate'}
                             {subTab === 'receipts' && 'Últimas Notas Fiscais Enviadas'}
                             {subTab === 'users' && 'Usuários Cadastrados'}
+                            {subTab === 'settings' && 'Configurações'}
                         </h3>
                         <p className="text-[11px] text-app-graytext dark:text-slate-400 mt-0.5">
                             {subTab === 'rewards' && 'Adicione, edite ou remova recompensas do catálogo'}
                             {subTab === 'redemptions' && 'Confirme o protocolo apresentado pelo estudante para liberar o prêmio'}
                             {subTab === 'receipts' && 'Histórico geral de cupons enviados pelos alunos'}
                             {subTab === 'users' && 'Participantes registrados na plataforma'}
+                            {subTab === 'settings' && 'Defina o e-mail de destino dos lotes diários'}
                         </p>
                     </div>
 
@@ -437,6 +448,21 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                             >
                                 Usuários ({users.length})
                             </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSubTab('settings');
+                                    setSearchQuery('');
+                                }}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap ${
+                                    subTab === 'settings'
+                                        ? 'bg-white dark:bg-[#182234] text-app-navy dark:text-white shadow-xs'
+                                        : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
+                                }`}
+                            >
+                                <Settings className="w-3.5 h-3.5" />
+                                <span>Configurações</span>
+                            </button>
                         </div>
 
                         <button
@@ -453,37 +479,39 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                     </div>
                 </div>
 
-                <div className="mb-4">
-                    <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 focus-within:border-[#4bb9a6] transition-colors">
-                        <Search className="w-4 h-4 text-app-graytext dark:text-slate-400 shrink-0" />
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder={
-                                subTab === 'rewards'
-                                    ? 'Pesquisar prêmio por nome, descrição ou categoria...'
-                                    : subTab === 'redemptions'
-                                      ? 'Pesquisar pedido por protocolo (ex: RES-4821), aluno ou prêmio...'
-                                      : subTab === 'receipts'
-                                        ? 'Pesquisar nota por aluno, chave de acesso ou status...'
-                                        : 'Pesquisar usuário por nome, @apelido ou e-mail...'
-                            }
-                            className="w-full bg-transparent text-xs text-app-navy dark:text-white placeholder:text-app-graytext dark:placeholder:text-slate-500 focus:outline-none"
-                        />
-                        {searchQuery && (
-                            <button
-                                type="button"
-                                onClick={() => setSearchQuery('')}
-                                className="p-1 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 text-app-graytext dark:text-slate-400 cursor-pointer transition-colors"
-                                title="Limpar pesquisa"
-                                aria-label="Limpar pesquisa"
-                            >
-                                <X className="w-3.5 h-3.5" />
-                            </button>
-                        )}
+                {subTab !== 'settings' && (
+                    <div className="mb-4">
+                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 focus-within:border-[#4bb9a6] transition-colors">
+                            <Search className="w-4 h-4 text-app-graytext dark:text-slate-400 shrink-0" />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder={
+                                    subTab === 'rewards'
+                                        ? 'Pesquisar prêmio por nome, descrição ou categoria...'
+                                        : subTab === 'redemptions'
+                                          ? 'Pesquisar pedido por protocolo (ex: RES-4821), aluno ou prêmio...'
+                                          : subTab === 'receipts'
+                                            ? 'Pesquisar nota por aluno, chave de acesso ou status...'
+                                            : 'Pesquisar usuário por nome, @apelido ou e-mail...'
+                                }
+                                className="w-full bg-transparent text-xs text-app-navy dark:text-white placeholder:text-app-graytext dark:placeholder:text-slate-500 focus:outline-none"
+                            />
+                            {searchQuery && (
+                                <button
+                                    type="button"
+                                    onClick={() => setSearchQuery('')}
+                                    className="p-1 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 text-app-graytext dark:text-slate-400 cursor-pointer transition-colors"
+                                    title="Limpar pesquisa"
+                                    aria-label="Limpar pesquisa"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {subTab === 'rewards' && (
                     <AdminRewardsList
@@ -525,6 +553,23 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                         onEditUser={openEditUserModal}
                     />
                 )}
+
+                {subTab === 'settings' && (
+                    <AdminSettingsCard
+                        initialEmail={data?.settings?.apae_email}
+                        onSettingsUpdated={(newEmail) => {
+                            if (data) {
+                                setData({
+                                    ...data,
+                                    settings: {
+                                        ...data.settings,
+                                        apae_email: newEmail,
+                                    },
+                                });
+                            }
+                        }}
+                    />
+                )}
             </div>
 
             <RewardFormModal
@@ -549,6 +594,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
             <UserEditModal
                 isOpen={isUserModalOpen}
                 editingUser={editingUser}
+                isSelf={editingUser?.id === currentUserId}
                 userFormName={userFormName}
                 userFormEmail={userFormEmail}
                 userFormNick={userFormNick}

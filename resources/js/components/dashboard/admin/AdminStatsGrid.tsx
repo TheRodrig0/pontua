@@ -3,7 +3,7 @@ import { Gift, Plus, ReceiptText, Sparkles } from 'lucide-react';
 import { formatCurrencyBRL } from '@/utils/formatters';
 import type { AdminOverviewData } from '@/types/dashboard';
 
-export type AdminSubTab = 'rewards' | 'redemptions' | 'receipts' | 'users';
+export type AdminSubTab = 'rewards' | 'redemptions' | 'receipts' | 'users' | 'settings';
 
 interface AdminStatsGridProps {
     stats?: AdminOverviewData['stats'];

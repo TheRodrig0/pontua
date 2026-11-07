@@ -6,6 +6,7 @@ import type { AdminUserData } from '@/types/dashboard';
 interface UserEditModalProps {
     isOpen: boolean;
     editingUser: AdminUserData | null;
+    isSelf?: boolean;
     userFormName: string;
     userFormEmail: string;
     userFormNick: string;
@@ -25,6 +26,7 @@ interface UserEditModalProps {
 export const UserEditModal: React.FC<UserEditModalProps> = ({
     isOpen,
     editingUser,
+    isSelf,
     userFormName,
     userFormEmail,
     userFormNick,
@@ -108,12 +110,18 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                         <select
                             id="admin-user-role"
                             value={userFormRole}
+                            disabled={isSelf}
                             onChange={(e) => onChangeRole(e.target.value as 'user' | 'admin')}
-                            className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6]"
+                            className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6] disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             <option value="user">Aluno (Padrão)</option>
                             <option value="admin">Administrador</option>
                         </select>
+                        {isSelf && (
+                            <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
+                                Você não pode remover o privilégio de administrador da sua própria conta.
+                            </p>
+                        )}
                     </div>
                 </div>
 
