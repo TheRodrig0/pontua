@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\SefazReceiptStatus;
 use App\Enums\PointTransactionSource;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
@@ -66,7 +67,7 @@ class TaxReceiptService
         $lock = Cache::lock($lockKey, $seconds);
 
         if (!$lock->get()) {
-            return;
+            throw new LockTimeoutException("Não foi possível adquirir o lock para processar a nota fiscal {$taxReceipt->id}.");
         }
 
         try {

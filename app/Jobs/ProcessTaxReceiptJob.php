@@ -17,8 +17,8 @@ class ProcessTaxReceiptJob implements ShouldQueue
 {
     use Queueable, Dispatchable, SerializesModels, InteractsWithQueue;
 
-    public int $tries = 5;
-    public array $backoff = [10, 30, 60, 120, 300];
+    public int $tries = 3;
+    public array $backoff = [5, 15, 30];
 
     public function __construct(
         private readonly TaxReceipt $taxReceipt
