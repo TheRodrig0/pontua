@@ -1,8 +1,3 @@
-export function formatPoints(value: number | undefined | null): string {
-    const safeValue = Number(value) || 0;
-    return safeValue.toLocaleString('pt-BR');
-}
-
 export function formatCurrencyBRL(value: string | number | undefined | null): string {
     const numericValue = typeof value === 'string' ? parseFloat(value) : Number(value || 0);
     const isInvalidNumber = Number.isNaN(numericValue);
