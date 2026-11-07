@@ -387,5 +387,31 @@ class RedemptionTest extends TestCase
 
         Notification::assertSentTimes(RewardRedeemedNotification::class, 1);
     }
+
+    public function test_reward_redeemed_notification_renders_clean_template(): void
+    {
+        $user = $this->studentWithPoints(200);
+        $reward = $this->reward(['name' => 'Garrafa Térmica Pontua', 'cost' => 150]);
+
+        $redemption = Redemption::create([
+            'user_id' => $user->id,
+            'reward_id' => $reward->id,
+            'points_cost' => 150,
+            'voucher_code' => 'RES-CLEAN123',
+            'status' => RedemptionStatus::PENDING,
+        ]);
+        $redemption->setRelation('reward', $reward);
+
+        $notification = new RewardRedeemedNotification($redemption);
+        $mail = $notification->toMail($user);
+
+        $this->assertEquals('Código de Resgate: RES-CLEAN123 - Pontua', $mail->subject);
+        $rendered = $mail->render();
+
+        $this->assertStringContainsString('RES-CLEAN123', $rendered);
+        $this->assertStringContainsString('Garrafa Térmica Pontua', $rendered);
+        $this->assertStringContainsString($user->name, $rendered);
+        $this->assertStringContainsString('Administração da FATEC', $rendered);
+    }
 }
 

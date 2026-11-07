@@ -7,7 +7,7 @@ import {
     Watch,
     Gift,
     CheckCircle2,
-    KeyRound,
+    Mail,
 } from 'lucide-react';
 import ModalDialog from '@/components/ui/ModalDialog';
 import { REWARD_TAG_LABELS } from '@/enums/dashboard';
@@ -36,7 +36,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [imageError, setImageError] = useState(false);
-    const [requestedProtocol, setRequestedProtocol] = useState<string | null>(null);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [isRedeeming, setIsRedeeming] = useState(false);
     const [redeemError, setRedeemError] = useState<string | null>(null);
 
@@ -45,7 +45,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
             setReward(null);
             setErrorMessage(null);
             setImageError(false);
-            setRequestedProtocol(null);
+            setIsSuccess(false);
             setRedeemError(null);
             return;
         }
@@ -54,7 +54,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
         setIsLoading(true);
         setErrorMessage(null);
         setImageError(false);
-        setRequestedProtocol(null);
+        setIsSuccess(false);
         setRedeemError(null);
 
         rewardService
@@ -95,8 +95,8 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
         setRedeemError(null);
 
         try {
-            const created = await redemptionService.create(reward.id);
-            setRequestedProtocol(created.voucher_code);
+            await redemptionService.create(reward.id);
+            setIsSuccess(true);
             onRedeemed?.();
         } catch (error: any) {
             setRedeemError(error.message || 'Não foi possível solicitar o resgate.');
@@ -182,21 +182,19 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                         </div>
                     )}
 
-                    {requestedProtocol ? (
-                        <div className="bg-[#4bb9a6]/15 border border-[#4bb9a6]/35 rounded-xl p-4 space-y-2">
-                            <div className="flex items-center justify-between gap-2">
-                                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#4bb9a6]">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    Pedido de resgate enviado!
-                                </span>
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-mono font-extrabold bg-white dark:bg-slate-900 text-app-navy dark:text-white border border-[#4bb9a6]/40">
-                                    <KeyRound className="w-3 h-3 text-[#4bb9a6]" />
-                                    {requestedProtocol}
-                                </span>
+                    {isSuccess ? (
+                        <div className="bg-[#4bb9a6]/15 border border-[#4bb9a6]/35 rounded-xl p-4 space-y-2.5">
+                            <div className="flex items-center gap-2 text-xs font-extrabold text-[#4bb9a6]">
+                                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                                <span>Solicitação de resgate enviada com sucesso!</span>
                             </div>
                             <p className="text-[11px] text-app-graytext dark:text-slate-300 leading-relaxed">
-                                Enviamos o código de resgate para o seu e-mail cadastrado! Apresente o código <strong>{requestedProtocol}</strong> na Administração da FATEC para validar a retirada do seu prêmio. Os pontos já foram reservados e voltam para o seu saldo se o pedido for cancelado.
+                                Seus pontos foram reservados. O código de resgate oficial foi <strong>enviado diretamente para o seu e-mail cadastrado</strong>.
                             </p>
+                            <div className="pt-1 text-[11px] font-semibold text-app-navy dark:text-white flex items-start gap-2 bg-white/60 dark:bg-slate-900/60 p-2.5 rounded-lg border border-[#4bb9a6]/30">
+                                <Mail className="w-4 h-4 text-[#4bb9a6] shrink-0 mt-0.5" />
+                                <span>Acesse sua caixa de entrada e apresente o e-mail na Administração da FATEC para retirar seu prêmio.</span>
+                            </div>
                         </div>
                     ) : (
                         <div className="flex items-center justify-between gap-3 bg-[#4bb9a6]/10 dark:bg-[#112a2e]/50 border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 rounded-xl p-3.5 text-xs">
@@ -233,7 +231,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                             Fechar
                         </button>
 
-                        {!requestedProtocol && (
+                        {!isSuccess && (
                             <button
                                 type="button"
                                 disabled={!canRedeem}

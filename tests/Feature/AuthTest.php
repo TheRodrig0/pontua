@@ -170,6 +170,29 @@ class AuthTest extends TestCase
         ]);
     }
 
+    public function test_reset_password_notification_renders_clean_template(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Rodrigo Teste',
+            'email' => 'rodrigo@example.com',
+        ]);
+
+        $notification = new \App\Notifications\ResetPasswordNotification(
+            url: 'https://pontuaffr.com.br/reset-password?token=sample-token-123',
+            expiresInMinutes: 30
+        );
+
+        $mail = $notification->toMail($user);
+
+        $this->assertEquals('Redefinição de Senha - Pontua', $mail->subject);
+        $rendered = $mail->render();
+
+        $this->assertStringContainsString('Rodrigo Teste', $rendered);
+        $this->assertStringContainsString('sample-token-123', $rendered);
+        $this->assertStringContainsString('30 minutos', $rendered);
+        $this->assertStringContainsString('Redefinir Minha Senha', $rendered);
+    }
+
     public function test_forgot_password_does_not_reveal_unregistered_email(): void
     {
         $response = $this->postJson('/api/auth/forgot-password', [

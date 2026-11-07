@@ -30,20 +30,14 @@ class RewardRedeemedNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $rewardName = $this->redemption->reward?->name ?? 'Recompensa';
-        $pointsCost = $this->redemption->points_cost;
         $voucherCode = $this->redemption->voucher_code;
 
         return (new MailMessage)
             ->subject("Código de Resgate: {$voucherCode} - Pontua")
-            ->greeting("Olá, {$notifiable->name}!")
-            ->line("Seu pedido de resgate foi realizado com sucesso no Pontua.")
-            ->line("**Recompensa:** {$rewardName}")
-            ->line("**Pontos utilizados:** {$pointsCost} PTS")
-            ->line("**Código de Resgate:**")
-            ->line("# {$voucherCode}")
-            ->line("Para retirar seu prêmio, apresente este código de resgate na Administração/Coordenação da FATEC.")
-            ->line("Os pontos correspondentes já foram reservados da sua conta. Caso o pedido seja cancelado, os pontos serão estornados automaticamente.");
+            ->view('emails.reward-redeemed', [
+                'redemption' => $this->redemption,
+                'user' => $notifiable,
+            ]);
     }
 }
 
