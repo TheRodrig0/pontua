@@ -34,7 +34,7 @@ class RewardService
     {
         if (isset($data['image'])) {
             $path = $data['image']->store('rewards', 'public');
-            $data['url_image'] = Storage::disk('public')->url($path);
+            $data['url_image'] = '/storage/' . ltrim($path, '/');
         }
 
         $reward = Reward::create([
@@ -56,7 +56,7 @@ class RewardService
 
         if (isset($data['image'])) {
             $path = $data['image']->store('rewards', 'public');
-            $data['url_image'] = Storage::disk('public')->url($path);
+            $data['url_image'] = '/storage/' . ltrim($path, '/');
         }
 
         $reward->update($data);
