@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { subscribeToUserReceiptChannel } from '@/lib/realtime';
 import { donationService } from '@/services/donationService';
 import { rankingService } from '@/services/rankingService';
 import { rewardService } from '@/services/rewardService';
@@ -160,25 +159,6 @@ export function useDashboardData(inertiaUser?: InertiaAuthUser | null) {
         },
         [fetchCoreData]
     );
-
-    // Subscribe to Laravel Reverb PrivateChannel("users.{userId}") for TaxReceiptProcessedEvent
-    useEffect(() => {
-        if (!profile?.id) {
-            return;
-        }
-
-        const unsubscribe = subscribeToUserReceiptChannel(profile.id, (processedReceipt) => {
-            setReceipts((prev) =>
-                prev.map((item) =>
-                    item.id === processedReceipt.id ? { ...item, ...processedReceipt } : item
-                )
-            );
-            fetchCoreData();
-            fetchRankingAndDonations();
-        });
-
-        return unsubscribe;
-    }, [profile?.id, fetchCoreData, fetchRankingAndDonations]);
 
     // Poll automatically every 2.5s whenever there is a receipt with status === 'pending'
     // (works seamlessly both with Queue Worker and in environments where WebSocket port 8080 is not exposed)
