@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\SefazReceiptStatus;
 use App\Enums\PointTransactionSource;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
@@ -38,6 +39,30 @@ class TaxReceiptService
      */
     public function store(int $userId, array $data): TaxReceipt
     {
+        $existing = TaxReceipt::where('access_key', $data['access_key'])->first();
+
+        if ($existing) {
+            if ($this->isRetryableCommunicationFailure($existing)) {
+                $existing->update([
+                    'user_id' => $userId,
+                    'status' => TaxReceiptStatus::PENDING,
+                    'rejection_reason' => null,
+                    'points_earned' => 0,
+                    'value' => 0,
+                    'original_url' => $data['url'],
+                ]);
+
+                ProcessTaxReceiptJob::dispatch($existing)
+                    ->afterCommit();
+
+                return $existing;
+            }
+
+            throw ValidationException::withMessages([
+                'access_key' => ['Esta nota fiscal já foi inserida no sistema.'],
+            ]);
+        }
+
         try {
             $taxReceipt = TaxReceipt::create([
                 'user_id' => $userId,
@@ -48,6 +73,24 @@ class TaxReceiptService
                 'original_url' => $data['url']
             ]);
         } catch (UniqueConstraintViolationException) {
+            $existing = TaxReceipt::where('access_key', $data['access_key'])->first();
+
+            if ($existing && $this->isRetryableCommunicationFailure($existing)) {
+                $existing->update([
+                    'user_id' => $userId,
+                    'status' => TaxReceiptStatus::PENDING,
+                    'rejection_reason' => null,
+                    'points_earned' => 0,
+                    'value' => 0,
+                    'original_url' => $data['url'],
+                ]);
+
+                ProcessTaxReceiptJob::dispatch($existing)
+                    ->afterCommit();
+
+                return $existing;
+            }
+
             throw ValidationException::withMessages([
                 'access_key' => ['Esta nota fiscal já foi inserida no sistema.'],
             ]);
@@ -59,6 +102,46 @@ class TaxReceiptService
         return $taxReceipt;
     }
 
+    public function isRetryableCommunicationFailure(TaxReceipt $taxReceipt): bool
+    {
+        if ($taxReceipt->status !== TaxReceiptStatus::REJECTED) {
+            return false;
+        }
+
+        $reason = $taxReceipt->rejection_reason;
+        if (empty($reason)) {
+            return false;
+        }
+
+        $legitimateBusinessReasons = [
+            'Nota fiscal com mais de',
+            'Valor da nota fiscal inferior',
+            'cancelada',
+            'denegada',
+            'não encontrada',
+            'Link inválido',
+            'Tamanho de resposta',
+        ];
+
+        foreach ($legitimateBusinessReasons as $businessReason) {
+            if (str_contains(mb_strtolower($reason), mb_strtolower($businessReason))) {
+                return false;
+            }
+        }
+
+        if (
+            str_contains(mb_strtolower($reason), 'falha de comunicação') ||
+            str_contains(mb_strtolower($reason), 'indisponív') ||
+            str_contains(mb_strtolower($reason), 'tente novamente mais tarde') ||
+            str_contains(mb_strtolower($reason), 'timeout') ||
+            str_contains(mb_strtolower($reason), 'conexão')
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function process(TaxReceipt $taxReceipt): void
     {
         $lockKey = "process-tax-receipt:{$taxReceipt->id}";
@@ -66,7 +149,7 @@ class TaxReceiptService
         $lock = Cache::lock($lockKey, $seconds);
 
         if (!$lock->get()) {
-            return;
+            throw new LockTimeoutException("Não foi possível adquirir o lock para processar a nota fiscal {$taxReceipt->id}.");
         }
 
         try {

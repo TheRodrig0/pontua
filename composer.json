@@ -42,6 +42,7 @@
             "Composer\\Config::disableProcessTimeout",
             "@php artisan dev"
         ],
+        "queue": "php artisan queue:listen",
         "test": [
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"

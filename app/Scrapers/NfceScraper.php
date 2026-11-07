@@ -5,6 +5,7 @@ namespace App\Scrapers;
 use App\Enums\SefazReceiptStatus;
 use Carbon\Carbon;
 use GuzzleHttp\Cookie\CookieJar;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
@@ -71,11 +72,18 @@ class NfceScraper
             ];
         }
 
+        $value = $this->extractValue($crawler);
+        $issueDate = $this->extractIssueDate($crawler);
+
+        if ($value === null || $issueDate === null) {
+            throw new ConnectionException('Portal da SEFAZ-SP retornou resposta sem os dados estruturais do cupom (possível instabilidade, manutenção ou indisponibilidade temporária).');
+        }
+
         return [
             'status' => SefazReceiptStatus::SUCCESS,
             'rejectionReason' => null,
-            'value' => $this->extractValue($crawler),
-            'issueDate' => $this->extractIssueDate($crawler),
+            'value' => $value,
+            'issueDate' => $issueDate,
         ];
     }
 

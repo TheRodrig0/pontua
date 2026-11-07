@@ -2,9 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Enums\TaxReceiptStatus;
+use App\Jobs\ProcessTaxReceiptJob;
+use App\Models\TaxReceipt;
 use App\Models\User;
+use App\Services\TaxReceiptService;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class ProductionBugsReproductionTest extends TestCase
@@ -161,5 +170,158 @@ class ProductionBugsReproductionTest extends TestCase
         $result = $scraper->scrape("https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1");
 
         $this->assertEquals(\App\Enums\SefazReceiptStatus::NOT_FOUND, $result['status']);
+    }
+
+    /**
+     * Hardening 1: Reciclagem de notas fiscais com falha temporária de comunicação (Deadlock fix).
+     */
+    public function test_tax_receipt_rejected_due_to_communication_failure_can_be_resubmitted_and_recycled(): void
+    {
+        Queue::fake([ProcessTaxReceiptJob::class]);
+
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+        $key = '35' . str_repeat('6', 42);
+        $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1";
+
+        // Cria a nota previamente rejeitada por instabilidade na SEFAZ
+        $receipt = TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => $key,
+            'original_url' => $url,
+            'value' => 0,
+            'points_earned' => 0,
+            'status' => TaxReceiptStatus::REJECTED,
+            'rejection_reason' => 'Falha de comunicação com o portal da SEFAZ-SP. Tente novamente mais tarde.',
+        ]);
+
+        // Reenvio da mesma nota pelo usuário via API
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/tax-receipts', ['url' => $url]);
+
+        $response->assertStatus(202);
+
+        $receipt->refresh();
+        $this->assertEquals(TaxReceiptStatus::PENDING, $receipt->status);
+        $this->assertNull($receipt->rejection_reason);
+        $this->assertEquals(0, $receipt->points_earned);
+        $this->assertEquals(0, (float) $receipt->value);
+
+        // Garante que o job de processamento foi redispechado
+        Queue::assertPushed(ProcessTaxReceiptJob::class, function ($job) use ($receipt) {
+            return true;
+        });
+    }
+
+    /**
+     * Hardening 1b: Notas rejeitadas por regra de negócio legítima continuam bloqueadas com 422.
+     */
+    public function test_tax_receipt_rejected_due_to_legitimate_business_rule_cannot_be_resubmitted(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+        $key = '35' . str_repeat('7', 42);
+        $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1";
+
+        TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => $key,
+            'original_url' => $url,
+            'value' => 50,
+            'points_earned' => 0,
+            'status' => TaxReceiptStatus::REJECTED,
+            'rejection_reason' => 'Nota fiscal com mais de 40 dias de emissão.',
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/tax-receipts', ['url' => $url]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['access_key']);
+    }
+
+    /**
+     * Hardening 1c: Notas aprovadas continuam bloqueadas com 422.
+     */
+    public function test_tax_receipt_approved_cannot_be_resubmitted(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+        $key = '35' . str_repeat('8', 42);
+        $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1";
+
+        TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => $key,
+            'original_url' => $url,
+            'value' => 100,
+            'points_earned' => 100,
+            'status' => TaxReceiptStatus::APPROVED,
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/tax-receipts', ['url' => $url]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['access_key']);
+    }
+
+    /**
+     * Hardening 2: Concorrência - process() lança LockTimeoutException se o lock já estiver ocupado.
+     */
+    public function test_tax_receipt_process_throws_lock_timeout_exception_when_lock_is_busy(): void
+    {
+        $user = User::factory()->create();
+        $receipt = TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => '35' . str_repeat('9', 42),
+            'original_url' => 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=test',
+            'status' => TaxReceiptStatus::PENDING,
+            'value' => 0,
+            'points_earned' => 0,
+        ]);
+
+        // Ocupa o lock previamente
+        $lockKey = "process-tax-receipt:{$receipt->id}";
+        $lock = Cache::lock($lockKey, 30);
+        $this->assertTrue($lock->get());
+
+        try {
+            $service = app(TaxReceiptService::class);
+            $this->expectException(LockTimeoutException::class);
+            $service->process($receipt);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /**
+     * Hardening 3: Scraper lança ConnectionException para que fila retente se HTML não contiver dados estruturais.
+     */
+    public function test_nfce_scraper_throws_connection_exception_on_maintenance_or_missing_structural_data(): void
+    {
+        $key = '35' . str_repeat('0', 42);
+        $maintenanceHtml = '<html><body><div class="msgManutencao">Portal da SEFAZ em manutenção programada.</div></body></html>';
+
+        Http::fake([
+            '*' => Http::response($maintenanceHtml, 200),
+        ]);
+
+        $scraper = new \App\Scrapers\NfceScraper();
+
+        $this->expectException(ConnectionException::class);
+        $scraper->scrape("https://www.nfce.fazenda.sp.gov.br/qrcode?p={$key}%7C3%7C1");
+    }
+
+    /**
+     * Hardening 4: Job configurado com 3 tentativas e backoff de [5, 15, 30].
+     */
+    public function test_process_tax_receipt_job_has_optimized_tries_and_backoff(): void
+    {
+        $receipt = new TaxReceipt();
+        $job = new ProcessTaxReceiptJob($receipt);
+
+        $this->assertEquals(3, $job->tries);
+        $this->assertEquals([5, 15, 30], $job->backoff);
     }
 }
