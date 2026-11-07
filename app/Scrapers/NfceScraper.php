@@ -4,6 +4,7 @@ namespace App\Scrapers;
 
 use App\Enums\SefazReceiptStatus;
 use Carbon\Carbon;
+use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
@@ -12,12 +13,19 @@ class NfceScraper
 {
     public function scrape(string $url): array
     {
-        $timeout = 10;
-        $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
+        $timeout = 15;
+        $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+        $normalizedUrl = $this->normalizeSefazUrl($url);
 
         $response = Http::withUserAgent($userAgent)
+            ->withHeaders([
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Accept-Language' => 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+            ])
+            ->withOptions(['cookies' => new CookieJar()])
+            ->withoutVerifying()
             ->timeout($timeout)
-            ->get($url)
+            ->get($normalizedUrl)
             ->throw();
 
         $body = $response->body();
@@ -54,12 +62,30 @@ class NfceScraper
             }
         }
 
+        if (str_contains($body, "spnErroProsseguirMaster').html('") || str_contains($body, "spnErroMaster').html('")) {
+            return [
+                'status' => SefazReceiptStatus::NOT_FOUND,
+                'rejectionReason' => SefazReceiptStatus::NOT_FOUND->message(),
+                'value' => 0,
+                'issueDate' => null,
+            ];
+        }
+
         return [
             'status' => SefazReceiptStatus::SUCCESS,
             'rejectionReason' => null,
             'value' => $this->extractValue($crawler),
             'issueDate' => $this->extractIssueDate($crawler),
         ];
+    }
+
+    private function normalizeSefazUrl(string $url): string
+    {
+        if (preg_match('/\?p=(35\d{42})(?:%7C|\|).+$/i', $url, $matches)) {
+            return "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$matches[1]}%7C3%7C1";
+        }
+
+        return $url;
     }
 
     private function extractValue(Crawler $crawler): ?float

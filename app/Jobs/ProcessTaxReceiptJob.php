@@ -46,6 +46,15 @@ class ProcessTaxReceiptJob implements ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
+        if ($exception) {
+            \Illuminate\Support\Facades\Log::warning('ProcessTaxReceiptJob failed', [
+                'tax_receipt_id' => $this->taxReceipt->id,
+                'access_key' => $this->taxReceipt->access_key,
+                'url' => (string) $this->taxReceipt->original_url,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+
         $this->taxReceipt->refresh();
 
         if ($this->taxReceipt->status === TaxReceiptStatus::PENDING) {

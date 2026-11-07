@@ -2,7 +2,17 @@ import { apiRequest } from '@/lib/api';
 import type { CursorPaginatedResponse, TaxReceiptItem } from '@/types/dashboard';
 
 export function normalizeSefazQrPayload(rawContent: string): string {
-    const trimmed = rawContent.trim();
+    let trimmed = rawContent.trim();
+
+    // 0. Decode USB scanner in US keyboard layout over Windows ABNT2
+    if (trimmed.includes('>&&') || trimmed.includes('&qrcode')) {
+        trimmed = trimmed
+            .replace(/>&&/g, '://')
+            .replace(/&qrcode_p\)/g, '/qrcode?p=')
+            .replace(/&qrcode\?p=/g, '/qrcode?p=')
+            .replace(/&qrcode/g, '/qrcode')
+            .replace(/"/g, '|');
+    }
 
     // 1. Official SEFAZ-SP URL (any subdomain of fazenda.sp.gov.br):
     // Normalize host to https://www.nfce.fazenda.sp.gov.br and encode pipes (%) for PHP FILTER_VALIDATE_URL
@@ -11,20 +21,28 @@ export function normalizeSefazQrPayload(rawContent: string): string {
         const pathAndQuery = (sefazHostMatch[1] || '/qrcode')
             .replace(/\s+/g, '')
             .replace(/\|/g, '%7C');
-        return `https://www.nfce.fazenda.sp.gov.br${pathAndQuery}`;
+        const fullUrl = `https://www.nfce.fazenda.sp.gov.br${pathAndQuery}`;
+
+        // Upgrade any ?p=chave|... query to SEFAZ-SP QR Code v3 (%7C3%7C1)
+        const keyInParamMatch = fullUrl.match(/\?p=(35\d{42})(?:%7C.*)?$/i);
+        if (keyInParamMatch) {
+            return `https://www.nfce.fazenda.sp.gov.br/qrcode?p=${keyInParamMatch[1]}%7C3%7C1`;
+        }
+
+        return fullUrl;
     }
 
     // 2. CF-e SAT QR Code ("352611...|timestamp|valor|...") or string containing a 44-digit SP access key
     const directMatch = trimmed.match(/(35\d{42})/);
     if (directMatch) {
-        return `https://www.nfce.fazenda.sp.gov.br/qrcode?p=${directMatch[1]}%7C2%7C1%7C1`;
+        return `https://www.nfce.fazenda.sp.gov.br/qrcode?p=${directMatch[1]}%7C3%7C1`;
     }
 
     // 3. Spaced 44-digit access key ("3526 1100 ...")
     const digitsOnly = trimmed.replace(/\D/g, '');
     const digitsMatch = digitsOnly.match(/^(35\d{42})/);
     if (digitsMatch) {
-        return `https://www.nfce.fazenda.sp.gov.br/qrcode?p=${digitsMatch[1]}%7C2%7C1%7C1`;
+        return `https://www.nfce.fazenda.sp.gov.br/qrcode?p=${digitsMatch[1]}%7C3%7C1`;
     }
 
     return trimmed.replace(/\|/g, '%7C');

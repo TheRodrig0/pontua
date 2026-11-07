@@ -22,9 +22,13 @@ class StoreTaxReceiptRequest extends FormRequest
 
         // Suporte para quando for enviado apenas a chave de acesso de 44 dígitos iniciando em 35
         if (preg_match('/^35\d{42}$/', $url)) {
-            $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$url}%7C2%7C1%7C1";
+            $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$url}%7C3%7C1";
         } elseif (str_contains($url, '|')) {
             $url = str_replace('|', '%7C', $url);
+        }
+
+        if (preg_match('/\?p=(35\d{42})%7C.+$/i', $url, $matches)) {
+            $url = "https://www.nfce.fazenda.sp.gov.br/qrcode?p={$matches[1]}%7C3%7C1";
         }
 
         $pattern = '/\d{44}/';
