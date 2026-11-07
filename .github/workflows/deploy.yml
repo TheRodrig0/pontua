@@ -24,4 +24,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/pontua
+            git pull origin main
             bash deploy.sh
