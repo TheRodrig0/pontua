@@ -30,6 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleInertiaRequests::class,
         ]);
+
+        $middleware->alias([
+            'not_banned' => \App\Http\Middleware\EnsureUserIsNotBanned::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

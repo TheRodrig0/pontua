@@ -22,6 +22,7 @@ class RankingService
                 'avatar_url',
                 'scan_streak',
             ])
+                ->whereNull('banned_at')
                 ->withSum('pointBuckets as total_donated', 'initial_points')
                 ->get()
                 ->sortBy([
@@ -63,6 +64,7 @@ class RankingService
                         FROM users
                     -- Inclui usuarios mesmo que ainda nao tenham pontuacoes registradas
                     LEFT JOIN point_buckets ON users.id = point_buckets.user_id
+                    WHERE users.banned_at IS NULL
 
                      GROUP BY users.id, users.scan_streak
                 )
