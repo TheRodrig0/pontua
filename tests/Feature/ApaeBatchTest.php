@@ -150,4 +150,156 @@ class ApaeBatchTest extends TestCase
         $zip->close();
         unlink($tempFile);
     }
+
+    public function test_admin_can_manually_send_and_download_apae_batch(): void
+    {
+        Mail::fake();
+
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $user = $this->createUser();
+
+        $receipt = TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => '35240900000000000000550010000000011000000099',
+            'value' => 120.00,
+            'points_earned' => 120,
+            'status' => TaxReceiptStatus::APPROVED,
+            'issue_date' => now()->subHours(2),
+            'original_url' => 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=35240900000000000000550010000000011000000099',
+        ]);
+
+        // 1. Download manual do ZIP
+        $downloadResponse = $this->actingAs($admin, 'sanctum')
+            ->get('/api/admin/apae-batch/download');
+
+        $downloadResponse->assertStatus(200);
+        $this->assertEquals('application/zip', $downloadResponse->headers->get('Content-Type'));
+        $this->assertNotEmpty($downloadResponse->getContent());
+
+        // 2. Disparo manual por e-mail
+        $sendResponse = $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/admin/apae-batch/send');
+
+        $sendResponse->assertStatus(200)
+            ->assertJson([
+                'total_receipts' => 1,
+            ]);
+
+        Mail::assertQueued(ApaeDailyBatchMail::class);
+        $this->assertNotNull($receipt->fresh()->sent_to_apae_at);
+    }
+
+    public function test_non_admin_cannot_access_manual_apae_batch_endpoints(): void
+    {
+        $user = $this->createUser();
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson('/api/admin/apae-batch/send')
+            ->assertStatus(403);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/admin/apae-batch/download')
+            ->assertStatus(403);
+    }
+
+    public function test_manual_apae_batch_endpoints_return_422_when_no_approved_receipts_exist(): void
+    {
+        Mail::fake();
+
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $user = $this->createUser();
+
+        TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => '35240900000000000000550010000000011000000077',
+            'value' => 10.00,
+            'points_earned' => 0,
+            'status' => TaxReceiptStatus::REJECTED,
+            'original_url' => 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=77',
+        ]);
+
+        $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/admin/apae-batch/send')
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['batch']);
+
+        $this->actingAs($admin, 'sanctum')
+            ->getJson('/api/admin/apae-batch/download')
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['batch']);
+
+        Mail::assertNothingQueued();
+    }
+
+    public function test_manual_apae_batch_fallback_returns_already_sent_approved_receipts_without_overwriting_timestamp(): void
+    {
+        Mail::fake();
+
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $user = $this->createUser();
+        $originalSentAt = now()->subDays(2)->startOfSecond();
+
+        $receipt = TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => '35240900000000000000550010000000011000000088',
+            'value' => 80.00,
+            'points_earned' => 80,
+            'status' => TaxReceiptStatus::APPROVED,
+            'issue_date' => now()->subDays(3),
+            'sent_to_apae_at' => $originalSentAt,
+            'original_url' => 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=88',
+        ]);
+
+        $this->actingAs($admin, 'sanctum')
+            ->get('/api/admin/apae-batch/download')
+            ->assertStatus(200);
+
+        $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/admin/apae-batch/send')
+            ->assertStatus(200)
+            ->assertJson(['total_receipts' => 1]);
+
+        Mail::assertQueued(ApaeDailyBatchMail::class);
+        $this->assertEquals(
+            $originalSentAt->toDateTimeString(),
+            $receipt->fresh()->sent_to_apae_at->toDateTimeString()
+        );
+    }
+
+    public function test_manual_apae_batch_prioritizes_unsent_approved_receipts_over_already_sent(): void
+    {
+        Mail::fake();
+
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $user = $this->createUser();
+
+        TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => '35240900000000000000550010000000011000000081',
+            'value' => 40.00,
+            'points_earned' => 40,
+            'status' => TaxReceiptStatus::APPROVED,
+            'issue_date' => now()->subDays(2),
+            'sent_to_apae_at' => now()->subDay(),
+            'original_url' => 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=81',
+        ]);
+
+        $unsentReceipt = TaxReceipt::create([
+            'user_id' => $user->id,
+            'access_key' => '35240900000000000000550010000000011000000082',
+            'value' => 60.00,
+            'points_earned' => 60,
+            'status' => TaxReceiptStatus::APPROVED,
+            'issue_date' => now()->subHours(3),
+            'sent_to_apae_at' => null,
+            'original_url' => 'https://www.nfce.fazenda.sp.gov.br/qrcode?p=82',
+        ]);
+
+        $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/admin/apae-batch/send')
+            ->assertStatus(200)
+            ->assertJson(['total_receipts' => 1]);
+
+        $this->assertNotNull($unsentReceipt->fresh()->sent_to_apae_at);
+    }
 }

@@ -66,4 +66,10 @@ export const taxReceiptService = {
             body: JSON.stringify({ url: normalizedUrl }),
         });
     },
+
+    async retry(id: number): Promise<TaxReceiptItem> {
+        return apiRequest<TaxReceiptItem>(`/api/tax-receipts/${id}/retry`, {
+            method: 'POST',
+        });
+    },
 };

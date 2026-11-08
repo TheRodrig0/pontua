@@ -60,7 +60,7 @@ class ProcessTaxReceiptJob implements ShouldQueue
         if ($this->taxReceipt->status === TaxReceiptStatus::PENDING) {
             $this->taxReceipt->update([
                 'status' => TaxReceiptStatus::REJECTED,
-                'rejection_reason' => 'Falha de comunicação com o portal da SEFAZ-SP. Tente novamente mais tarde.',
+                'rejection_reason' => TaxReceiptService::SEFAZ_COMMUNICATION_ERROR_MESSAGE,
             ]);
 
             TaxReceiptProcessedEvent::dispatch($this->taxReceipt);

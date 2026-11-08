@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum,web')->group(function () {
     Route::prefix('tax-receipts')->group(function () {
         Route::get('/', [TaxReceiptController::class, 'index']);
         Route::post('/', [TaxReceiptController::class, 'store'])->middleware('throttle:15,1');
+        Route::post('/{id}/retry', [TaxReceiptController::class, 'retry'])->middleware('throttle:15,1');
     });
 
     Route::prefix('rewards')->group(function () {
@@ -78,5 +79,7 @@ Route::middleware('auth:sanctum,web')->group(function () {
         Route::patch('/redemptions/{id}', [AdminController::class, 'updateRedemption'])->middleware('throttle:60,1');
         Route::get('/settings', [AdminController::class, 'getSettings']);
         Route::patch('/settings', [AdminController::class, 'updateSettings']);
+        Route::post('/apae-batch/send', [AdminController::class, 'sendApaeBatch'])->middleware('throttle:5,1');
+        Route::get('/apae-batch/download', [AdminController::class, 'downloadApaeBatch'])->middleware('throttle:10,1');
     });
 });

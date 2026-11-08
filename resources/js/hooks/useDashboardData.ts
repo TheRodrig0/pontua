@@ -160,6 +160,13 @@ export function useDashboardData(inertiaUser?: InertiaAuthUser | null) {
         [fetchCoreData]
     );
 
+    const handleRetryReceipt = useCallback(async (id: number) => {
+        const updated = await taxReceiptService.retry(id);
+        setReceipts((prev) =>
+            prev.map((r) => (r.id === id ? updated : r))
+        );
+    }, []);
+
     // Poll automatically every 2.5s whenever there is a receipt with status === 'pending'
     // (works seamlessly both with Queue Worker and in environments where WebSocket port 8080 is not exposed)
     useEffect(() => {
@@ -172,7 +179,11 @@ export function useDashboardData(inertiaUser?: InertiaAuthUser | null) {
             try {
                 const res = await taxReceiptService.index(null);
                 if (res?.data) {
-                    setReceipts(res.data);
+                    setReceipts((prev) => {
+                        const fetchedIds = new Set(res.data.map((item) => item.id));
+                        const olderItems = prev.filter((item) => !fetchedIds.has(item.id));
+                        return [...res.data, ...olderItems];
+                    });
                     const stillPending = res.data.some((r) => r.status === 'pending');
                     if (!stillPending) {
                         await Promise.all([
@@ -218,6 +229,7 @@ export function useDashboardData(inertiaUser?: InertiaAuthUser | null) {
         loadMoreDonations,
         handleProfileUpdated,
         handleReceiptCreated,
+        handleRetryReceipt,
         handleDonationCreated,
     };
 }

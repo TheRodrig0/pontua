@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Events\TaxReceiptProcessedEvent;
 use App\Models\TaxReceipt;
+use App\Models\User;
 use App\Scrapers\NfceScraper;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use App\Jobs\ProcessTaxReceiptJob;
@@ -19,6 +20,8 @@ use Carbon\Carbon;
 
 class TaxReceiptService
 {
+    public const SEFAZ_COMMUNICATION_ERROR_MESSAGE = 'Falha de comunicação com o portal da SEFAZ-SP. Tente novamente mais tarde.';
+
     public function __construct(
         private readonly NfceScraper $nfceScraper,
         private readonly PointService $pointService
@@ -58,6 +61,46 @@ class TaxReceiptService
             ->afterCommit();
 
         return $taxReceipt;
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function retry(int $receiptId, int $userId, bool $isAdmin = false): TaxReceipt
+    {
+        $receipt = DB::transaction(function () use ($receiptId, $userId, $isAdmin) {
+            $query = TaxReceipt::where('id', $receiptId)->lockForUpdate();
+            if (! $isAdmin) {
+                $query->where('user_id', $userId);
+            }
+
+            $lockedReceipt = $query->firstOrFail();
+
+            if ($lockedReceipt->status !== TaxReceiptStatus::REJECTED) {
+                throw ValidationException::withMessages([
+                    'receipt' => ['Apenas notas fiscais rejeitadas por falha de comunicação podem ser reprocessadas.'],
+                ]);
+            }
+
+            $isRetriable = $lockedReceipt->rejection_reason === self::SEFAZ_COMMUNICATION_ERROR_MESSAGE;
+            if (! $isRetriable) {
+                throw ValidationException::withMessages([
+                    'receipt' => ['Esta nota fiscal foi recusada por regra de validação da SEFAZ e não pode ser reprocessada.'],
+                ]);
+            }
+
+            $lockedReceipt->update([
+                'status' => TaxReceiptStatus::PENDING,
+                'rejection_reason' => null,
+            ]);
+
+            return $lockedReceipt;
+        });
+
+        ProcessTaxReceiptJob::dispatch($receipt)
+            ->afterCommit();
+
+        return $receipt;
     }
 
     public function process(TaxReceipt $taxReceipt): void
@@ -103,6 +146,10 @@ class TaxReceiptService
                     'points_earned' => $pointsEarned
                 ]);
 
+                if ($status === TaxReceiptStatus::APPROVED) {
+                    $this->updateUserScanStreak($lockedReceipt->user_id);
+                }
+
                 if ($pointsEarned > 0) {
                     $this->pointService->credit(
                         userId: $lockedReceipt->user_id,
@@ -122,6 +169,43 @@ class TaxReceiptService
         } finally {
             $lock->release();
         }
+    }
+
+    private function updateUserScanStreak(int $userId): void
+    {
+        $user = User::where('id', $userId)
+            ->lockForUpdate()
+            ->first();
+
+        if (! $user) {
+            return;
+        }
+
+        $today = now()->startOfDay();
+        $lastScanDate = $user->last_scan_date
+            ? Carbon::parse($user->last_scan_date)->startOfDay()
+            : null;
+
+        $currentStreak = (int) $user->scan_streak;
+
+        if ($lastScanDate && $lastScanDate->equalTo($today)) {
+            $newStreak = max(1, $currentStreak);
+        } elseif ($lastScanDate && $lastScanDate->equalTo($today->copy()->subDay())) {
+            $newStreak = $currentStreak + 1;
+        } else {
+            $newStreak = 1;
+        }
+
+        $longestStreak = max((int) $user->longest_streak, $newStreak);
+
+        $user->update([
+            'scan_streak' => $newStreak,
+            'longest_streak' => $longestStreak,
+            'last_scan_date' => $today->toDateString(),
+        ]);
+
+        Cache::forget('ranking_top_10');
+        Cache::forget("ranking_performance_{$userId}");
     }
 
     private function getRejectionReason(array $scraped): ?string

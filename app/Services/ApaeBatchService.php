@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\TaxReceiptStatus;
+use App\Models\Setting;
 use App\Models\TaxReceipt;
 use chillerlan\QRCode\Output\QRGdImagePNG;
 use chillerlan\QRCode\QRCode;
@@ -11,6 +13,45 @@ use ZipArchive;
 
 class ApaeBatchService
 {
+    public const MAX_BATCH_SIZE = 200;
+
+    /**
+     * Resolve o e-mail de destino configurado para a APAE.
+     */
+    public function resolveRecipientEmail(): ?string
+    {
+        return Setting::get('apae_email')
+            ?: config('services.apae.email')
+            ?: config('mail.from.address');
+    }
+
+    /**
+     * Busca cupons aprovados ainda não enviados à APAE; caso todos já tenham sido enviados,
+     * retorna os cupons aprovados mais recentes para permitir reenvio/download de contingência.
+     */
+    public function resolveReceiptsForManualOperation(): Collection
+    {
+        $unsent = TaxReceipt::query()
+            ->where('status', TaxReceiptStatus::APPROVED)
+            ->whereNull('sent_to_apae_at')
+            ->orderBy('id', 'asc')
+            ->limit(self::MAX_BATCH_SIZE)
+            ->get();
+
+        if ($unsent->isNotEmpty()) {
+            return $unsent;
+        }
+
+        $recent = TaxReceipt::query()
+            ->where('status', TaxReceiptStatus::APPROVED)
+            ->orderBy('id', 'desc')
+            ->limit(self::MAX_BATCH_SIZE)
+            ->get()
+            ->sortBy('id')
+            ->values();
+
+        return new Collection($recent->all());
+    }
     /**
      * Gera uma imagem PNG com o QR Code, numeração (1 / n), data e chave impressas embaixo.
      */
@@ -30,6 +71,7 @@ class ApaeBatchService
 
         $qrRaw = (new QRCode($options))->render($url);
         $qrImage = imagecreatefromstring($qrRaw);
+        unset($qrRaw);
         $qrW = imagesx($qrImage);
         $qrH = imagesy($qrImage);
 
@@ -92,41 +134,46 @@ class ApaeBatchService
     public function generateBatchZip(Collection $receipts, string $date): string
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'apae_zip_');
-        $zip = new ZipArchive();
-        $zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-        // 1. Resumo em formato CSV
-        $csvHeader = "Chave de Acesso,Data de Emissao,Data de Doacao\n";
-        $csvRows = '';
-        foreach ($receipts as $receipt) {
-            $issueDate = $receipt->issue_date ? $receipt->issue_date->format('Y-m-d H:i:s') : '';
-            $createdAt = $receipt->created_at ? $receipt->created_at->format('Y-m-d H:i:s') : '';
-            $csvRows .= "\"{$receipt->access_key}\",\"{$issueDate}\",\"{$createdAt}\"\n";
+        try {
+            $zip = new ZipArchive();
+            $zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+            // 1. Resumo em formato CSV
+            $csvHeader = "Chave de Acesso,Data de Emissao,Data de Doacao\n";
+            $csvRows = '';
+            foreach ($receipts as $receipt) {
+                $issueDate = $receipt->issue_date ? $receipt->issue_date->format('Y-m-d H:i:s') : '';
+                $createdAt = $receipt->created_at ? $receipt->created_at->format('Y-m-d H:i:s') : '';
+                $csvRows .= "\"{$receipt->access_key}\",\"{$issueDate}\",\"{$createdAt}\"\n";
+            }
+            $csvContent = "\xEF\xBB\xBF" . $csvHeader . $csvRows;
+            $safeDate = str_replace(['/', '\\'], '-', $date);
+            $zip->addFromString("resumo-lote-{$safeDate}.csv", $csvContent);
+
+            // 2. Pasta com as imagens de QR Code individuais
+            $totalInBatch = $receipts->count();
+            $index = 1;
+            foreach ($receipts as $receipt) {
+                $pngData = $this->generateQrCodePng($receipt, $index, $totalInBatch);
+                $dateSuffix = $receipt->issue_date ? $receipt->issue_date->format('Ymd') : date('Ymd');
+                $shortKey = substr((string) $receipt->access_key, -8);
+                $padIndex = str_pad((string) $index, 3, '0', STR_PAD_LEFT);
+                $filename = "qrcodes/{$padIndex}_nota_{$dateSuffix}_{$shortKey}.png";
+
+                $zip->addFromString($filename, $pngData);
+                unset($pngData);
+                $index++;
+            }
+
+            $zip->close();
+
+            return (string) file_get_contents($tempFile);
+        } finally {
+            if ($tempFile && file_exists($tempFile)) {
+                @unlink($tempFile);
+            }
         }
-        $csvContent = "\xEF\xBB\xBF" . $csvHeader . $csvRows;
-        $safeDate = str_replace(['/', '\\'], '-', $date);
-        $zip->addFromString("resumo-lote-{$safeDate}.csv", $csvContent);
-
-        // 2. Pasta com as imagens de QR Code individuais
-        $totalInBatch = $receipts->count();
-        $index = 1;
-        foreach ($receipts as $receipt) {
-            $pngData = $this->generateQrCodePng($receipt, $index, $totalInBatch);
-            $dateSuffix = $receipt->issue_date ? $receipt->issue_date->format('Ymd') : date('Ymd');
-            $shortKey = substr((string) $receipt->access_key, -8);
-            $padIndex = str_pad((string) $index, 3, '0', STR_PAD_LEFT);
-            $filename = "qrcodes/{$padIndex}_nota_{$dateSuffix}_{$shortKey}.png";
-
-            $zip->addFromString($filename, $pngData);
-            $index++;
-        }
-
-        $zip->close();
-
-        $zipData = file_get_contents($tempFile);
-        @unlink($tempFile);
-
-        return $zipData;
     }
 }
 

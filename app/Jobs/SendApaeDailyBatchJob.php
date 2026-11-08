@@ -4,13 +4,14 @@ namespace App\Jobs;
 
 use App\Enums\TaxReceiptStatus;
 use App\Mail\ApaeDailyBatchMail;
-use App\Models\Setting;
 use App\Models\TaxReceipt;
+use App\Services\ApaeBatchService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -27,39 +28,51 @@ class SendApaeDailyBatchJob implements ShouldQueue
 
     public function handle(): void
     {
-        $receipts = TaxReceipt::query()
-            ->where('status', TaxReceiptStatus::APPROVED)
-            ->whereNull('sent_to_apae_at')
-            ->orderBy('id', 'asc')
-            ->get();
-
-        if ($receipts->isEmpty()) {
+        $lock = Cache::lock('apae-batch-send', 60);
+        if (! $lock->get()) {
             return;
         }
 
-        $recipient = Setting::get('apae_email')
-            ?: config('services.apae.email')
-            ?: env('APAE_EMAIL')
-            ?: config('mail.from.address');
+        try {
+            $batchService = app(ApaeBatchService::class);
 
-        $today = now()->format('d/m/Y');
-        $totalReceipts = $receipts->count();
+            $receipts = TaxReceipt::query()
+                ->where('status', TaxReceiptStatus::APPROVED)
+                ->whereNull('sent_to_apae_at')
+                ->orderBy('id', 'asc')
+                ->limit(ApaeBatchService::MAX_BATCH_SIZE)
+                ->get();
 
-        Mail::to($recipient)->send(
-            new ApaeDailyBatchMail(
-                receipts: $receipts,
-                date: $today,
-                totalReceipts: $totalReceipts
-            )
-        );
+            if ($receipts->isEmpty()) {
+                return;
+            }
 
-        TaxReceipt::whereIn('id', $receipts->pluck('id'))
-            ->update(['sent_to_apae_at' => now()]);
+            $recipient = $batchService->resolveRecipientEmail();
+            if (! $recipient) {
+                return;
+            }
 
-        Log::info('Daily APAE batch sent successfully', [
-            'recipient' => $recipient,
-            'total_receipts' => $totalReceipts,
-        ]);
+            $today = now()->format('d/m/Y');
+            $totalReceipts = $receipts->count();
+
+            Mail::to($recipient)->send(
+                new ApaeDailyBatchMail(
+                    receipts: $receipts,
+                    date: $today,
+                    totalReceipts: $totalReceipts
+                )
+            );
+
+            TaxReceipt::whereIn('id', $receipts->pluck('id'))
+                ->update(['sent_to_apae_at' => now()]);
+
+            Log::info('Daily APAE batch sent successfully', [
+                'recipient' => $recipient,
+                'total_receipts' => $totalReceipts,
+            ]);
+        } finally {
+            $lock->release();
+        }
     }
 }
 
