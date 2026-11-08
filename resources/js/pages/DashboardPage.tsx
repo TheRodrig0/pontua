@@ -67,6 +67,7 @@ export default function DashboardPage(): React.ReactElement {
         loadMoreDonations,
         handleProfileUpdated,
         handleReceiptCreated,
+        handleRetryReceipt,
         handleDonationCreated,
     } = useDashboardData(inertiaUser);
 
@@ -142,6 +143,7 @@ export default function DashboardPage(): React.ReactElement {
                                 fetchCoreData();
                                 fetchReceipts();
                             }}
+                            onRetryReceipt={handleRetryReceipt}
                             onOpenScanModal={() => setIsScanModalOpen(true)}
                             onNavigateTab={setActiveTab}
                         />

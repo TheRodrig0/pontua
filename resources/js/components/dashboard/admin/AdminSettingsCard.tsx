@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, CheckCircle2, Loader2, Mail, Save } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Download, Loader2, Mail, Save, Send } from 'lucide-react';
 import { adminService } from '@/services/adminService';
 
 interface AdminSettingsCardProps {
@@ -13,6 +13,8 @@ export const AdminSettingsCard: React.FC<AdminSettingsCardProps> = ({
 }) => {
     const [email, setEmail] = useState(initialEmail);
     const [isSaving, setIsSaving] = useState(false);
+    const [isSendingBatch, setIsSendingBatch] = useState(false);
+    const [isDownloadingBatch, setIsDownloadingBatch] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -39,8 +41,38 @@ export const AdminSettingsCard: React.FC<AdminSettingsCardProps> = ({
         }
     };
 
+    const handleSendBatch = async () => {
+        setIsSendingBatch(true);
+        setSuccessMessage(null);
+        setErrorMessage(null);
+
+        try {
+            const res = await adminService.sendApaeBatch();
+            setSuccessMessage(res.message || 'Lote enviado com sucesso.');
+        } catch (err: any) {
+            setErrorMessage(err.message || 'Não foi possível disparar o lote por e-mail.');
+        } finally {
+            setIsSendingBatch(false);
+        }
+    };
+
+    const handleDownloadBatch = async () => {
+        setIsDownloadingBatch(true);
+        setSuccessMessage(null);
+        setErrorMessage(null);
+
+        try {
+            await adminService.downloadApaeBatch();
+            setSuccessMessage('Download do arquivo ZIP iniciado com sucesso.');
+        } catch (err: any) {
+            setErrorMessage(err.message || 'Não foi possível gerar o arquivo ZIP do lote.');
+        } finally {
+            setIsDownloadingBatch(false);
+        }
+    };
+
     return (
-        <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm space-y-6">
             <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-[#4bb9a6]/15 dark:bg-[#112a2e] border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 text-[#4bb9a6] flex items-center justify-center shrink-0">
                     <Mail className="w-4 h-4" />
@@ -92,6 +124,47 @@ export const AdminSettingsCard: React.FC<AdminSettingsCardProps> = ({
                     <span>{isSaving ? 'Salvando...' : 'Salvar'}</span>
                 </button>
             </form>
+
+            <div className="pt-5 border-t border-slate-200/80 dark:border-slate-800/80 space-y-3">
+                <div>
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-app-navy dark:text-slate-200">
+                        Operações Manuais de Contingência (Lote APAE)
+                    </h4>
+                    <p className="text-xs text-app-graytext dark:text-slate-400 mt-0.5">
+                        Caso precise reenviar o lote imediatamente por e-mail ou baixar o pacote ZIP com CSV e QR Codes direto no navegador.
+                    </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => void handleSendBatch()}
+                        disabled={isSendingBatch || isDownloadingBatch}
+                        className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-60 text-app-navy dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                        {isSendingBatch ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-[#4bb9a6]" />
+                        ) : (
+                            <Send className="w-4 h-4 text-[#4bb9a6]" />
+                        )}
+                        <span>{isSendingBatch ? 'Enviando Lote...' : 'Enviar Lote Agora'}</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => void handleDownloadBatch()}
+                        disabled={isDownloadingBatch || isSendingBatch}
+                        className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-60 text-app-navy dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                        {isDownloadingBatch ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-[#4bb9a6]" />
+                        ) : (
+                            <Download className="w-4 h-4 text-[#4bb9a6]" />
+                        )}
+                        <span>{isDownloadingBatch ? 'Gerando ZIP...' : 'Baixar Lote (.ZIP)'}</span>
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };

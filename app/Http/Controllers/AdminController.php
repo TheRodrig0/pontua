@@ -12,16 +12,22 @@ use App\Models\TaxReceipt;
 use App\Models\User;
 use App\Enums\RedemptionStatus;
 use App\Http\Requests\UpdateRedemptionStatusRequest;
+use App\Mail\ApaeDailyBatchMail;
+use App\Services\ApaeBatchService;
 use App\Services\RedemptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
     public function __construct(
-        private readonly RedemptionService $redemptionService
+        private readonly RedemptionService $redemptionService,
+        private readonly ApaeBatchService $apaeBatchService
     ) {}
 
     public function redemptions(Request $request): JsonResponse
@@ -84,7 +90,7 @@ class AdminController extends Controller
         $rewards = Reward::orderBy('id', 'desc')->get();
 
         $settings = [
-            'apae_email' => Setting::get('apae_email', config('services.apae.email') ?: env('APAE_EMAIL') ?: config('mail.from.address')),
+            'apae_email' => $this->apaeBatchService->resolveRecipientEmail(),
         ];
 
         return response()->json([
@@ -98,7 +104,7 @@ class AdminController extends Controller
 
     public function getSettings(): JsonResponse
     {
-        $apaeEmail = Setting::get('apae_email', config('services.apae.email') ?: env('APAE_EMAIL') ?: config('mail.from.address'));
+        $apaeEmail = $this->apaeBatchService->resolveRecipientEmail();
 
         return response()->json([
             'apae_email' => $apaeEmail,
@@ -118,6 +124,77 @@ class AdminController extends Controller
             'settings' => [
                 'apae_email' => $validated['apae_email'],
             ],
+        ]);
+    }
+
+    public function sendApaeBatch(): JsonResponse
+    {
+        $lock = Cache::lock('apae-batch-send', 60);
+        if (! $lock->get()) {
+            throw ValidationException::withMessages([
+                'batch' => ['Um envio de lote já está em andamento. Aguarde alguns segundos.'],
+            ]);
+        }
+
+        try {
+            $receipts = $this->apaeBatchService->resolveReceiptsForManualOperation();
+
+            if ($receipts->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'batch' => ['Não há notas fiscais aprovadas disponíveis para envio no momento.'],
+                ]);
+            }
+
+            $recipient = $this->apaeBatchService->resolveRecipientEmail();
+            if (! $recipient || ! filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+                throw ValidationException::withMessages([
+                    'apae_email' => ['Configure um e-mail institucional válido antes de enviar o lote.'],
+                ]);
+            }
+
+            $today = now()->format('d/m/Y');
+            $totalReceipts = $receipts->count();
+
+            Mail::to($recipient)->send(
+                new ApaeDailyBatchMail(
+                    receipts: $receipts,
+                    date: $today,
+                    totalReceipts: $totalReceipts
+                )
+            );
+
+            TaxReceipt::whereIn('id', $receipts->pluck('id'))
+                ->whereNull('sent_to_apae_at')
+                ->update(['sent_to_apae_at' => now()]);
+
+            return response()->json([
+                'message' => "Lote com {$totalReceipts} cupom(ns) enfileirado para envio ao e-mail {$recipient}.",
+                'total_receipts' => $totalReceipts,
+                'recipient' => $recipient,
+            ]);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    public function downloadApaeBatch(): Response
+    {
+        $receipts = $this->apaeBatchService->resolveReceiptsForManualOperation();
+
+        if ($receipts->isEmpty()) {
+            throw ValidationException::withMessages([
+                'batch' => ['Não há notas fiscais aprovadas disponíveis para geração do arquivo ZIP.'],
+            ]);
+        }
+
+        $today = now()->format('d/m/Y');
+        $safeDate = str_replace(['/', '\\'], '-', $today);
+        $filename = "lote-apae-{$safeDate}.zip";
+        $zipData = $this->apaeBatchService->generateBatchZip($receipts, $today);
+
+        return response($zipData, 200, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 

@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'apae' => [
+        'email' => env('APAE_EMAIL'),
+    ],
+
 ];

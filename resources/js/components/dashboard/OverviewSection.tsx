@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Sparkles,
     Flame,
@@ -26,6 +26,7 @@ interface OverviewSectionProps {
     isLoadingReceipts: boolean;
     onLoadMoreReceipts: () => void;
     onRefreshReceipts: () => void;
+    onRetryReceipt?: (id: number) => Promise<void>;
     onOpenScanModal: () => void;
     onNavigateTab: (tab: DashboardTab) => void;
 }
@@ -112,13 +113,33 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
     isLoadingReceipts,
     onLoadMoreReceipts,
     onRefreshReceipts,
+    onRetryReceipt,
     onOpenScanModal,
     onNavigateTab,
 }) => {
+    const [retryingId, setRetryingId] = useState<number | null>(null);
+    const [retryError, setRetryError] = useState<string | null>(null);
     const currentBalance = profile?.current_balance ?? 0;
     const scanStreak = profile?.scan_streak ?? performance?.scan_streak ?? 0;
     const rankPosition = performance?.position;
     const totalNotesCount = Math.max(profile?.total_receipts ?? 0, receipts.length);
+
+    const handleRetry = async (id: number) => {
+        if (!onRetryReceipt || retryingId !== null) {
+            return;
+        }
+        setRetryingId(id);
+        setRetryError(null);
+        try {
+            await onRetryReceipt(id);
+        } catch (err: any) {
+            setRetryError(
+                err?.message || 'Não foi possível reprocessar a nota fiscal no momento.'
+            );
+        } finally {
+            setRetryingId(null);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -267,6 +288,13 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                     </div>
                 </div>
 
+                {retryError && (
+                    <div className="mb-4 bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 rounded-xl p-3 text-xs flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                        <span>{retryError}</span>
+                    </div>
+                )}
+
                 {receipts.length === 0 ? (
                     <div className="text-center py-10 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
                         <ReceiptText className="w-9 h-9 text-slate-400 dark:text-slate-500 mx-auto mb-2.5" />
@@ -357,9 +385,27 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                                         )}
 
                                         {!isApproved && !isPending && (
-                                            <span className="bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap">
-                                                Erro
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                {onRetryReceipt &&
+                                                    receipt.rejection_reason?.includes('Falha de comunicação') && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => void handleRetry(receipt.id)}
+                                                            disabled={retryingId !== null}
+                                                            className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-app-navy dark:text-slate-200 text-[11px] font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                                                        >
+                                                            <RefreshCw
+                                                                className={`w-3 h-3 text-[#4bb9a6] ${
+                                                                    retryingId === receipt.id ? 'animate-spin' : ''
+                                                                }`}
+                                                            />
+                                                            <span>Tentar novamente</span>
+                                                        </button>
+                                                    )}
+                                                <span className="bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap">
+                                                    Erro
+                                                </span>
+                                            </div>
                                         )}
                                     </div>
                                 </div>

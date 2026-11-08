@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\StoreTaxReceiptRequest;
 use App\Services\TaxReceiptService;
 use Illuminate\Http\JsonResponse;
@@ -34,6 +35,21 @@ class TaxReceiptController extends Controller
         $receipt = $this->taxReceiptService->store(
             userId: $userId,
             data: $validatedRequest
+        );
+
+        return response()
+            ->json($receipt, 202);
+    }
+
+    public function retry(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+        $isAdmin = $user->role === UserRole::ADMIN;
+
+        $receipt = $this->taxReceiptService->retry(
+            receiptId: $id,
+            userId: $user->id,
+            isAdmin: $isAdmin
         );
 
         return response()
