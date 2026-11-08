@@ -13,6 +13,7 @@ export interface UserProfile {
     current_balance: number;
     expiring_soon_points: number;
     total_receipts: number;
+    moderation_notice?: string | null;
 }
 
 export interface RankingUser {
@@ -86,6 +87,10 @@ export interface AdminUserData {
     email: string;
     nick: string | null;
     role: string;
+    is_banned?: boolean;
+    banned_at?: string | null;
+    ban_reason?: string | null;
+    moderation_notice?: string | null;
     scan_streak: number;
     total_receipts: number;
     current_balance: number;

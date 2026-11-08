@@ -143,6 +143,30 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
 
     return (
         <div className="space-y-6">
+            {profile?.moderation_notice && (
+                <div
+                    role="alert"
+                    className="bg-amber-500/15 border border-amber-500/35 text-amber-800 dark:text-amber-200 rounded-2xl p-4 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
+                >
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div className="space-y-0.5">
+                            <span className="block font-extrabold text-amber-900 dark:text-amber-100">
+                                Aviso sobre seu Perfil Público
+                            </span>
+                            <p className="leading-relaxed">{profile.moderation_notice}</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => onNavigateTab('profile')}
+                        className="self-start sm:self-auto px-3.5 py-2 rounded-xl text-[11px] font-extrabold bg-amber-500 hover:bg-amber-600 text-white transition-colors cursor-pointer shrink-0"
+                    >
+                        Atualizar Perfil →
+                    </button>
+                </div>
+            )}
+
             {/* 1. Three KPI Metric Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* Card 1: Pontos Acumulados */}

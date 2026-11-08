@@ -86,6 +86,11 @@ export const AdminUsersList: React.FC<AdminUsersListProps> = ({
                                     >
                                         {isAdminRole ? 'Admin' : 'Aluno'}
                                     </span>
+                                    {user.is_banned && (
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30">
+                                            Suspenso
+                                        </span>
+                                    )}
                                 </div>
 
                                 <span className="block text-[11px] text-app-graytext dark:text-slate-400 mt-0.5">

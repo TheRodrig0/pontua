@@ -278,4 +278,105 @@ class RankingTest extends TestCase
         $this->assertSame(3, $ranking[2]['position']);
         $this->assertSame(0, $ranking[2]['total_donated']);
     }
+
+    public function test_ranking_correctly_skips_multiple_banned_users_with_dense_positions(): void
+    {
+        Cache::flush();
+
+        // 3 usuários banidos com muitas doações
+        for ($i = 0; $i < 3; $i++) {
+            $banned = User::factory()->create(['banned_at' => now(), 'ban_reason' => 'Fraude']);
+            PointBucket::create([
+                'user_id' => $banned->id,
+                'initial_points' => 1000 + ($i * 100),
+                'remaining_points' => 1000,
+                'expires_at' => now()->addDays(30),
+                'status' => PointBucketStatus::ACTIVE,
+            ]);
+        }
+
+        // 2 usuários ativos
+        $user1 = User::factory()->create(['name' => 'Primeiro Ativo']);
+        PointBucket::create([
+            'user_id' => $user1->id,
+            'initial_points' => 300,
+            'remaining_points' => 300,
+            'expires_at' => now()->addDays(30),
+            'status' => PointBucketStatus::ACTIVE,
+        ]);
+
+        $user2 = User::factory()->create(['name' => 'Segundo Ativo']);
+        PointBucket::create([
+            'user_id' => $user2->id,
+            'initial_points' => 100,
+            'remaining_points' => 100,
+            'expires_at' => now()->addDays(30),
+            'status' => PointBucketStatus::ACTIVE,
+        ]);
+
+        $response = $this->actingAs($user1)->getJson('/api/ranking');
+        $response->assertStatus(200);
+
+        $data = $response->json();
+        $this->assertCount(2, $data);
+
+        $this->assertEquals(1, $data[0]['position']);
+        $this->assertEquals($user1->id, $data[0]['id']);
+        $this->assertEquals(300, $data[0]['total_donated']);
+
+        $this->assertEquals(2, $data[1]['position']);
+        $this->assertEquals($user2->id, $data[1]['id']);
+        $this->assertEquals(100, $data[1]['total_donated']);
+    }
+
+    public function test_my_performance_ignores_banned_users_when_calculating_distance_to_next(): void
+    {
+        Cache::flush();
+
+        // Usuário banido que estaria entre userTop e userCurrent
+        $banned = User::factory()->create(['banned_at' => now()]);
+        PointBucket::create([
+            'user_id' => $banned->id,
+            'initial_points' => 400,
+            'remaining_points' => 400,
+            'expires_at' => now()->addDays(30),
+            'status' => PointBucketStatus::ACTIVE,
+        ]);
+
+        $userTop = User::factory()->create();
+        PointBucket::create([
+            'user_id' => $userTop->id,
+            'initial_points' => 500,
+            'remaining_points' => 500,
+            'expires_at' => now()->addDays(30),
+            'status' => PointBucketStatus::ACTIVE,
+        ]);
+
+        $userCurrent = User::factory()->create();
+        PointBucket::create([
+            'user_id' => $userCurrent->id,
+            'initial_points' => 200,
+            'remaining_points' => 200,
+            'expires_at' => now()->addDays(30),
+            'status' => PointBucketStatus::ACTIVE,
+        ]);
+
+        $response = $this->actingAs($userCurrent)->getJson('/api/ranking/my-performance');
+        $response->assertStatus(200);
+
+        $this->assertEquals(2, $response->json('position'));
+        $this->assertEquals(1, $response->json('next_position'));
+        $this->assertEquals(300, $response->json('points_to_next_position'));
+    }
+
+    public function test_banned_user_cannot_access_my_performance(): void
+    {
+        $banned = User::factory()->create([
+            'banned_at' => now(),
+            'ban_reason' => 'Suspenso',
+        ]);
+
+        $response = $this->actingAs($banned)->getJson('/api/ranking/my-performance');
+        $response->assertStatus(403);
+    }
 }

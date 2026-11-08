@@ -12,6 +12,16 @@ class UpdateUserRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('nick') && is_string($this->input('nick'))) {
+            $cleanNick = ltrim(trim($this->input('nick')), '@');
+            $this->merge([
+                'nick' => $cleanNick !== '' ? $cleanNick : null,
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -33,6 +43,13 @@ class UpdateUserRequest extends FormRequest
                 'integer',
                 'between:1,10'
             ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nick.unique' => 'Este apelido já está em uso.',
         ];
     }
 }

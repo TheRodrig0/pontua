@@ -139,6 +139,21 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
 
     return (
         <div className="space-y-6">
+            {profile?.moderation_notice && (
+                <div
+                    role="alert"
+                    className="bg-amber-500/15 border border-amber-500/35 text-amber-800 dark:text-amber-200 rounded-2xl p-4 text-xs flex items-start gap-3 shadow-xs"
+                >
+                    <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                        <span className="block font-extrabold text-amber-900 dark:text-amber-100">
+                            Aviso da Moderação
+                        </span>
+                        <p className="leading-relaxed">{profile.moderation_notice}</p>
+                    </div>
+                </div>
+            )}
+
             {/* 1. Resumo do Perfil (GET /api/me) */}
             <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">

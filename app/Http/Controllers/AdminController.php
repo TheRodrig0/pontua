@@ -70,9 +70,25 @@ class AdminController extends Controller
         $recentReceipts = TaxReceipt::with('user:id,name,nick,email')
             ->orderBy('id', 'desc')
             ->limit(20)
-            ->get();
+            ->get()
+            ->each(function (TaxReceipt $receipt) {
+                if ($receipt->user) {
+                    $receipt->user->email = $receipt->user->maskedEmail();
+                }
+            });
 
-        $users = User::select(['id', 'name', 'email', 'nick', 'role', 'scan_streak', 'created_at'])
+        $users = User::select([
+            'id',
+            'name',
+            'email',
+            'nick',
+            'role',
+            'banned_at',
+            'ban_reason',
+            'moderation_notice',
+            'scan_streak',
+            'created_at',
+        ])
             ->withCount(['taxReceipts as total_receipts'])
             ->withSum(
                 ['pointBuckets as current_balance' => fn($query) => $query->active()],
@@ -84,6 +100,8 @@ class AdminController extends Controller
             ->map(function (User $u) {
                 $u->current_balance = (int) $u->current_balance;
                 $u->total_receipts = (int) $u->total_receipts;
+                $u->email = $u->maskedEmail();
+                $u->setAttribute('is_banned', $u->isBanned());
                 return $u;
             });
 
@@ -202,12 +220,19 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
 
+        if ($request->has('nick') && is_string($request->input('nick'))) {
+            $cleanNick = ltrim(trim($request->input('nick')), '@');
+            $request->merge(['nick' => $cleanNick !== '' ? $cleanNick : null]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'nick' => ['nullable', 'string', 'max:50', Rule::unique('users', 'nick')->ignore($user->id)],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'role' => ['required', Rule::enum(UserRole::class)],
-            'password' => ['nullable', 'string', 'min:8'],
+            'is_banned' => ['sometimes', 'boolean'],
+            'ban_reason' => ['nullable', 'string', 'max:255'],
+        ], [
+            'nick.unique' => 'Este apelido já está em uso.',
         ]);
 
         $targetRole = $validated['role'] instanceof UserRole ? $validated['role'] : UserRole::tryFrom($validated['role']);
@@ -217,25 +242,55 @@ class AdminController extends Controller
             ]);
         }
 
-        if (array_key_exists('nick', $validated) && $validated['nick'] !== null) {
-            $cleanNick = ltrim(trim($validated['nick']), '@');
-            $validated['nick'] = $cleanNick !== '' ? $cleanNick : null;
+        if ($request->user()->id === $user->id && ! empty($validated['is_banned'])) {
+            throw ValidationException::withMessages([
+                'is_banned' => ['Você não pode suspender a sua própria conta de administrador.'],
+            ]);
         }
 
-        if (empty($validated['password'])) {
-            unset($validated['password']);
+        $nameChanged = $validated['name'] !== $user->name;
+        $nickChanged = array_key_exists('nick', $validated) && $validated['nick'] !== $user->nick;
+
+        $updatePayload = [
+            'name' => $validated['name'],
+            'role' => $validated['role'],
+        ];
+
+        if (array_key_exists('nick', $validated)) {
+            $updatePayload['nick'] = $validated['nick'];
         }
 
-        $user->update($validated);
+        if ($nameChanged || $nickChanged) {
+            $updatePayload['moderation_notice'] = 'Seu nome ou @apelido foi ajustado pela moderação por estar em desacordo com as diretrizes da comunidade.';
+        }
+
+        if (array_key_exists('is_banned', $validated)) {
+            if ($validated['is_banned']) {
+                $updatePayload['banned_at'] = $user->banned_at ?? now();
+                $updatePayload['ban_reason'] = $validated['ban_reason'] ?? 'Suspenso pela moderação.';
+                $user->tokens()->delete();
+            } else {
+                $updatePayload['banned_at'] = null;
+                $updatePayload['ban_reason'] = null;
+            }
+        }
+
+        $user->update($updatePayload);
+        Cache::forget('ranking_top_10');
+        Cache::forget("ranking_performance_{$user->id}");
 
         return response()->json([
             'message' => 'Usuário atualizado com sucesso.',
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'email' => $user->email,
+                'email' => $user->maskedEmail(),
                 'nick' => $user->nick,
                 'role' => $user->role instanceof UserRole ? $user->role->value : $user->role,
+                'is_banned' => $user->isBanned(),
+                'banned_at' => $user->banned_at,
+                'ban_reason' => $user->ban_reason,
+                'moderation_notice' => $user->moderation_notice,
                 'scan_streak' => $user->scan_streak,
                 'created_at' => $user->created_at,
             ],

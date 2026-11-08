@@ -32,10 +32,10 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum,web')->group(function () {
+Route::middleware(['auth:sanctum,web', 'not_banned'])->group(function () {
     Route::prefix('me')->group(function () {
         Route::get('/', [UserController::class, 'me']);
-        Route::patch('/', [UserController::class, 'update']);
+        Route::patch('/', [UserController::class, 'update'])->middleware('throttle:10,1');
         Route::delete('/', [UserController::class, 'delete']);
     });
 
