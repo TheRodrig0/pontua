@@ -246,4 +246,63 @@ class UserTest extends TestCase
             'id' => $user->id,
         ]);
     }
+
+    public function test_semantic_moderation_approves_legitimate_civil_names_with_ambiguous_surnames(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->patchJson('/api/me', [
+                'name' => 'Camila Rego',
+            ])
+            ->assertStatus(200)
+            ->assertJson(['name' => 'Camila Rego']);
+
+        $this->actingAs($user)
+            ->patchJson('/api/me', [
+                'name' => 'Gabriel Pinto',
+            ])
+            ->assertStatus(200)
+            ->assertJson(['name' => 'Gabriel Pinto']);
+    }
+
+    public function test_updating_profile_with_valid_data_clears_moderation_notice(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Aluno FATEC #10',
+            'moderation_notice' => 'Seu nome foi redefinido pela moderação.',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->patchJson('/api/me', [
+                'name' => 'Lucas Andrade',
+                'nick' => 'lucas.andrade',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'name' => 'Lucas Andrade',
+                'nick' => 'lucas.andrade',
+                'moderation_notice' => null,
+            ]);
+    }
+
+    public function test_updating_only_avatar_keeps_existing_moderation_notice(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Aluno FATEC #99',
+            'moderation_notice' => 'Seu perfil foi redefinido pela moderação.',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->patchJson('/api/me', [
+                'avatar_id' => 2,
+            ]);
+
+        $response->assertStatus(200);
+
+        $fresh = $user->fresh();
+        $this->assertEquals(asset('avatars/2.png'), $fresh->avatar_url);
+        $this->assertEquals('Seu perfil foi redefinido pela moderação.', $fresh->moderation_notice);
+    }
 }

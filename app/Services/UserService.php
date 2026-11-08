@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\TaxReceiptStatus;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class UserService
@@ -27,6 +28,10 @@ class UserService
 
     public function update(User $user, array $data): User
     {
+        if (array_key_exists('name', $data) || array_key_exists('nick', $data)) {
+            $data['moderation_notice'] = null;
+        }
+
         $hasAvatarId = isset($data['avatar_id']);
         if ($hasAvatarId) {
             $data['avatar_url'] = asset("avatars/{$data['avatar_id']}.png");
@@ -34,6 +39,8 @@ class UserService
         }
 
         $user->update($data);
+        Cache::forget('ranking_top_10');
+        Cache::forget("ranking_performance_{$user->id}");
 
         return $user;
     }

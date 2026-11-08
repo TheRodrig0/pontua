@@ -20,7 +20,7 @@ class AuthService
             'password' => $data['password'],
         ];
 
-        $isInvalidCredentials = !Auth::attempt($credentials, false);
+        $isInvalidCredentials = !Auth::guard('web')->attempt($credentials, false);
         if ($isInvalidCredentials) {
             abort(401, 'As credenciais fornecidas estão incorretas.');
         }
@@ -32,7 +32,13 @@ class AuthService
         }
 
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
+
+        if ($user->isBanned()) {
+            Auth::guard('web')->logout();
+            $user->tokens()->delete();
+            abort(403, 'Esta conta foi suspensa pela moderação.');
+        }
 
         $user->tokens()
             ->where('expires_at', '<=', now())
