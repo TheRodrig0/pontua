@@ -50,10 +50,10 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<AdminUserData | null>(null);
     const [userFormName, setUserFormName] = useState('');
-    const [userFormEmail, setUserFormEmail] = useState('');
     const [userFormNick, setUserFormNick] = useState('');
     const [userFormRole, setUserFormRole] = useState<'user' | 'admin'>('user');
-    const [userFormPassword, setUserFormPassword] = useState('');
+    const [userFormIsBanned, setUserFormIsBanned] = useState(false);
+    const [userFormBanReason, setUserFormBanReason] = useState('');
     const [isSavingUser, setIsSavingUser] = useState(false);
     const [userFormError, setUserFormError] = useState<string | null>(null);
 
@@ -173,10 +173,10 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
     const openEditUserModal = (user: AdminUserData) => {
         setEditingUser(user);
         setUserFormName(user.name);
-        setUserFormEmail(user.email);
         setUserFormNick(user.nick || '');
         setUserFormRole(user.role === 'admin' ? 'admin' : 'user');
-        setUserFormPassword('');
+        setUserFormIsBanned(Boolean(user.is_banned));
+        setUserFormBanReason(user.ban_reason || '');
         setUserFormError(null);
         setIsUserModalOpen(true);
     };
@@ -195,14 +195,13 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
             return;
         }
 
-        const isEmailEmpty = !userFormEmail.trim();
-        if (isEmailEmpty) {
-            setUserFormError('O e-mail é obrigatório.');
+        if (editingUser?.id === currentUserId && userFormRole !== 'admin') {
+            setUserFormError('Você não pode remover o privilégio de administrador da sua própria conta.');
             return;
         }
 
-        if (editingUser?.id === currentUserId && userFormRole !== 'admin') {
-            setUserFormError('Você não pode remover o privilégio de administrador da sua própria conta.');
+        if (editingUser?.id === currentUserId && userFormIsBanned) {
+            setUserFormError('Você não pode suspender a sua própria conta de administrador.');
             return;
         }
 
@@ -210,21 +209,11 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
         try {
             const payload: Record<string, unknown> = {
                 name: userFormName.trim(),
-                email: userFormEmail.trim(),
                 nick: userFormNick.trim() ? userFormNick.trim().replace(/^@/, '') : null,
                 role: userFormRole,
+                is_banned: userFormIsBanned,
+                ban_reason: userFormIsBanned ? userFormBanReason.trim() || null : null,
             };
-
-            const hasNewPassword = Boolean(userFormPassword.trim());
-            if (hasNewPassword) {
-                const isPasswordTooShort = userFormPassword.trim().length < 8;
-                if (isPasswordTooShort) {
-                    setUserFormError('A nova senha deve ter no mínimo 8 caracteres.');
-                    setIsSavingUser(false);
-                    return;
-                }
-                payload.password = userFormPassword.trim();
-            }
 
             await adminService.updateUser(editingUser!.id, payload);
             setIsUserModalOpen(false);
@@ -596,19 +585,19 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                 editingUser={editingUser}
                 isSelf={editingUser?.id === currentUserId}
                 userFormName={userFormName}
-                userFormEmail={userFormEmail}
                 userFormNick={userFormNick}
                 userFormRole={userFormRole}
-                userFormPassword={userFormPassword}
+                userFormIsBanned={userFormIsBanned}
+                userFormBanReason={userFormBanReason}
                 userFormError={userFormError}
                 isSavingUser={isSavingUser}
                 onClose={() => setIsUserModalOpen(false)}
                 onSubmit={handleSaveUser}
                 onChangeName={setUserFormName}
-                onChangeEmail={setUserFormEmail}
                 onChangeNick={setUserFormNick}
                 onChangeRole={setUserFormRole}
-                onChangePassword={setUserFormPassword}
+                onChangeIsBanned={setUserFormIsBanned}
+                onChangeBanReason={setUserFormBanReason}
             />
         </div>
     );
