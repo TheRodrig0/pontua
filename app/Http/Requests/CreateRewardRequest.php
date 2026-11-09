@@ -61,6 +61,14 @@ class CreateRewardRequest extends FormRequest
                 'integer',
                 'min:0'
             ],
+
+            'aacc_hours' => [
+                'sometimes',
+                'nullable',
+                'integer',
+                'min:1',
+                'max:8'
+            ],
         ];
     }
 }

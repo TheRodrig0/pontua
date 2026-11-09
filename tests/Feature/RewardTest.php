@@ -217,4 +217,46 @@ class RewardTest extends TestCase
             'id' => $reward->id,
         ]);
     }
+
+    public function test_admin_cannot_create_reward_with_invalid_aacc_hours(): void
+    {
+        $admin = User::factory()->create([
+            'role' => UserRole::ADMIN,
+        ]);
+
+        $this->actingAs($admin)->postJson('/api/rewards', [
+            'name' => 'AACC Inválido',
+            'cost' => 100,
+            'tag' => RewardTag::AACC->value,
+            'aacc_hours' => 0,
+        ])->assertStatus(422)->assertJsonValidationErrors(['aacc_hours']);
+
+        $this->actingAs($admin)->postJson('/api/rewards', [
+            'name' => 'AACC Inválido',
+            'cost' => 100,
+            'tag' => RewardTag::AACC->value,
+            'aacc_hours' => 9,
+        ])->assertStatus(422)->assertJsonValidationErrors(['aacc_hours']);
+    }
+
+    public function test_admin_can_create_reward_with_boundary_aacc_hours(): void
+    {
+        $admin = User::factory()->create([
+            'role' => UserRole::ADMIN,
+        ]);
+
+        $this->actingAs($admin)->postJson('/api/rewards', [
+            'name' => 'Atividade 1h',
+            'cost' => 50,
+            'tag' => RewardTag::AACC->value,
+            'aacc_hours' => 1,
+        ])->assertStatus(201);
+
+        $this->actingAs($admin)->postJson('/api/rewards', [
+            'name' => 'Atividade 8h',
+            'cost' => 400,
+            'tag' => RewardTag::AACC->value,
+            'aacc_hours' => 8,
+        ])->assertStatus(201);
+    }
 }

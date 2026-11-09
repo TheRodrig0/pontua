@@ -21,6 +21,9 @@ export interface MyRedemption {
     reward: RedemptionReward | null;
 }
 
+/** Alias para compatibilidade retroativa */
+export type RewardRedemption = MyRedemption;
+
 /** Pedido de resgate visto pelo admin (inclui o aluno). */
 export interface RewardRedemptionRequest extends MyRedemption {
     user: {

@@ -31,9 +31,14 @@ class RewardRedeemedNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $voucherCode = $this->redemption->voucher_code;
+        $isAacc = ($this->redemption->reward?->tag?->value ?? $this->redemption->reward?->tag) === 'aacc';
+
+        $subject = $isAacc
+            ? "Protocolo de Horas AACC: {$voucherCode} - Pontua"
+            : "Código de Resgate: {$voucherCode} - Pontua";
 
         return (new MailMessage)
-            ->subject("Código de Resgate: {$voucherCode} - Pontua")
+            ->subject($subject)
             ->view('emails.reward-redeemed', [
                 'redemption' => $this->redemption,
                 'user' => $notifiable,

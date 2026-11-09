@@ -2,6 +2,7 @@ export enum RewardTag {
     CLOTHING = 'clothing',
     ACCESSORY = 'accessory',
     COSMETIC = 'cosmetic',
+    AACC = 'aacc',
     OTHER = 'other',
 }
 
@@ -20,6 +21,7 @@ export const REWARD_TAG_LABELS: Record<RewardTag, string> = {
     [RewardTag.CLOTHING]: 'Vestuário',
     [RewardTag.ACCESSORY]: 'Acessório',
     [RewardTag.COSMETIC]: 'Cosmético',
+    [RewardTag.AACC]: 'Horas AACC',
     [RewardTag.OTHER]: 'Outros',
 };
 
