@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { LogOut, Sparkles, X } from 'lucide-react';
 import { PontuaLogoIcon } from '@/components/LogoPontua';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -48,17 +48,41 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     onCloseMobileSidebar,
     onLogout,
 }) => {
+    const navRef = useRef<HTMLElement>(null);
+    const [pillStyle, setPillStyle] = useState<{ top: number; height: number; opacity: number }>({
+        top: 0,
+        height: 0,
+        opacity: 0,
+    });
+
+    useEffect(() => {
+        if (!navRef.current) return;
+        const activeButton = navRef.current.querySelector<HTMLButtonElement>('[data-active="true"]');
+        if (activeButton) {
+            setPillStyle({
+                top: activeButton.offsetTop,
+                height: activeButton.offsetHeight,
+                opacity: 1,
+            });
+        } else {
+            setPillStyle((prev) => ({ ...prev, opacity: 0 }));
+        }
+    }, [activeTab, visibleNavItems, isSidebarCollapsed]);
+
     return (
         <>
-            {isMobileSidebarOpen && (
-                <div
-                    className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-xs lg:hidden"
-                    onClick={onCloseMobileSidebar}
-                />
-            )}
+            <div
+                className={`fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-xs lg:hidden transition-opacity duration-300 ease-in-out ${
+                    isMobileSidebarOpen
+                        ? 'opacity-100 pointer-events-auto'
+                        : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={onCloseMobileSidebar}
+                aria-hidden="true"
+            />
 
             <aside
-                className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between bg-white dark:bg-[#151e2e] border-r border-slate-200/80 dark:border-slate-800/90 transition-all duration-300 ${
+                className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between bg-white dark:bg-[#151e2e] border-r border-slate-200/80 dark:border-slate-800/90 transition-[transform,width] duration-300 ease-in-out ${
                     isMobileSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'
                 } ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'}`}
             >
@@ -66,26 +90,38 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     <div className="h-18 px-5 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80">
                         <div className="flex items-center gap-3 overflow-hidden">
                             <PontuaLogoIcon size={36} />
-                            {!isSidebarCollapsed && (
-                                <div className="leading-tight">
-                                    <span className="block text-base font-black tracking-tight text-app-navy dark:text-white">
-                                        PONTUA<span className="text-app-coral">.</span>
-                                    </span>
-                                </div>
-                            )}
+                            <div
+                                className={`leading-tight overflow-hidden transition-[opacity,max-width] duration-300 ease-in-out ${
+                                    isSidebarCollapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-40 opacity-100'
+                                }`}
+                            >
+                                <span className="block text-base font-black tracking-tight text-app-navy dark:text-white whitespace-nowrap">
+                                    PONTUA<span className="text-app-coral">.</span>
+                                </span>
+                            </div>
                         </div>
 
                         <button
                             type="button"
                             onClick={onCloseMobileSidebar}
                             aria-label="Fechar menu lateral"
-                            className="lg:hidden p-1.5 rounded-lg text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white"
+                            className="lg:hidden p-1.5 rounded-lg text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white cursor-pointer"
                         >
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
-                    <nav className="p-3.5 space-y-1.5">
+                    <nav ref={navRef} className="relative p-3.5 space-y-1.5">
+                        <div
+                            aria-hidden="true"
+                            className="absolute left-3.5 right-3.5 top-0 bg-[#4bb9a6] rounded-xl shadow-md shadow-[#4bb9a6]/25 pointer-events-none transition-[transform,height,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                            style={{
+                                transform: `translateY(${pillStyle.top}px)`,
+                                height: `${pillStyle.height}px`,
+                                opacity: pillStyle.opacity,
+                            }}
+                        />
+
                         {visibleNavItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = activeTab === item.id;
@@ -94,21 +130,28 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 <button
                                     key={item.id}
                                     type="button"
+                                    data-active={isActive ? 'true' : 'false'}
                                     onClick={() => {
                                         onSelectTab(item.id);
                                         onCloseMobileSidebar();
                                     }}
                                     title={isSidebarCollapsed ? item.label : undefined}
-                                    className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                    className={`relative z-10 w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-colors duration-200 cursor-pointer ${
                                         isActive
-                                            ? 'bg-[#4bb9a6] text-white shadow-md shadow-[#4bb9a6]/25'
-                                            : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                                            ? 'text-white'
+                                            : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-800/40'
                                     } ${isSidebarCollapsed ? 'justify-center px-0' : ''}`}
                                 >
-                                    <Icon className="w-4 h-4 shrink-0" />
-                                    {!isSidebarCollapsed && (
-                                        <span className="truncate">{item.label}</span>
-                                    )}
+                                    <Icon className="w-4 h-4 shrink-0 transition-transform duration-200" />
+                                    <span
+                                        className={`truncate transition-[opacity,max-width] duration-300 ease-in-out ${
+                                            isSidebarCollapsed
+                                                ? 'max-w-0 opacity-0 pointer-events-none'
+                                                : 'max-w-xs opacity-100'
+                                        }`}
+                                    >
+                                        {item.label}
+                                    </span>
                                 </button>
                             );
                         })}
@@ -147,17 +190,19 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 </div>
                             )}
 
-                            {!isSidebarCollapsed && (
-                                <div className="min-w-0">
-                                    <span className="block text-xs font-extrabold text-app-navy dark:text-white truncate">
-                                        {displayUserName}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#4bb9a6]">
-                                        <Sparkles className="w-3 h-3" />
-                                        <span>{displayBalance.toLocaleString('pt-BR')} pts</span>
-                                    </span>
-                                </div>
-                            )}
+                            <div
+                                className={`min-w-0 overflow-hidden transition-[opacity,max-width] duration-300 ease-in-out ${
+                                    isSidebarCollapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-xs opacity-100'
+                                }`}
+                            >
+                                <span className="block text-xs font-extrabold text-app-navy dark:text-white truncate">
+                                    {displayUserName}
+                                </span>
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#4bb9a6] whitespace-nowrap">
+                                    <Sparkles className="w-3 h-3" />
+                                    <span>{displayBalance.toLocaleString('pt-BR')} pts</span>
+                                </span>
+                            </div>
                         </button>
 
                         <ThemeToggle className="shrink-0 p-1.5!" />
@@ -167,10 +212,17 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                         <button
                             type="button"
                             onClick={onLogout}
+                            title={isSidebarCollapsed ? 'Sair' : undefined}
                             className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-400 transition-colors cursor-pointer py-1"
                         >
-                            <LogOut className="w-3.5 h-3.5" />
-                            {!isSidebarCollapsed && <span>Sair</span>}
+                            <LogOut className="w-3.5 h-3.5 shrink-0" />
+                            <span
+                                className={`overflow-hidden whitespace-nowrap transition-[opacity,max-width] duration-300 ease-in-out ${
+                                    isSidebarCollapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-16 opacity-100'
+                                }`}
+                            >
+                                Sair
+                            </span>
                         </button>
                     </div>
                 </div>

@@ -90,7 +90,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                 const createdReceipt = await taxReceiptService.store(trimmed);
 
                 setSuccessMessage(
-                    'QR Code lido com sucesso! Cupom enviado para validação na SEFAZ-SP.'
+                    'QR Code lido com sucesso! Cupom enviado para validação na Nota Fiscal Paulista.'
                 );
                 setManualInput('');
                 onSuccess(createdReceipt);
@@ -372,7 +372,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
         e.preventDefault();
         const trimmed = manualInput.trim();
         if (!trimmed) {
-            setErrorMessage('Informe a URL da SEFAZ-SP ou os 44 dígitos da Chave de Acesso.');
+            setErrorMessage('Informe o link da Nota Fiscal Paulista ou os 44 dígitos da Chave de Acesso.');
             return;
         }
         await submitScannedQrCode(trimmed);
@@ -473,7 +473,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                         }`}
                     >
                         <Camera className="w-3.5 h-3.5" />
-                        <span>Câmera 1080p / Foto</span>
+                        <span>Câmera / Foto</span>
                     </button>
 
                     <button
@@ -611,7 +611,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                             <span className="bg-slate-950/90 text-slate-200 text-[11px] font-bold px-3 py-1 rounded-full border border-slate-700/80">
                                 {isCameraActive
                                     ? 'Centralize o QR Code no quadrado'
-                                    : 'Iniciando câmera 1080p...'}
+                                    : 'Iniciando câmera...'}
                             </span>
                             {videoResolution && (
                                 <span className="bg-[#4bb9a6]/20 text-[#4bb9a6] text-[10px] font-extrabold px-2 py-1 rounded-full border border-[#4bb9a6]/40">
@@ -640,7 +640,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                                 htmlFor="manual-nfce-input"
                                 className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1.5"
                             >
-                                Chave de Acesso (44 dígitos SP) ou URL da Nota Fiscal
+                                Chave de Acesso (44 dígitos) ou Link da Nota Fiscal
                             </label>
                             <input
                                 id="manual-nfce-input"

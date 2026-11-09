@@ -52,10 +52,13 @@
     </tr>
 
     <!-- Body -->
+    @php
+      $isAacc = ($redemption->reward?->tag?->value ?? $redemption->reward?->tag) === 'aacc';
+    @endphp
     <tr>
       <td align="center" style="padding: 32px 28px; text-align: center;">
         <h1 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 800; color: #0f172a; text-align: center; line-height: 1.3;">
-          Código de Resgate
+          {{ $isAacc ? 'Protocolo de Horas AACC' : 'Código de Resgate' }}
         </h1>
         <p style="margin: 0 0 24px 0; font-size: 14px; color: #475569; text-align: center; line-height: 1.5;">
           Olá, <strong>{{ $user->name }}</strong>! Sua solicitação para <strong>{{ $redemption->reward?->name ?? 'Recompensa' }}</strong> ({{ $redemption->points_cost }} pts) foi confirmada.
@@ -66,7 +69,7 @@
           <tr>
             <td align="center" style="padding: 20px 16px; text-align: center;">
               <span style="display: block; font-size: 12px; font-weight: 500; color: #64748b; margin-bottom: 6px;">
-                Apresente na Administração da FATEC:
+                {{ $isAacc ? 'Código de Autenticidade (SIGA / Coordenação):' : 'Apresente na Administração da FATEC:' }}
               </span>
               <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 26px; font-weight: 800; color: #0f172a; letter-spacing: 2px; padding: 4px 0;">
                 {{ $redemption->voucher_code }}
@@ -79,7 +82,7 @@
         </table>
 
         <p style="margin: 0 0 24px 0; font-size: 13px; color: #64748b; text-align: center; line-height: 1.5;">
-          Basta apresentar este código na Administração da FATEC para retirar o seu prêmio.
+          {{ $isAacc ? 'Utilize a Declaração em PDF gerada na plataforma para envio no SIGA. A Coordenação utilizará este protocolo para validar suas horas.' : 'Basta apresentar este código na Administração da FATEC para retirar o seu prêmio.' }}
         </p>
 
         <!-- Button -->

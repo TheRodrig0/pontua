@@ -42,6 +42,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
     const [formDescription, setFormDescription] = useState('');
     const [formTag, setFormTag] = useState<RewardTagValue>('clothing');
     const [formCost, setFormCost] = useState('');
+    const [formHours, setFormHours] = useState('4');
     const [formImage, setFormImage] = useState<File | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -100,6 +101,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
         setFormDescription('');
         setFormTag('clothing');
         setFormCost('');
+        setFormHours('4');
         setFormImage(null);
         setFormError(null);
         setIsModalOpen(true);
@@ -107,10 +109,20 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
 
     const openEditModal = (reward: RewardItem) => {
         setEditingReward(reward);
-        setFormName(reward.name);
+        const hoursMatch =
+            reward.name.match(/\((\d+)\s*h(?:oras?)?\)/i) ||
+            reward.name.match(/\b(\d+)\s*horas?\b/i);
+        const extractedHours = hoursMatch ? hoursMatch[1] : '4';
+        const cleanName =
+            reward.tag === 'aacc'
+                ? reward.name.replace(/\s*\(\d+\s*h(?:oras?)?\)\s*$/i, '').trim()
+                : reward.name;
+
+        setFormName(cleanName);
         setFormDescription(reward.description || '');
         setFormTag(reward.tag || 'other');
         setFormCost(String(reward.cost));
+        setFormHours(extractedHours);
         setFormImage(null);
         setFormError(null);
         setIsModalOpen(true);
@@ -128,8 +140,26 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
             return;
         }
 
+        let finalName = formName.trim();
         const formData = new FormData();
-        formData.append('name', formName.trim());
+
+        if (formTag === 'aacc') {
+            const parsedHours = parseInt(formHours, 10);
+            if (Number.isNaN(parsedHours) || parsedHours < 1 || parsedHours > 8) {
+                setFormError('Para Horas AACC, informe uma quantidade entre 1 e 8 horas.');
+                return;
+            }
+            const cleanBaseName = finalName.replace(/\s*\(\d+\s*h(?:oras?)?\)\s*$/i, '').trim();
+            const alreadyMentionsHours = new RegExp(`\\b${parsedHours}\\s*h(oras?)?\\b`, 'i').test(
+                cleanBaseName
+            );
+            finalName = alreadyMentionsHours
+                ? cleanBaseName
+                : `${cleanBaseName} (${parsedHours}h)`;
+            formData.append('aacc_hours', String(parsedHours));
+        }
+
+        formData.append('name', finalName);
         if (formDescription.trim()) {
             formData.append('description', formDescription.trim());
         }
@@ -347,7 +377,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                             }}
                             className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white dark:bg-[#182234] hover:bg-slate-50 dark:hover:bg-slate-800 text-app-navy dark:text-white border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                         >
-                            Ver fila →
+                            Ver pendentes →
                         </button>
                     </div>
                 </div>
@@ -482,7 +512,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                                         : subTab === 'redemptions'
                                           ? 'Pesquisar pedido por protocolo (ex: RES-4821), aluno ou prêmio...'
                                           : subTab === 'receipts'
-                                            ? 'Pesquisar nota por aluno, chave de acesso ou status...'
+                                            ? 'Pesquisar nota por aluno, código da nota ou status...'
                                             : 'Pesquisar usuário por nome, @apelido ou e-mail...'
                                 }
                                 className="w-full bg-transparent text-xs text-app-navy dark:text-white placeholder:text-app-graytext dark:placeholder:text-slate-500 focus:outline-none"
@@ -568,6 +598,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                 formDescription={formDescription}
                 formTag={formTag}
                 formCost={formCost}
+                formHours={formHours}
                 formImage={formImage}
                 formError={formError}
                 isSaving={isSaving}
@@ -577,6 +608,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                 onChangeDescription={setFormDescription}
                 onChangeTag={setFormTag}
                 onChangeCost={setFormCost}
+                onChangeHours={setFormHours}
                 onChangeImage={setFormImage}
             />
 

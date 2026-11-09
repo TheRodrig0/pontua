@@ -219,7 +219,7 @@ class TaxReceiptTest extends TestCase
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('url', $validator->errors()->toArray());
         $this->assertEquals(
-            'A URL informada deve pertencer obrigatoriamente ao portal oficial da SEFAZ-SP (fazenda.sp.gov.br).',
+            'O link informado deve pertencer obrigatoriamente ao portal oficial da Nota Fiscal Paulista (fazenda.sp.gov.br).',
             $validator->errors()->first('url')
         );
     }

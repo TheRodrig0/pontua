@@ -56,7 +56,7 @@ export interface TaxReceiptItem {
     };
 }
 
-export type RewardTagType = 'clothing' | 'accessory' | 'cosmetic' | 'other';
+export type RewardTagType = 'clothing' | 'accessory' | 'cosmetic' | 'aacc' | 'other';
 export type RewardTagValue = RewardTagType;
 
 export interface RewardItem {

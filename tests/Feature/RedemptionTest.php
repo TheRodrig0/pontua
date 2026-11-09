@@ -413,5 +413,66 @@ class RedemptionTest extends TestCase
         $this->assertStringContainsString($user->name, $rendered);
         $this->assertStringContainsString('Administração da FATEC', $rendered);
     }
+
+    public function test_aacc_reward_redemption_and_email_template(): void
+    {
+        $user = $this->studentWithPoints(600);
+        $reward = $this->reward([
+            'name' => '10 Horas AACC',
+            'tag' => RewardTag::AACC,
+            'cost' => 500,
+        ]);
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson('/api/redemptions', ['reward_id' => $reward->id]);
+        $response->assertStatus(201)
+            ->assertJsonPath('status', 'pending')
+            ->assertJsonPath('points_cost', 500)
+            ->assertJsonPath('reward.tag', 'aacc');
+
+        $redemption = Redemption::find($response->json('id'));
+        $redemption->setRelation('reward', $reward);
+
+        $notification = new RewardRedeemedNotification($redemption);
+        $rendered = $notification->toMail($user)->render();
+
+        $this->assertStringContainsString('Protocolo de Horas AACC', $rendered);
+        $this->assertStringContainsString('SIGA', $rendered);
+        $this->assertStringContainsString($redemption->voucher_code, $rendered);
+    }
+
+    public function test_cancel_redemption_with_unlimited_stock_keeps_stock_null(): void
+    {
+        $student = $this->studentWithPoints(500);
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $reward = $this->reward(['tag' => RewardTag::AACC, 'cost' => 200, 'stock' => null]);
+
+        Sanctum::actingAs($student);
+        $id = $this->postJson('/api/redemptions', ['reward_id' => $reward->id])->json('id');
+        $this->assertNull($reward->fresh()->stock);
+
+        Sanctum::actingAs($admin);
+        $this->patchJson("/api/admin/redemptions/{$id}", ['status' => 'cancelled'])->assertStatus(200);
+
+        $this->assertNull($reward->fresh()->stock);
+        $this->assertSame(500, $this->balance($student));
+    }
+
+    public function test_student_can_redeem_again_after_redemption_is_cancelled(): void
+    {
+        $student = $this->studentWithPoints(500);
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $reward = $this->reward(['cost' => 200]);
+
+        Sanctum::actingAs($student);
+        $id = $this->postJson('/api/redemptions', ['reward_id' => $reward->id])->json('id');
+
+        Sanctum::actingAs($admin);
+        $this->patchJson("/api/admin/redemptions/{$id}", ['status' => 'cancelled'])->assertStatus(200);
+
+        Sanctum::actingAs($student);
+        $this->postJson('/api/redemptions', ['reward_id' => $reward->id])->assertStatus(201);
+        $this->assertSame(300, $this->balance($student));
+    }
 }
 

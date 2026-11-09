@@ -273,7 +273,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                             Nenhum estudante encontrado
                         </p>
                         <p className="text-[11px] text-app-graytext dark:text-slate-400 mt-1">
-                            Verifique o nome ou @nickname pesquisado.
+                            Verifique o nome ou @apelido pesquisado.
                         </p>
                     </div>
                 ) : (

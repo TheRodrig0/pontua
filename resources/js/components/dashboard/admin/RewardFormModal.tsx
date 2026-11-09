@@ -10,6 +10,7 @@ interface RewardFormModalProps {
     formDescription: string;
     formTag: RewardTagValue;
     formCost: string;
+    formHours: string;
     formImage: File | null;
     formError: string | null;
     isSaving: boolean;
@@ -19,6 +20,7 @@ interface RewardFormModalProps {
     onChangeDescription: (value: string) => void;
     onChangeTag: (value: RewardTagValue) => void;
     onChangeCost: (value: string) => void;
+    onChangeHours: (value: string) => void;
     onChangeImage: (file: File | null) => void;
 }
 
@@ -29,6 +31,7 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
     formDescription,
     formTag,
     formCost,
+    formHours,
     formImage,
     formError,
     isSaving,
@@ -38,9 +41,11 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
     onChangeDescription,
     onChangeTag,
     onChangeCost,
+    onChangeHours,
     onChangeImage,
 }) => {
     const isEditing = Boolean(editingReward);
+    const isAacc = formTag === 'aacc';
 
     return (
         <ModalDialog
@@ -70,13 +75,21 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                         maxLength={50}
                         value={formName}
                         onChange={(e) => onChangeName(e.target.value)}
-                        placeholder="Ex: Camiseta Oficial GTI"
+                        placeholder={
+                            isAacc
+                                ? 'Ex: Certificado de Horas Complementares'
+                                : 'Ex: Camiseta Oficial GTI'
+                        }
                         className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6]"
                         required
                     />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div
+                    className={`grid grid-cols-1 ${
+                        isAacc ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+                    } gap-3.5`}
+                >
                     <div>
                         <label
                             htmlFor="admin-reward-tag"
@@ -93,9 +106,32 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                             <option value="clothing">Vestuário</option>
                             <option value="accessory">Acessório</option>
                             <option value="cosmetic">Cosmético</option>
+                            <option value="aacc">Horas AACC</option>
                             <option value="other">Outros</option>
                         </select>
                     </div>
+
+                    {isAacc && (
+                        <div>
+                            <label
+                                htmlFor="admin-reward-hours"
+                                className="block text-xs font-bold text-app-navy dark:text-slate-200 mb-1.5"
+                            >
+                                Quantidade de Horas (máx. 8h)
+                            </label>
+                            <input
+                                id="admin-reward-hours"
+                                type="number"
+                                min={1}
+                                max={8}
+                                value={formHours}
+                                onChange={(e) => onChangeHours(e.target.value)}
+                                placeholder="1 a 8"
+                                className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6] tabular-nums"
+                                required
+                            />
+                        </div>
+                    )}
 
                     <div>
                         <label

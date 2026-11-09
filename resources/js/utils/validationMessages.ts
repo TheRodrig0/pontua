@@ -3,8 +3,8 @@ const LARAVEL_VALIDATION_DICTIONARY: Record<string, Record<string, string>> = {
         name: 'Informe o seu nome completo.',
         email: 'Informe o seu endereço de e-mail.',
         password: 'Informe a sua senha de acesso.',
-        nick: 'Informe um nickname válido.',
-        url: 'A URL da nota fiscal é obrigatória.',
+        nick: 'Informe um apelido válido.',
+        url: 'O link da nota fiscal é obrigatório.',
         amount: 'Informe a quantidade de pontos para doar.',
         recipient_id: 'Selecione um estudante destinatário.',
         default: 'Este campo é obrigatório.',
@@ -19,12 +19,12 @@ const LARAVEL_VALIDATION_DICTIONARY: Record<string, Record<string, string>> = {
     },
     'validation.max.string': {
         name: 'O nome informado excede o limite de caracteres.',
-        nick: 'O nickname pode ter no máximo 50 caracteres.',
+        nick: 'O apelido pode ter no máximo 50 caracteres.',
         default: 'Este campo excede o limite máximo de caracteres.',
     },
     'validation.unique': {
         email: 'Este e-mail já está cadastrado na plataforma.',
-        nick: 'Este @nickname já está em uso por outro estudante.',
+        nick: 'Este @apelido já está em uso por outro estudante.',
         access_key: 'Esta nota fiscal já foi inserida no sistema.',
         default: 'Este registro já está cadastrado no sistema.',
     },
@@ -53,7 +53,7 @@ const LARAVEL_VALIDATION_DICTIONARY: Record<string, Record<string, string>> = {
         default: 'Sua sessão expirou. Faça login novamente para continuar.',
     },
     'passwords.token': {
-        default: 'O código ou token de redefinição de senha é inválido ou expirou.',
+        default: 'O código ou link de redefinição de senha é inválido ou expirou.',
     },
     'passwords.user': {
         default: 'Não encontramos nenhum estudante cadastrado com este endereço de e-mail.',

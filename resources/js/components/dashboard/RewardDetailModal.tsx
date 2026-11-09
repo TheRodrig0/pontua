@@ -6,14 +6,17 @@ import {
     Shirt,
     Watch,
     Gift,
+    GraduationCap,
     CheckCircle2,
     Mail,
+    Printer,
 } from 'lucide-react';
 import ModalDialog from '@/components/ui/ModalDialog';
 import { REWARD_TAG_LABELS } from '@/enums/dashboard';
-import { redemptionService } from '@/services/redemptionService';
+import { redemptionService, type MyRedemption } from '@/services/redemptionService';
 import { rewardService } from '@/services/rewardService';
 import type { RewardItem, RewardTagValue, UserProfile } from '@/types/dashboard';
+import { openAaccCertificatePrint } from '@/utils/printAaccCertificate';
 
 interface RewardDetailModalProps {
     rewardId: number | null;
@@ -29,6 +32,7 @@ const TAG_LABELS = REWARD_TAG_LABELS;
 export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
     rewardId,
     currentBalance,
+    profile,
     onClose,
     onRedeemed,
 }) => {
@@ -39,6 +43,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
     const [isSuccess, setIsSuccess] = useState(false);
     const [isRedeeming, setIsRedeeming] = useState(false);
     const [redeemError, setRedeemError] = useState<string | null>(null);
+    const [createdRedemption, setCreatedRedemption] = useState<MyRedemption | null>(null);
 
     useEffect(() => {
         if (!rewardId) {
@@ -47,6 +52,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
             setImageError(false);
             setIsSuccess(false);
             setRedeemError(null);
+            setCreatedRedemption(null);
             return;
         }
 
@@ -56,6 +62,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
         setImageError(false);
         setIsSuccess(false);
         setRedeemError(null);
+        setCreatedRedemption(null);
 
         rewardService
             .show(rewardId)
@@ -95,7 +102,8 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
         setRedeemError(null);
 
         try {
-            await redemptionService.create(reward.id);
+            const created = await redemptionService.create(reward.id);
+            setCreatedRedemption(created);
             setIsSuccess(true);
             onRedeemed?.();
         } catch (error: any) {
@@ -109,6 +117,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
         if (tag === 'clothing') return <Shirt className="w-10 h-10 text-white" />;
         if (tag === 'accessory') return <Watch className="w-10 h-10 text-white" />;
         if (tag === 'cosmetic') return <Sparkles className="w-10 h-10 text-white" />;
+        if (tag === 'aacc') return <GraduationCap className="w-10 h-10 text-white" />;
         return <Gift className="w-10 h-10 text-white" />;
     };
 
@@ -183,18 +192,50 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                     )}
 
                     {isSuccess ? (
-                        <div className="bg-[#4bb9a6]/15 border border-[#4bb9a6]/35 rounded-xl p-4 space-y-2.5">
+                        <div className="bg-[#4bb9a6]/15 border border-[#4bb9a6]/35 rounded-xl p-4 space-y-3">
                             <div className="flex items-center gap-2 text-xs font-extrabold text-[#4bb9a6]">
                                 <CheckCircle2 className="w-4 h-4 shrink-0" />
-                                <span>Solicitação de resgate enviada com sucesso!</span>
+                                <span>Solicitação de resgate confirmada com sucesso!</span>
                             </div>
-                            <p className="text-[11px] text-app-graytext dark:text-slate-300 leading-relaxed">
-                                Seus pontos foram reservados. O código de resgate oficial foi <strong>enviado diretamente para o seu e-mail cadastrado</strong>.
-                            </p>
-                            <div className="pt-1 text-[11px] font-semibold text-app-navy dark:text-white flex items-start gap-2 bg-white/60 dark:bg-slate-900/60 p-2.5 rounded-lg border border-[#4bb9a6]/30">
-                                <Mail className="w-4 h-4 text-[#4bb9a6] shrink-0 mt-0.5" />
-                                <span>Acesse sua caixa de entrada e apresente o e-mail na Administração da FATEC para retirar seu prêmio.</span>
-                            </div>
+
+                            {reward.tag === 'aacc' ? (
+                                <>
+                                    <p className="text-[11px] text-app-graytext dark:text-slate-300 leading-relaxed">
+                                        Sua declaração oficial com o código de autenticidade{' '}
+                                        <strong className="font-mono text-app-navy dark:text-white">
+                                            {createdRedemption?.voucher_code}
+                                        </strong>{' '}
+                                        já está disponível abaixo. Salve o documento em PDF e anexe diretamente no <strong>SIGA</strong> — a Coordenação consultará este protocolo no painel para validar suas horas.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            openAaccCertificatePrint({
+                                                studentName: profile?.name || 'Estudante FATEC',
+                                                studentEmail: profile?.email,
+                                                rewardName: reward.name,
+                                                pointsCost: reward.cost,
+                                                voucherCode: createdRedemption?.voucher_code || '',
+                                                issuedAt: createdRedemption?.created_at,
+                                            })
+                                        }
+                                        className="w-full py-2.5 px-4 rounded-xl bg-app-navy dark:bg-white text-white dark:text-slate-900 hover:opacity-90 text-xs font-extrabold inline-flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                                    >
+                                        <Printer className="w-4 h-4" />
+                                        <span>Baixar / Imprimir Declaração (PDF)</span>
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-[11px] text-app-graytext dark:text-slate-300 leading-relaxed">
+                                        Seus pontos foram reservados. O código de resgate oficial foi <strong>enviado diretamente para o seu e-mail cadastrado</strong>.
+                                    </p>
+                                    <div className="pt-1 text-[11px] font-semibold text-app-navy dark:text-white flex items-start gap-2 bg-white/60 dark:bg-slate-900/60 p-2.5 rounded-lg border border-[#4bb9a6]/30">
+                                        <Mail className="w-4 h-4 text-[#4bb9a6] shrink-0 mt-0.5" />
+                                        <span>Acesse sua caixa de entrada e apresente o e-mail na Administração da FATEC para retirar seu prêmio.</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ) : (
                         <div className="flex items-center justify-between gap-3 bg-[#4bb9a6]/10 dark:bg-[#112a2e]/50 border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 rounded-xl p-3.5 text-xs">
