@@ -178,7 +178,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-app-graytext dark:text-slate-400">
                                 <span className="inline-flex items-center gap-1 font-semibold text-[#4bb9a6]">
                                     <AtSign className="w-3.5 h-3.5" />
-                                    {profile?.nick || 'sem-nickname'}
+                                    {profile?.nick || 'sem-apelido'}
                                 </span>
                                 {profile?.email && (
                                     <span className="inline-flex items-center gap-1.5">
@@ -242,7 +242,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                         Editar Dados do Perfil
                     </h3>
                     <p className="text-xs text-app-graytext dark:text-slate-400 mt-0.5">
-                        Atualize seu nome de exibição, nickname no ranking e avatar.
+                        Atualize seu nome de exibição, apelido no ranking e avatar.
                     </p>
                 </div>
 
@@ -295,7 +295,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                                 htmlFor="profile-nick"
                                 className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1.5"
                             >
-                                Nickname no Ranking (@usuario)
+                                Apelido no Ranking (@usuario)
                             </label>
                             <div className="flex items-center gap-2">
                                 <AtSign className="w-4 h-4 text-[#4bb9a6] shrink-0" />
@@ -305,7 +305,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                                     autoComplete="username"
                                     value={nick}
                                     onChange={(e) => setNick(e.target.value)}
-                                    placeholder="seu.nickname"
+                                    placeholder="seu.apelido"
                                     className="w-full bg-transparent text-xs sm:text-sm font-semibold text-app-navy dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
                                 />
                             </div>
