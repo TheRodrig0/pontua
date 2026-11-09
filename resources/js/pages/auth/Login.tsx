@@ -40,7 +40,7 @@ const Login: React.FC = () => {
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
                     <AuthInput
                         id="login-identifier"
-                        label="E-mail ou @Nickname"
+                        label="E-mail ou @Apelido"
                         icon={User}
                         type="text"
                         value={loginIdentifier}

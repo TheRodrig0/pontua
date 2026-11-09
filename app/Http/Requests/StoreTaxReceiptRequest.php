@@ -65,9 +65,9 @@ class StoreTaxReceiptRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'url.required' => 'A URL da nota fiscal é obrigatória.',
-            'url.url' => 'A URL informada não é válida.',
-            'url.regex' => 'A URL informada deve pertencer obrigatoriamente ao portal oficial da SEFAZ-SP (fazenda.sp.gov.br).',
+            'url.required' => 'O link da nota fiscal é obrigatório.',
+            'url.url' => 'O link informado não é válido.',
+            'url.regex' => 'O link informado deve pertencer obrigatoriamente ao portal oficial da Nota Fiscal Paulista (fazenda.sp.gov.br).',
             'access_key.required' => 'O Qrcode desta nota fiscal é inválido.',
             'access_key.size' => 'A chave de acesso deve conter exatamente 44 dígitos numéricos.',
             'access_key.starts_with' => 'Apenas notas fiscais do estado de São Paulo são aceitas.',
