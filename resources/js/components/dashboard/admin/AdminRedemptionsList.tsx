@@ -4,6 +4,7 @@ import {
     Clock,
     Gift,
     KeyRound,
+    Printer,
     Sparkles,
     User,
     XCircle,
@@ -14,6 +15,7 @@ import type {
     RewardRedemptionRequest,
 } from '@/services/redemptionService';
 import { formatDateShort } from '@/utils/formatters';
+import { openAaccCertificatePrint } from '@/utils/printAaccCertificate';
 
 interface AdminRedemptionsListProps {
     redemptions: RewardRedemptionRequest[];
@@ -145,6 +147,7 @@ export const AdminRedemptionsList: React.FC<AdminRedemptionsListProps> = ({
                         const isHighlighted = justUpdatedId === item.id;
                         const rewardName = item.reward?.name || 'Recompensa';
                         const rewardTag = item.reward?.tag || 'other';
+                        const isAacc = rewardTag === 'aacc';
                         const userName = item.user?.name || 'Estudante';
                         const userNick = item.user?.nick;
 
@@ -215,7 +218,27 @@ export const AdminRedemptionsList: React.FC<AdminRedemptionsListProps> = ({
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 dark:border-slate-800/60">
+                                <div className="flex flex-wrap items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 dark:border-slate-800/60">
+                                    {isAacc && item.status !== 'cancelled' && (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                openAaccCertificatePrint({
+                                                    studentName: userName,
+                                                    studentEmail: item.user?.email,
+                                                    rewardName,
+                                                    pointsCost: item.points_cost,
+                                                    voucherCode: item.voucher_code,
+                                                    issuedAt: item.created_at,
+                                                })
+                                            }
+                                            className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-app-navy dark:text-slate-200 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-300/70 dark:border-slate-700 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                                        >
+                                            <Printer className="w-3.5 h-3.5 text-[#4bb9a6]" />
+                                            <span>Declaração PDF</span>
+                                        </button>
+                                    )}
+
                                     {isPending ? (
                                         <>
                                             <button
@@ -235,7 +258,7 @@ export const AdminRedemptionsList: React.FC<AdminRedemptionsListProps> = ({
                                                 className="px-3.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-[#4bb9a6] hover:bg-[#3da392] text-white shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
                                             >
                                                 <CheckCircle2 className="w-3.5 h-3.5" />
-                                                <span>Confirmar Entrega</span>
+                                                <span>{isAacc ? 'Validar Horas' : 'Confirmar Entrega'}</span>
                                             </button>
                                         </>
                                     ) : (
@@ -249,7 +272,7 @@ export const AdminRedemptionsList: React.FC<AdminRedemptionsListProps> = ({
                                             {isCompleted ? (
                                                 <>
                                                     <CheckCircle2 className="w-3.5 h-3.5" />
-                                                    <span>Entrega Validada</span>
+                                                    <span>{isAacc ? 'Horas Validadas' : 'Entrega Validada'}</span>
                                                 </>
                                             ) : (
                                                 <>

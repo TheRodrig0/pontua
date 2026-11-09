@@ -1,23 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Shirt,
     Sparkles,
     Gift,
     Watch,
+    GraduationCap,
     Plus,
     Pencil,
     Trash2,
     Loader2,
+    Printer,
+    Clock,
+    CheckCircle2,
+    XCircle,
     type LucideIcon,
 } from 'lucide-react';
 import { RewardFormModal } from '@/components/dashboard/admin/RewardFormModal';
 import { REWARD_TAG_LABELS } from '@/enums/dashboard';
+import { redemptionService, type MyRedemption } from '@/services/redemptionService';
 import { rewardService } from '@/services/rewardService';
 import type { RewardItem, RewardTagValue } from '@/types/dashboard';
+import { formatDateShort } from '@/utils/formatters';
+import { openAaccCertificatePrint } from '@/utils/printAaccCertificate';
 
 interface RewardsStoreSectionProps {
     rewards: RewardItem[];
     currentBalance: number;
+    userName?: string;
+    userEmail?: string;
     isAdmin?: boolean;
     hasNextPage: boolean;
     isLoading: boolean;
@@ -51,6 +61,11 @@ const TAG_CONFIG: Record<
         coverBgClass: 'bg-gradient-to-br from-[#2e1f47] to-[#312e81]',
         Icon: Sparkles,
     },
+    aacc: {
+        label: REWARD_TAG_LABELS.aacc,
+        coverBgClass: 'bg-gradient-to-br from-[#0f3d3e] to-[#1e3a5f]',
+        Icon: GraduationCap,
+    },
     other: {
         label: REWARD_TAG_LABELS.other,
         coverBgClass: 'bg-gradient-to-br from-[#0f3d3e] to-[#134e4a]',
@@ -61,6 +76,8 @@ const TAG_CONFIG: Record<
 export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
     rewards,
     currentBalance,
+    userName = 'Estudante FATEC',
+    userEmail,
     isAdmin = false,
     hasNextPage,
     isLoading,
@@ -68,8 +85,27 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
     onSelectReward,
     onRewardsMutated,
 }) => {
+    const [viewMode, setViewMode] = useState<'catalog' | 'my_redemptions'>('catalog');
+    const [myRedemptions, setMyRedemptions] = useState<MyRedemption[]>([]);
+    const [isLoadingMyRedemptions, setIsLoadingMyRedemptions] = useState(false);
     const [activeFilter, setActiveFilter] = useState<StoreFilterTag>('all');
     const [brokenImages, setBrokenImages] = useState<Record<number, boolean>>({});
+
+    const fetchMyRedemptions = async () => {
+        setIsLoadingMyRedemptions(true);
+        try {
+            const res = await redemptionService.listMine();
+            setMyRedemptions(res.data || []);
+        } catch {
+            // Ignore error
+        } finally {
+            setIsLoadingMyRedemptions(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchMyRedemptions();
+    }, []);
 
     // Admin Form Modal State (POST /api/rewards & PATCH /api/rewards/{id})
     const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -78,6 +114,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
     const [formDescription, setFormDescription] = useState('');
     const [formTag, setFormTag] = useState<RewardTagValue>('clothing');
     const [formCost, setFormCost] = useState('');
+    const [formHours, setFormHours] = useState('4');
     const [formImage, setFormImage] = useState<File | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -89,6 +126,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
         setFormDescription('');
         setFormTag('clothing');
         setFormCost('');
+        setFormHours('4');
         setFormImage(null);
         setFormError(null);
         setIsAdminModalOpen(true);
@@ -96,10 +134,20 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
 
     const openEditModal = (reward: RewardItem) => {
         setEditingReward(reward);
-        setFormName(reward.name);
+        const hoursMatch =
+            reward.name.match(/\((\d+)\s*h(?:oras?)?\)/i) ||
+            reward.name.match(/\b(\d+)\s*horas?\b/i);
+        const extractedHours = hoursMatch ? hoursMatch[1] : '4';
+        const cleanName =
+            reward.tag === 'aacc'
+                ? reward.name.replace(/\s*\(\d+\s*h(?:oras?)?\)\s*$/i, '').trim()
+                : reward.name;
+
+        setFormName(cleanName);
         setFormDescription(reward.description || '');
         setFormTag(reward.tag || 'other');
         setFormCost(String(reward.cost));
+        setFormHours(extractedHours);
         setFormImage(null);
         setFormError(null);
         setIsAdminModalOpen(true);
@@ -116,8 +164,26 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
             return;
         }
 
+        let finalName = formName.trim();
         const formData = new FormData();
-        formData.append('name', formName.trim());
+
+        if (formTag === 'aacc') {
+            const parsedHours = parseInt(formHours, 10);
+            if (Number.isNaN(parsedHours) || parsedHours < 1 || parsedHours > 8) {
+                setFormError('Para Horas AACC, informe uma quantidade entre 1 e 8 horas.');
+                return;
+            }
+            const cleanBaseName = finalName.replace(/\s*\(\d+\s*h(?:oras?)?\)\s*$/i, '').trim();
+            const alreadyMentionsHours = new RegExp(`\\b${parsedHours}\\s*h(oras?)?\\b`, 'i').test(
+                cleanBaseName
+            );
+            finalName = alreadyMentionsHours
+                ? cleanBaseName
+                : `${cleanBaseName} (${parsedHours}h)`;
+            formData.append('aacc_hours', String(parsedHours));
+        }
+
+        formData.append('name', finalName);
         if (formDescription.trim()) {
             formData.append('description', formDescription.trim());
         }
@@ -180,47 +246,45 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                         </span>
                     </div>
                     <p className="text-xs text-app-graytext dark:text-slate-400 mt-1">
-                        Recompensas disponíveis para resgate com seus pontos acumulados.
+                        Troque seus pontos acumulados por prêmios ou consulte seus certificados e resgates.
                     </p>
                 </div>
 
-                {/* Filter Buttons mapped strictly to RewardTag enum in DB + Admin Button */}
                 <div className="flex flex-wrap items-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => setActiveFilter('all')}
-                        className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
-                            activeFilter === 'all'
-                                ? 'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30'
-                                : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                        }`}
-                    >
-                        Todos
-                    </button>
+                    <div className="inline-flex bg-slate-100 dark:bg-[#111827] p-1 rounded-xl border border-slate-200/70 dark:border-slate-800">
+                        <button
+                            type="button"
+                            onClick={() => setViewMode('catalog')}
+                            className={`text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                                viewMode === 'catalog'
+                                    ? 'bg-white dark:bg-[#182234] text-app-navy dark:text-white shadow-xs'
+                                    : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
+                            }`}
+                        >
+                            Catálogo de Prêmios
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setViewMode('my_redemptions');
+                                fetchMyRedemptions();
+                            }}
+                            className={`text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+                                viewMode === 'my_redemptions'
+                                    ? 'bg-white dark:bg-[#182234] text-[#4bb9a6] shadow-xs font-extrabold'
+                                    : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
+                            }`}
+                        >
+                            <span>Meus Resgates</span>
+                            {myRedemptions.length > 0 && (
+                                <span className="bg-[#4bb9a6]/20 text-[#4bb9a6] text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                                    {myRedemptions.length}
+                                </span>
+                            )}
+                        </button>
+                    </div>
 
-                    {(Object.keys(TAG_CONFIG) as RewardTagValue[]).map((tagKey) => {
-                        const cfg = TAG_CONFIG[tagKey];
-                        const Icon = cfg.Icon;
-                        const isActive = activeFilter === tagKey;
-
-                        return (
-                            <button
-                                key={tagKey}
-                                type="button"
-                                onClick={() => setActiveFilter(tagKey)}
-                                className={`text-xs font-bold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 transition-all cursor-pointer ${
-                                    isActive
-                                        ? 'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30'
-                                        : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                                }`}
-                            >
-                                <Icon className="w-3.5 h-3.5 text-[#4bb9a6]" />
-                                <span>{cfg.label}</span>
-                            </button>
-                        );
-                    })}
-
-                    {isAdmin && (
+                    {isAdmin && viewMode === 'catalog' && (
                         <button
                             type="button"
                             onClick={openCreateModal}
@@ -232,6 +296,45 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                     )}
                 </div>
             </div>
+
+            {viewMode === 'catalog' ? (
+                <>
+                    {/* Category Filter Bar */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setActiveFilter('all')}
+                            className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
+                                activeFilter === 'all'
+                                    ? 'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30'
+                                    : 'bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800 text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
+                            }`}
+                        >
+                            Todos
+                        </button>
+
+                        {(Object.keys(TAG_CONFIG) as RewardTagValue[]).map((tagKey) => {
+                            const cfg = TAG_CONFIG[tagKey];
+                            const Icon = cfg.Icon;
+                            const isActive = activeFilter === tagKey;
+
+                            return (
+                                <button
+                                    key={tagKey}
+                                    type="button"
+                                    onClick={() => setActiveFilter(tagKey)}
+                                    className={`text-xs font-bold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 transition-all cursor-pointer ${
+                                        isActive
+                                            ? 'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30'
+                                            : 'bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800 text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
+                                    }`}
+                                >
+                                    <Icon className="w-3.5 h-3.5 text-[#4bb9a6]" />
+                                    <span>{cfg.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
 
             {/* Rewards Grid */}
             {filteredRewards.length === 0 ? (
@@ -373,6 +476,115 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                     </button>
                 </div>
             )}
+                </>
+            ) : (
+                /* My Redemptions View inside Store */
+                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center justify-between gap-4 mb-5">
+                        <div>
+                            <h3 className="text-base font-extrabold text-app-navy dark:text-white flex items-center gap-2">
+                                <Gift className="w-4 h-4 text-[#4bb9a6]" />
+                                <span>Meus Resgates &amp; Certificados</span>
+                            </h3>
+                            <p className="text-xs text-app-graytext dark:text-slate-400 mt-0.5">
+                                Histórico de pedidos realizados na loja e comprovantes para emissão e download.
+                            </p>
+                        </div>
+                    </div>
+
+                    {isLoadingMyRedemptions ? (
+                        <div className="py-12 flex items-center justify-center gap-2 text-xs text-app-graytext dark:text-slate-400">
+                            <Loader2 className="w-5 h-5 animate-spin text-[#4bb9a6]" />
+                            <span>Carregando seus pedidos...</span>
+                        </div>
+                    ) : myRedemptions.length === 0 ? (
+                        <div className="py-12 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                            <Gift className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-50" />
+                            <p className="text-xs font-bold text-app-navy dark:text-white">
+                                Você ainda não resgatou nenhum prêmio
+                            </p>
+                            <p className="text-[11px] text-app-graytext dark:text-slate-400 mt-1">
+                                Volte ao Catálogo e escolha uma recompensa com seus pontos.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {myRedemptions.map((item) => {
+                                const isAacc = item.reward?.tag === 'aacc';
+                                const isPending = item.status === 'pending';
+                                const isCompleted = item.status === 'completed';
+                                const isCancelled = item.status === 'cancelled';
+
+                                return (
+                                    <div
+                                        key={item.id}
+                                        className="bg-slate-50/70 dark:bg-[#111827]/70 border border-slate-200/80 dark:border-slate-800/80 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                                    >
+                                        <div className="min-w-0 space-y-1.5">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className="font-mono text-xs font-bold text-app-navy dark:text-white bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                                                    {item.voucher_code}
+                                                </span>
+                                                <span className="text-sm font-extrabold text-app-navy dark:text-white truncate">
+                                                    {item.reward?.name || 'Recompensa'}
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-2 text-xs text-app-graytext dark:text-slate-400">
+                                                <span className="font-bold text-[#ea7349]">{item.points_cost} PTS</span>
+                                                <span>•</span>
+                                                <span>{formatDateShort(item.created_at)}</span>
+                                                <span>•</span>
+                                                <span className="inline-flex items-center gap-1 font-semibold">
+                                                    {isPending && (
+                                                        <>
+                                                            <Clock className="w-3.5 h-3.5 text-amber-500" />
+                                                            <span className="text-amber-600 dark:text-amber-400">Aguardando Validação</span>
+                                                        </>
+                                                    )}
+                                                    {isCompleted && (
+                                                        <>
+                                                            <CheckCircle2 className="w-3.5 h-3.5 text-[#4bb9a6]" />
+                                                            <span className="text-[#4bb9a6]">Validado</span>
+                                                        </>
+                                                    )}
+                                                    {isCancelled && (
+                                                        <>
+                                                            <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                                                            <span className="text-rose-500">Cancelado / Estornado</span>
+                                                        </>
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-end shrink-0">
+                                            {isAacc && !isCancelled && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        openAaccCertificatePrint({
+                                                            studentName: userName,
+                                                            studentEmail: userEmail,
+                                                            rewardName: item.reward?.name || 'Horas AACC',
+                                                            pointsCost: item.points_cost,
+                                                            voucherCode: item.voucher_code,
+                                                            issuedAt: item.created_at,
+                                                        })
+                                                    }
+                                                    className="px-4 py-2 rounded-xl text-xs font-extrabold bg-[#4bb9a6] hover:bg-[#3da392] text-white shadow-xs transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                                                >
+                                                    <Printer className="w-4 h-4" />
+                                                    <span>Baixar Certificado (PDF)</span>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            )}
 
             <RewardFormModal
                 isOpen={isAdminModalOpen}
@@ -381,6 +593,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                 formDescription={formDescription}
                 formTag={formTag}
                 formCost={formCost}
+                formHours={formHours}
                 formImage={formImage}
                 formError={formError}
                 isSaving={isSaving}
@@ -389,6 +602,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                 onChangeDescription={setFormDescription}
                 onChangeTag={setFormTag}
                 onChangeCost={setFormCost}
+                onChangeHours={setFormHours}
                 onChangeImage={setFormImage}
                 onSubmit={handleSaveReward}
             />
