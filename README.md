@@ -1,209 +1,233 @@
-# 🏆 Pontua
+<div align="center">
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/pontua-logo-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="docs/brand/pontua-logo-light.svg" />
+    <img src="docs/brand/pontua-logo-light.svg" alt="PONTUA." width="280" />
+  </picture>
+
+  <br>
+  
+  <p>
+    <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5" />
+    <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3" />
+    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19" />
+    <img src="https://img.shields.io/badge/Inertia.js-9553E9?style=for-the-badge&logo=inertia&logoColor=white" alt="Inertia.js" />
+    <img src="https://img.shields.io/badge/Tailwind_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+    <img src="https://img.shields.io/badge/PHP_8.3+-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3+" />
+    <img src="https://img.shields.io/badge/Laravel_13-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 13" />
+    <img src="https://img.shields.io/badge/Supabase_PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase PostgreSQL" />
+    <img src="https://img.shields.io/badge/Oracle_Cloud-F80000?style=for-the-badge&logo=oracle&logoColor=white" alt="Oracle Cloud" />
+    <img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare" />
+    <img src="https://img.shields.io/badge/Brevo-0B996F?style=for-the-badge&logo=brevo&logoColor=white" alt="Brevo" />
+  </p>
+
+  <p>
+    <strong>Português</strong> &nbsp;|&nbsp;
+    <a href="README.en.md">English</a>
+  </p>
+
+</div>
+
+---
+
+> **Fatec Franco da Rocha** — Tecnologia em Gestão da Tecnologia da Informação  
+> Artigo publicado no **VI SIMBAJU** — Simpósio da Bacia do Juquery (Energia e Tecnologia)
+
+---
+
+<br>
+
+# 01 · Sobre o Projeto
+
+O **Pontua** é uma aplicação web desenvolvida para modernizar e impulsionar a campanha de arrecadação de cupons fiscais da **Fatec Franco da Rocha (FFR)** em benefício da **APAE** (*Associação de Pais e Amigos dos Excepcionais*).
+
+Na operação tradicional, as notas fiscais recebidas pela entidade precisam ser registradas no programa *Nota Fiscal Paulista* dentro de um **prazo legal máximo de 40 dias**. A dependência de uma urna física, o transporte presencial semanal e a triagem manual de papéis geravam gargalos operacionais, perda de notas vencidas e baixa participação estudantil.
+
+<br>
+
+| Modelo Tradicional (Urna Física) | Solução Pontua (Fluxo Digital) |
+| :--- | :--- |
+| Coleta restrita a uma urna física no campus. | **Leitura Instantânea:** QR Code via câmera ou digitação da chave de 44 dígitos. |
+| Transporte semanal e triagem manual exaustiva na APAE. | **Validação SEFAZ-SP:** Extração automática de dados fiscais e bloqueio de duplicatas. |
+| Perda constante de notas pelo prazo legal de 40 dias. | **Lote Diário Automatizado:** Envio de CSV estruturado diretamente para a APAE à meia-noite. |
+| Baixa adesão dos alunos por falta de retorno palpável. | **Gamificação e AACC:** Pontos acumulativos (FIFO), *streaks*, loja e certificados oficiais. |
+
+<br>
+<br>
+
+# 02 · Pesquisa em Campo
+
+Para validar as dores do modelo manual e o impacto potencial do sistema de recompensas, foi aplicado um levantamento quantitativo (*survey*) com a comunidade acadêmica da **Fatec Franco da Rocha (FFR)**, complementado por entrevista qualitativa com a coordenação do curso.
+
+* **Perfil da Amostra:** 20 respondentes (**95%** alunos dos cursos de GTI, GEEE e DSM; **5%** funcionários administrativos).
+* **Gargalo de Adesão:** Embora **75%** já conhecessem o programa de doação, **53,3%** doavam raramente e **26,7%** nunca haviam doado.
+* **Principais Motivos:** Esquecimento de guardar as notas em papel (**84,6%**), falta de incentivo (**30,8%**) e trabalho para guardar e depositar na urna física (**23,1%**).
+* **Validação da Solução:** **95%** afirmaram que participariam com maior frequência caso houvesse incentivos como **horas complementares (AACC)** e brindes.
+
+<br>
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/research/01-perfil-participantes.png" alt="Perfil dos participantes" width="100%" />
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/research/02-cursos.png" alt="Distribuição por curso" width="100%" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/research/03-conhecimento-programa.png" alt="Conhecimento prévio do programa" width="100%" />
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/research/04-frequencia-doacao.png" alt="Frequência de doação de notas fiscais" width="100%" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/research/05-motivos-baixa-doacao.png" alt="Motivos para não doar ou doar com pouca frequência" width="100%" />
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/research/06-impacto-incentivos-aacc.png" alt="Impacto de incentivos como horas AACC e brindes" width="100%" />
+    </td>
+  </tr>
+</table>
+
+<br>
+
+# 03 · Processos de Negócio (BPMN)
+
+A arquitetura de software foi orientada pela modelagem de processos (**BPMN**) para eliminar os gargalos operacionais do modelo manual.
+
+
+### 1. Cenário Inicial (Fluxo Manual com Urna Física)
 
 <p align="center">
-  <a href="#-sobre-o-projeto">🇧🇷 Português</a> &nbsp;|&nbsp;
-  <a href="#-about">🇺🇸 English</a>
+  <img src="docs/process-maps/process-map-initial.svg" alt="Mapa de Processos - Cenário Inicial (Manual)" width="90%" />
 </p>
 
----
+* **Gargalos mapeados:** Deslocamento semanal obrigatório da coordenação, desamasso manual de cupons na APAE, digitação no sistema *Nota Bem* e perdas financeiras por expiração do prazo legal de 40 dias.
 
-## 🇧🇷 Português
+<br>
 
-> **Modelo de Gestão e Incentivo para Coleta de Notas Fiscais**
->
-> Um estudo de caso na relação APAE e a Fatec Franco da Rocha (FFR)
+### 2. Cenário Proposto (Automação Completa com o Pontua)
 
----
+<p align="center">
+  <img src="docs/process-maps/process-map-proposed.svg" alt="Mapa de Processos - Cenário Proposto (Pontua)" width="100%" />
+</p>
 
-## 📋 Sobre o Projeto
+* **Comunidade Acadêmica (Doador):** Escaneia o QR Code, acompanha a validação, acumula pontos, transfere saldo ou resgata prêmios/horas AACC.
+* **Sistema Pontua:** Processa assincronamente na SEFAZ e bifurca o fluxo: (1) credita pontos com multiplicador de sequência na carteira; (2) consolida o lote diário em CSV à meia-noite (`00:00`) e despacha para a APAE.
+* **Administração FFR:** Valida o voucher para entrega de brindes ou homologação de certificados AACC.
+* **APAE:** Recebe os lotes fiscais digitais formatados por e-mail, sem contato com papel.
 
-O **Pontua** é uma plataforma digital de fidelização desenvolvida como **Projeto Integrador IV (PI IV)** do curso de **Gestão da Tecnologia da Informação** da **Fatec Franco da Rocha (FFR)**, em parceria com uma **APAE (Associação de Pais e Amigos dos Excepcionais)** parceira.
+<br>
 
-### O Problema
+# 04 · Funcionalidades
 
-A APAE parceira arrecada recursos financeiros por meio do programa de doação de notas fiscais. No modelo atual:
+### Módulo do Usuário (Comunidade Acadêmica)
 
-- A coleta é feita por meio de uma **urna física** instalada na Fatec;
-- Colaboradoras e voluntárias dedicam longas horas **organizando e digitalizando** as notas manualmente no sistema *Nota Bem*;
-- As notas possuem **validade de apenas 40 dias**, gerando risco real de perda de doações;
-- A **baixa adesão** da comunidade acadêmica (alunos, docentes e administrativos) reduz o potencial de arrecadação.
+* **Leitor de QR Code Integrado:** Leitura em tempo real via câmera (`jsQR` / `qr-scanner`) ou entrada manual.
+* **Carteira e Extrato de Pontos:** Controle transacional de créditos e débitos com regra de expiração **FIFO**.
+* **Gamificação e Streaks:** Bônus multiplicadores por dias consecutivos de doação e ranking acadêmico dinâmico.
+* **Transferência entre Alunos:** Repasse direto de saldo de pontos entre usuários cadastrados.
+* **Loja e Certificados AACC:** Resgate de itens físicos e emissão de certificados de horas complementares com autenticação.
 
-### A Solução
+<br>
 
-O **Pontua** propõe a digitalização completa desse processo por meio de uma plataforma que:
+### Módulo Administrativo e Governança
 
-- ✅ Permite a **doação de notas fiscais via QR Code**;
-- ✅ Realiza a **validação automática** das notas digitalizadas;
-- ✅ **Recompensa os doadores com pontos** acumuláveis;
-- ✅ Disponibiliza uma **loja interna** para resgate de prêmios com os pontos acumulados;
-- ✅ **Encaminha automaticamente** as notas validadas para a APAE;
-- ✅ Envia **notificações** para engajar a comunidade acadêmica.
+* **Painel de Controle:** Métricas operacionais em tempo real de notas, arrecadação repassada e engajamento.
+* **Despacho Automático para a APAE:** Rotina diária (`SendApaeDailyBatchJob`) que consolida e envia o lote de cupons por e-mail.
+* **Gestão de Recompensas e Estoque:** Controle de inventário de produtos e validação de códigos de resgate.
+* **Moderação e Conformidade LGPD:** Registro de advertências, bloqueio auditado de contas e mascaramento de dados sensíveis.
 
----
+<br>
 
-## 👥 Integrantes
+# 05 · Stack Tecnológica
 
-| Nome | Curso |
-|---|---|
-| **Marcos Vinicius de Oliveira Campo** | Gestão da Tecnologia da Informação – Fatec Franco da Rocha |
-| **Murilo Decanini dos Santos** | Gestão da Tecnologia da Informação – Fatec Franco da Rocha |
-| **Nicolas Santiago Baroco** | Gestão da Tecnologia da Informação – Fatec Franco da Rocha |
-| **Rafael Costa Perondi** | Gestão da Tecnologia da Informação – Fatec Franco da Rocha |
-| **Rodrigo Jeronimo de Queiroz Silva** | Gestão da Tecnologia da Informação – Fatec Franco da Rocha |
+| Camada | Tecnologia | Finalidade |
+| :--- | :--- | :--- |
+| **Linguagens Front-end** | **HTML5, CSS3, JavaScript & TypeScript** | Estrutura semântica, estilização, interatividade e tipagem estática |
+| **Front-end** | **React 19 + Inertia.js + Vite** | Interface SPA reativa orientada a componentes e empacotamento via Node.js |
+| **Estilização** | **Tailwind CSS v4** | Sistema visual utilitário e responsivo |
+| **Back-end** | **PHP 8.3+ / Laravel 13** | Regras de negócio, filas assíncronas (`Jobs`), agendamento (`Schedule`) e segurança |
+| **Autenticação** | **Laravel Sanctum** | Autenticação SPA segura via cookies com proteção CSRF |
+| **Banco de Dados** | **PostgreSQL (Supabase) / SQLite** | Modelagem relacional estrita com integridade referencial |
+| **Mensageria** | **Brevo (SMTP)** | E-mails transacionais de recuperação de senha, vouchers e lotes da APAE |
+| **Infraestrutura** | **Oracle Cloud (OCI) + Cloudflare** | Hospedagem de aplicação, proxy reverso, SSL/TLS, CDN e proteção WAF |
 
----
+<br>
 
-## 🏫 Instituições Envolvidas
+# 06 · Instalação e Execução Local
 
-| Instituição | Papel |
-|---|---|
-| **Fatec Franco da Rocha (FFR)** | Instituição de ensino – desenvolvedora da solução e parceira doadora |
-| **APAE** | Organização beneficiada – receptora das notas fiscais doadas |
+### Pré-requisitos
+* PHP 8.3+ (extensões `pdo`, `mbstring`, `openssl`, `curl`)
+* Composer
+* Node.js 20+ e npm
 
----
+<br>
 
-## 📚 Metodologia
+### Passo a Passo
 
-O projeto adotou uma abordagem de pesquisa **aplicada e qualitativa**, estruturada por meio de:
+```bash
+# 1. Clonar repositório e acessar diretório
+git clone https://github.com/TheRodrig0/pontua.git
+cd pontua
 
-- **Pesquisa bibliográfica** – Fundamentação teórica em Banco de Dados e Engenharia de Software;
-- **Estudo de caso** – Análise aprofundada da parceria entre FFR e APAE;
-- **Pesquisa-ação** – Interação direta com os membros da organização para resolução coletiva do problema;
-- **Levantamento de requisitos** – Entrevistas com as personas principais para definição de requisitos funcionais e não funcionais.
+# 2. Instalar dependências
+composer install
+npm install
 
----
+# 3. Configurar ambiente e chave
+cp .env.example .env
+php artisan key:generate
 
-## 🏗️ Arquitetura e Modelagem
+# 4. Criar banco local e executar migrações com seeders
+touch database/database.sqlite
+php artisan migrate --seed
+```
 
-O projeto compreende os seguintes artefatos de engenharia de software:
+<br>
 
-- 📌 **Diagrama de Casos de Uso** – 8 casos de uso mapeados (CSU01 a CSU08)
-- 📌 **Modelo Entidade-Relacionamento (MER)** – Modelagem conceitual do banco de dados
-- 📌 **Modelo Lógico** – Estrutura relacional do banco de dados
-- 📌 **Mapa de Personas** – Identificação dos perfis de usuários da solução
-- 📌 **Mapa de Empatia** – Análise da principal persona
-- 📌 **Protótipo** – Visões do administrador e do usuário (comunidade acadêmica)
+Inicie os serviços de desenvolvimento:
 
----
+```bash
+# Terminal 1: Servidor web
+php artisan serve
 
-## 💡 Impacto Esperado
+# Terminal 2: Compilação de assets (Vite)
+npm run dev
 
-- **Eliminação do manuseio físico** de notas fiscais na APAE;
-- **Redução do retrabalho operacional** das colaboradoras e voluntárias;
-- **Aumento da arrecadação financeira** ao facilitar e incentivar a participação da comunidade acadêmica;
-- **Cumprimento rigoroso dos prazos legais** de 40 dias por meio de alertas automáticos do sistema;
-- **Maior transparência e confiabilidade** nos dados de doação.
+# Terminal 3 (Opcional): Worker de filas em segundo plano
+php artisan queue:work
+```
 
----
+Acesse em: `http://localhost:8000`
 
-## 📄 Palavras-chave
+<br>
 
-`Sistema de Pontos` · `Notas Fiscais` · `Engenharia de Software` · `Banco de Dados` · `APAE` · `Fidelização` · `QR Code`
+# 07 · Equipe e Instituições
 
----
+### Autores
+* **Marcos Vinicius de Oliveira Campos**
+* **Murilo Decanini dos Santos**
+* **Nicolas Santiago Baroco**
+* **Rafael Costa Perondi**
+* **Rodrigo Jeronimo de Queiroz Silva** ([@TheRodrig0](https://github.com/TheRodrig0))
 
-## 📝 Licença
+<br>
 
-Este projeto está licenciado sob os termos da licença disponível no arquivo [LICENSE](LICENSE).
+### Instituições Envolvidas
+* **Fatec Franco da Rocha (FFR):** Instituição de ensino superior — ambiente de pesquisa, desenvolvimento e validação.
+* **APAE:** Organização da sociedade civil beneficiada pelos lotes automatizados de cupons fiscais.
 
----
----
+<br>
 
-## 🇺🇸 English
+# 08 · Licença
 
-> **Fiscal Receipt Donation Management and Incentive Model**
->
-> A case study on the partnership between APAE and Fatec Franco da Rocha (FFR)
-
----
-
-## 📋 About
-
-**Pontua** is a digital loyalty platform developed as the **Integrative Project IV (PI IV)** of the **Information Technology Management** program at **Fatec Franco da Rocha (FFR)**, in partnership with a partner **APAE (Association of Parents and Friends of People with Disabilities)**.
-
-### The Problem
-
-The partner APAE raises funds through a fiscal receipt donation program. In the current model:
-
-- Collection is done through a **physical donation box** installed at Fatec;
-- Volunteers spend long hours **manually sorting and digitizing** receipts into the *Nota Bem* system;
-- Receipts have a **validity period of only 40 days**, creating a real risk of losing donations;
-- **Low engagement** from the academic community (students, faculty, and staff) limits fundraising potential.
-
-### The Solution
-
-**Pontua** proposes a full digital transformation of this process through a platform that:
-
-- ✅ Enables **fiscal receipt donations via QR Code**;
-- ✅ Performs **automatic validation** of scanned receipts;
-- ✅ **Rewards donors with points** that accumulate over time;
-- ✅ Provides an **internal store** where points can be exchanged for prizes;
-- ✅ **Automatically forwards** validated receipts to APAE;
-- ✅ Sends **notifications** to keep the academic community engaged.
-
----
-
-## 👥 Team
-
-| Name | Program |
-|---|---|
-| **Marcos Vinicius de Oliveira Campo** | Information Technology Management – Fatec Franco da Rocha |
-| **Murilo Decanini dos Santos** | Information Technology Management – Fatec Franco da Rocha |
-| **Nicolas Santiago Baroco** | Information Technology Management – Fatec Franco da Rocha |
-| **Rafael Costa Perondi** | Information Technology Management – Fatec Franco da Rocha |
-| **Rodrigo Jeronimo de Queiroz Silva** | Information Technology Management – Fatec Franco da Rocha |
-
----
-
-## 🏫 Institutions Involved
-
-| Institution | Role |
-|---|---|
-| **Fatec Franco da Rocha (FFR)** | Educational institution – solution developer and donor partner |
-| **APAE** | Beneficiary organization – recipient of donated fiscal receipts |
-
----
-
-## 📚 Methodology
-
-This project adopted an **applied and qualitative research** approach, structured through:
-
-- **Bibliographic research** – Theoretical foundation in Database and Software Engineering;
-- **Case study** – In-depth analysis of the FFR–APAE partnership;
-- **Action research** – Direct interaction with organization members to collectively solve the problem;
-- **Requirements gathering** – Interviews with key personas to define functional and non-functional requirements.
-
----
-
-## 🏗️ Architecture & Modeling
-
-The project comprises the following software engineering artifacts:
-
-- 📌 **Use Case Diagram** – 8 use cases mapped (UC01 to UC08)
-- 📌 **Entity-Relationship Model (ERM)** – Conceptual database modeling
-- 📌 **Logical Model** – Relational database structure
-- 📌 **Persona Map** – Identification of solution user profiles
-- 📌 **Empathy Map** – Analysis of the primary persona
-- 📌 **Prototype** – Administrator and user (academic community) views
-
----
-
-## 💡 Expected Impact
-
-- **Elimination of physical handling** of fiscal receipts at APAE;
-- **Reduction of operational rework** for staff and volunteers;
-- **Increased fundraising** by facilitating and incentivizing academic community participation;
-- **Strict compliance with the 40-day legal deadline** through automated system alerts;
-- **Greater transparency and reliability** in donation data.
-
----
-
-## 📄 Keywords
-
-`Points System` · `Fiscal Receipts` · `Software Engineering` · `Database` · `APAE` · `Loyalty Platform` · `QR Code`
-
----
-
-## 📝 License
-
-This project is licensed under the terms available in the [LICENSE](LICENSE) file.
+Distribuído sob os termos da licença disponível no arquivo [LICENSE](LICENSE).
