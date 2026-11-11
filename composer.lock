@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9b6745866be6d45ad19871727bf40f3a",
+    "content-hash": "86f73d6ed859ab068137392c9f9a2ed0",
     "packages": [
         {
             "name": "brick/math",
@@ -1022,16 +1022,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "3.0.0",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "b094ded77ee97a6027ad6cf0e8c7b9f88381814c"
+                "reference": "cdc139396207a5eba10c242d241fb014cb098390"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/b094ded77ee97a6027ad6cf0e8c7b9f88381814c",
-                "reference": "b094ded77ee97a6027ad6cf0e8c7b9f88381814c",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/cdc139396207a5eba10c242d241fb014cb098390",
+                "reference": "cdc139396207a5eba10c242d241fb014cb098390",
                 "shasum": ""
             },
             "require": {
@@ -1121,7 +1121,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/3.0.0"
+                "source": "https://github.com/guzzle/psr7/tree/3.2.0"
             },
             "funding": [
                 {
@@ -1137,7 +1137,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-20T13:48:31+00:00"
+            "time": "2026-10-17T23:57:19+00:00"
         },
         {
             "name": "guzzlehttp/uri-template",
@@ -8789,14 +8789,7 @@
             "time": "2025-12-08T11:19:18+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "guzzlehttp/psr7",
-            "version": "3.0.0.0",
-            "alias": "2.8.0",
-            "alias_normalized": "2.8.0.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {},
     "prefer-stable": true,
