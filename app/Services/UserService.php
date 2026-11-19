@@ -34,7 +34,7 @@ class UserService
 
         $hasAvatarId = isset($data['avatar_id']);
         if ($hasAvatarId) {
-            $data['avatar_url'] = asset("avatars/{$data['avatar_id']}.png");
+            $data['avatar_url'] = asset("avatars/{$data['avatar_id']}.webp");
             unset($data['avatar_id']);
         }
 

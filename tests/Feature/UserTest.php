@@ -152,7 +152,7 @@ class UserTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
-            'avatar_url' => asset('avatars/3.png'),
+            'avatar_url' => asset('avatars/3.webp'),
         ]);
     }
 
@@ -302,7 +302,7 @@ class UserTest extends TestCase
         $response->assertStatus(200);
 
         $fresh = $user->fresh();
-        $this->assertEquals(asset('avatars/2.png'), $fresh->avatar_url);
+        $this->assertEquals(asset('avatars/2.webp'), $fresh->avatar_url);
         $this->assertEquals('Seu perfil foi redefinido pela moderação.', $fresh->moderation_notice);
     }
 }
