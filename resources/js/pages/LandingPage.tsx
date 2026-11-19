@@ -1,32 +1,36 @@
-import React from 'react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/landing-page/HeroSection';
-import ProofBand from '@/components/landing-page/ProofBand';
-import HowItWorksSection from '@/components/landing-page/HowItWorksSection';
-import BenefitsSection from '@/components/landing-page/BenefitsSection';
-import TransparencySection from '@/components/landing-page/TransparencySection';
-import FaqSection from '@/components/landing-page/FaqSection';
-import CtaSection from '@/components/landing-page/CtaSection';
+import React, { Suspense, lazy } from 'react'
+import { Head } from '@inertiajs/react'
+import Header from '@/components/layout/Header'
+import HeroSection from '@/features/landing-page/components/HeroSection'
+
+const HowItWorksSection = lazy(() => import('@/features/landing-page/components/HowItWorksSection'))
+const BenefitsShowcaseSection = lazy(() => import('@/features/landing-page/components/BenefitsShowcaseSection'))
+const ImpactFaqSection = lazy(() => import('@/features/landing-page/components/ImpactFaqSection'))
+const LandingContentSection = lazy(() => import('@/features/landing-page/components/LandingContentSection'))
+const Footer = lazy(() => import('@/components/layout/Footer'))
 
 const LandingPage: React.FC = () => {
     return (
-        <div className="min-h-screen flex flex-col w-full text-app-navy dark:text-gray-100 transition-colors">
+        <div className="min-h-screen flex flex-col w-full bg-white dark:bg-app-landing-dark text-app-navy dark:text-slate-200 transition-colors duration-200">
+            <Head title="Início" />
+
             <Header />
 
             <main className="flex-1 overflow-x-clip">
                 <HeroSection />
-                <ProofBand />
-                <HowItWorksSection />
-                <BenefitsSection />
-                <TransparencySection />
-                <FaqSection />
-                <CtaSection />
+                <Suspense fallback={null}>
+                    <HowItWorksSection />
+                    <BenefitsShowcaseSection />
+                    <ImpactFaqSection />
+                    <LandingContentSection />
+                </Suspense>
             </main>
 
-            <Footer />
+            <Suspense fallback={null}>
+                <Footer />
+            </Suspense>
         </div>
-    );
-};
+    )
+}
 
-export default LandingPage;
+export default LandingPage
