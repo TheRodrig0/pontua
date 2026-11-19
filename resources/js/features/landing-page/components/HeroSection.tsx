@@ -80,9 +80,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                     {/* Coluna Visual — Cupom Geométrico + Dois Selos */}
                     <div
                         aria-hidden="true"
-                        className="hero-receipt-stage relative max-w-[300px] sm:max-w-[360px] md:max-w-[310px] lg:max-w-[min(100%,34rem)] mx-auto md:ml-auto md:mr-0 w-full py-2 pb-4 sm:py-4 sm:pb-6 flex justify-center min-w-0"
+                        className="hero-receipt-stage relative max-w-[300px] sm:max-w-[360px] md:max-w-[310px] lg:max-w-[min(100%,34rem)] mx-auto md:ml-auto md:mr-0 w-full pt-7 pb-5 sm:pt-9 sm:pb-7 flex justify-center min-w-0"
                     >
-                        <div className="paper-receipt w-[192px] sm:w-[236px] md:w-[232px] lg:w-[clamp(260px,22vw,350px)] bg-app-teal dark:bg-app-teal-deep border border-b-0 border-app-teal-deep/20 dark:border-white/15 rounded-t-[18px] lg:rounded-t-[22px] rounded-b-none px-[0.9rem] pt-[0.95rem] pb-[1.35rem] sm:px-5 sm:pt-[1.35rem] sm:pb-7 lg:px-[1.6rem] lg:pt-[1.65rem] lg:pb-[2.1rem] -rotate-2 relative transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]">
+                        <div className="paper-receipt w-[192px] sm:w-[236px] md:w-[232px] lg:w-[clamp(260px,22vw,350px)] motion-reduce:-rotate-2 relative">
+                            <div className="paper-receipt-inner w-full flex flex-col transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]">
+                            <div className="w-full bg-app-teal dark:bg-app-teal-deep border border-b-0 border-app-teal-deep/20 dark:border-white/15 rounded-t-[18px] lg:rounded-t-[22px] px-[0.9rem] pt-[0.95rem] pb-[1.35rem] sm:px-5 sm:pt-[1.35rem] sm:pb-7 lg:px-[1.6rem] lg:pt-[1.65rem] lg:pb-[2.1rem]">
                             <div
                                 className="flex justify-between items-center pb-[0.55rem] sm:pb-3 lg:pb-4 border-b border-dashed border-white/35 mb-[0.65rem] sm:mb-[0.9rem] lg:mb-4"
                                 aria-hidden="true"
@@ -118,11 +120,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                                     modulesClassName="fill-white transition-colors duration-200"
                                 />
                             </div>
+                            </div>
 
-                            <ReceiptZigzagEdge fillClassName="fill-app-teal dark:fill-app-teal-deep transition-[fill] duration-200" />
+                            <ReceiptZigzagEdge
+                                className="w-full h-[11px] block -mt-px"
+                                fillClassName="fill-app-teal dark:fill-app-teal-deep transition-[fill] duration-200"
+                            />
+                            </div>
                         </div>
 
-                        <div className="float-badge left absolute left-0 bottom-0 sm:bottom-[0.35rem] rotate-[1.5deg] bg-white dark:bg-app-elevated-dark rounded-xl sm:rounded-[14px] lg:rounded-2xl px-[0.7rem] py-[0.45rem] sm:px-[0.95rem] sm:py-[0.6rem] xl:px-5 xl:py-3 shadow-sm border border-app-navy/10 dark:border-slate-200/14 flex items-center gap-[0.45rem] sm:gap-[0.6rem] xl:gap-3 transition-[background-color,border-color,transform,scale] duration-200">
+                        <div className="float-badge left absolute left-0 bottom-0 sm:bottom-[0.35rem] motion-reduce:rotate-[1.5deg] bg-white dark:bg-app-elevated-dark rounded-xl sm:rounded-[14px] lg:rounded-2xl px-[0.7rem] py-[0.45rem] sm:px-[0.95rem] sm:py-[0.6rem] xl:px-5 xl:py-3 shadow-sm border border-app-navy/10 dark:border-slate-200/14 flex items-center gap-[0.45rem] sm:gap-[0.6rem] xl:gap-3 transition-[background-color,border-color,transform,scale] duration-200">
                             <div
                                 className="badge-icon w-7 h-7 sm:w-8 sm:h-8 xl:w-9 xl:h-9 rounded-lg sm:rounded-[9px] flex items-center justify-center flex-none bg-app-coral/14 text-app-coral-deep dark:text-app-coral transition-transform duration-200"
                                 aria-hidden="true"
@@ -134,7 +141,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                             </strong>
                         </div>
 
-                        <div className="float-badge right absolute right-0 top-[1.15rem] sm:top-[2.2rem] lg:top-[2.6rem] rotate-2 bg-white dark:bg-app-elevated-dark rounded-xl sm:rounded-[14px] lg:rounded-2xl px-[0.7rem] py-[0.45rem] sm:px-[0.95rem] sm:py-[0.6rem] xl:px-5 xl:py-3 shadow-sm border border-app-navy/10 dark:border-slate-200/14 flex items-center gap-[0.45rem] sm:gap-[0.6rem] xl:gap-3 transition-[background-color,border-color,transform,scale] duration-200">
+                        <div className="float-badge right absolute right-0 top-[1.15rem] sm:top-[2.2rem] lg:top-[2.6rem] motion-reduce:rotate-2 bg-white dark:bg-app-elevated-dark rounded-xl sm:rounded-[14px] lg:rounded-2xl px-[0.7rem] py-[0.45rem] sm:px-[0.95rem] sm:py-[0.6rem] xl:px-5 xl:py-3 shadow-sm border border-app-navy/10 dark:border-slate-200/14 flex items-center gap-[0.45rem] sm:gap-[0.6rem] xl:gap-3 transition-[background-color,border-color,transform,scale] duration-200">
                             <div
                                 className="badge-icon w-7 h-7 sm:w-8 sm:h-8 xl:w-9 xl:h-9 rounded-lg sm:rounded-[9px] flex items-center justify-center flex-none bg-app-teal/16 text-app-teal-deep dark:text-app-teal transition-transform duration-200"
                                 aria-hidden="true"
