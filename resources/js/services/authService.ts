@@ -1,10 +1,9 @@
-import { setAuthToken } from '@/lib/api';
+import { ensureCsrfCookie } from '@/lib/api';
 import { translateLaravelValidationError } from '@/utils/validationMessages';
-import type { UserProfile } from '@/types/dashboard';
+import type { UserProfile } from '@/features/dashboard/types/dashboard';
 
 export interface AuthResponse {
     user?: UserProfile;
-    token?: string;
     message?: string;
 }
 
@@ -23,8 +22,7 @@ export interface ResetPasswordPayload {
 
 export const authService = {
     async login(identifier: string, password: string): Promise<AuthResponse> {
-        // Clear any previous token before authenticating
-        setAuthToken(null);
+        const csrfToken = await ensureCsrfCookie();
 
         const response = await fetch('/api/auth/login', {
             method: 'POST',
@@ -33,6 +31,7 @@ export const authService = {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
+                ...(csrfToken ? { 'X-XSRF-TOKEN': csrfToken } : {}),
             },
             body: JSON.stringify({
                 email: identifier.trim(),
@@ -50,15 +49,11 @@ export const authService = {
             throw new Error(message || 'As credenciais fornecidas estão incorretas.');
         }
 
-        if (data?.token) {
-            setAuthToken(data.token);
-        }
-
         return data as AuthResponse;
     },
 
     async register(payload: RegisterPayload): Promise<AuthResponse> {
-        setAuthToken(null);
+        const csrfToken = await ensureCsrfCookie();
 
         const response = await fetch('/api/auth/register', {
             method: 'POST',
@@ -67,6 +62,7 @@ export const authService = {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
+                ...(csrfToken ? { 'X-XSRF-TOKEN': csrfToken } : {}),
             },
             body: JSON.stringify(payload),
         });
@@ -101,14 +97,12 @@ export const authService = {
             throw err;
         }
 
-        if (data?.token) {
-            setAuthToken(data.token);
-        }
-
         return data as AuthResponse;
     },
 
     async forgotPassword(email: string): Promise<{ message?: string }> {
+        const csrfToken = await ensureCsrfCookie();
+
         const response = await fetch('/api/auth/forgot-password', {
             method: 'POST',
             credentials: 'same-origin',
@@ -116,6 +110,7 @@ export const authService = {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
+                ...(csrfToken ? { 'X-XSRF-TOKEN': csrfToken } : {}),
             },
             body: JSON.stringify({ email: email.trim() }),
         });
@@ -134,6 +129,8 @@ export const authService = {
     },
 
     async resetPassword(payload: ResetPasswordPayload): Promise<{ message?: string }> {
+        const csrfToken = await ensureCsrfCookie();
+
         const response = await fetch('/api/auth/reset-password', {
             method: 'POST',
             credentials: 'same-origin',
@@ -141,6 +138,7 @@ export const authService = {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
+                ...(csrfToken ? { 'X-XSRF-TOKEN': csrfToken } : {}),
             },
             body: JSON.stringify({
                 token: payload.token.trim(),

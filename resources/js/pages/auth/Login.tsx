@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { User, Lock } from 'lucide-react';
-import AuthLayout from '@/components/auth/AuthLayout';
-import FeedbackBanner, { FeedbackState } from '@/components/auth/FeedbackBanner';
-import AuthInput from '@/components/auth/AuthInput';
-import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
+import {
+    AuthInput,
+    AuthLayout,
+    AuthSubmitButton,
+    FeedbackBanner,
+    type FeedbackState,
+} from '@/features/auth';
 import { authService } from '@/services/authService';
 
 const Login: React.FC = () => {

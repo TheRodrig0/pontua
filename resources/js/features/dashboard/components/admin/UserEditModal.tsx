@@ -1,0 +1,233 @@
+import React from 'react';
+import { AlertCircle, Ban, CheckCircle2, Loader2, Mail, ShieldAlert } from 'lucide-react';
+import ModalDialog from '@/components/ui/ModalDialog';
+import { UserRole } from '@/features/dashboard/enums/dashboard';
+import type { AdminUserData } from '@/features/dashboard/types/dashboard';
+
+interface UserEditModalProps {
+    isOpen: boolean;
+    editingUser: AdminUserData | null;
+    isSelf?: boolean;
+    userFormName: string;
+    userFormNick: string;
+    userFormRole: UserRole;
+    userFormIsBanned: boolean;
+    userFormBanReason: string;
+    userFormError: string | null;
+    isSavingUser: boolean;
+    onClose: () => void;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    onChangeName: (value: string) => void;
+    onChangeNick: (value: string) => void;
+    onChangeRole: (value: UserRole) => void;
+    onChangeIsBanned: (value: boolean) => void;
+    onChangeBanReason: (value: string) => void;
+}
+
+export const UserEditModal: React.FC<UserEditModalProps> = ({
+    isOpen,
+    editingUser,
+    isSelf,
+    userFormName,
+    userFormNick,
+    userFormRole,
+    userFormIsBanned,
+    userFormBanReason,
+    userFormError,
+    isSavingUser,
+    onClose,
+    onSubmit,
+    onChangeName,
+    onChangeNick,
+    onChangeRole,
+    onChangeIsBanned,
+    onChangeBanReason,
+}) => {
+    return (
+        <ModalDialog
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Moderação e Perfil do Usuário"
+            subtitle={`Gerencie a identificação pública, permissões e status da conta de ${editingUser?.name || 'usuário'}.`}
+        >
+            <form onSubmit={onSubmit} className="space-y-4">
+                {userFormError && (
+                    <div className="bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 rounded-xl p-3.5 text-xs flex items-start gap-2.5">
+                        <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                        <span>{userFormError}</span>
+                    </div>
+                )}
+
+                {editingUser && (
+                    <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200/80 dark:border-slate-800 rounded-xl p-3.5 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                            <span className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400">
+                                E-mail
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-app-navy dark:text-slate-200 mt-0.5 truncate">
+                                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                {editingUser.email}
+                            </span>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                            <span className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400">
+                                Status
+                            </span>
+                            {userFormIsBanned ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 dark:text-rose-400 mt-0.5">
+                                    <Ban className="w-3 h-3" />
+                                    Suspenso
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-app-teal mt-0.5">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    Ativo
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                <div>
+                    <label
+                        htmlFor="admin-user-name"
+                        className="block text-xs font-bold text-app-navy dark:text-slate-200 mb-1.5"
+                    >
+                        Nome de Exibição (Moderação)
+                    </label>
+                    <input
+                        id="admin-user-name"
+                        type="text"
+                        maxLength={100}
+                        value={userFormName}
+                        onChange={(e) => onChangeName(e.target.value)}
+                        placeholder="Ex: João Silva"
+                        className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal"
+                        required
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                        <label
+                            htmlFor="admin-user-nick"
+                            className="block text-xs font-bold text-app-navy dark:text-slate-200 mb-1.5"
+                        >
+                            @Apelido (Nick no Ranking)
+                        </label>
+                        <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                @
+                            </span>
+                            <input
+                                id="admin-user-nick"
+                                type="text"
+                                maxLength={30}
+                                value={userFormNick}
+                                onChange={(e) => onChangeNick(e.target.value.replace(/^@/, ''))}
+                                placeholder="joaosilva"
+                                className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl pl-8 pr-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="admin-user-role"
+                            className="block text-xs font-bold text-app-navy dark:text-slate-200 mb-1.5"
+                        >
+                            Perfil de Acesso
+                        </label>
+                        <select
+                            id="admin-user-role"
+                            value={userFormRole}
+                            disabled={isSelf}
+                            onChange={(e) => onChangeRole(e.target.value as UserRole)}
+                            className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            <option value={UserRole.USER}>Aluno (Padrão)</option>
+                            <option value={UserRole.ADMIN}>Administrador</option>
+                        </select>
+                        {isSelf && (
+                            <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
+                                Você não pode remover o privilégio de administrador da sua própria conta.
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                <p className="text-[11px] text-app-graytext dark:text-slate-400">
+                    Ao alterar o nome ou @apelido de um participante, ele receberá um aviso automático no painel explicando que a identificação foi moderada.
+                </p>
+
+                {!isSelf && (
+                    <div className="border-t border-slate-200/80 dark:border-slate-800 pt-3.5 space-y-3">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <span className="flex items-center gap-1.5 text-xs font-bold text-app-navy dark:text-slate-200">
+                                    <ShieldAlert className="w-4 h-4 text-rose-500" />
+                                    Suspensão da Conta
+                                </span>
+                                <p className="text-[11px] text-app-graytext dark:text-slate-400 mt-0.5">
+                                    Usuários suspensos têm sessões encerradas e são ocultados do ranking público.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => onChangeIsBanned(!userFormIsBanned)}
+                                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold border transition-colors cursor-pointer shrink-0 ${
+                                    userFormIsBanned
+                                        ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/25'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-app-navy dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-500/30'
+                                }`}
+                            >
+                                {userFormIsBanned ? 'Suspenso (Clique para Reativar)' : 'Banir Usuário'}
+                            </button>
+                        </div>
+
+                        {userFormIsBanned && (
+                            <div>
+                                <label
+                                    htmlFor="admin-user-ban-reason"
+                                    className="block text-xs font-bold text-rose-600 dark:text-rose-400 mb-1.5"
+                                >
+                                    Motivo da Suspensão
+                                </label>
+                                <input
+                                    id="admin-user-ban-reason"
+                                    type="text"
+                                    maxLength={255}
+                                    value={userFormBanReason}
+                                    onChange={(e) => onChangeBanReason(e.target.value)}
+                                    placeholder="Ex: Reincidência em apelido ofensivo no ranking"
+                                    className="w-full bg-rose-500/5 dark:bg-app-darkbg border border-rose-500/30 rounded-xl px-3.5 py-2 text-xs text-app-navy dark:text-white focus:outline-none focus:border-rose-500"
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold text-app-graytext dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        disabled={isSavingUser}
+                        className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
+                    >
+                        {isSavingUser && <Loader2 className="w-4 h-4 animate-spin" />}
+                        <span>{isSavingUser ? 'Salvando...' : 'Salvar Alterações'}</span>
+                    </button>
+                </div>
+            </form>
+        </ModalDialog>
+    );
+};

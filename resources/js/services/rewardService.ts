@@ -1,5 +1,5 @@
 import { apiRequest } from '@/lib/api';
-import type { CursorPaginatedResponse, RewardItem } from '@/types/dashboard';
+import type { CursorPaginatedResponse, RewardItem } from '@/features/dashboard/types/dashboard';
 
 export const rewardService = {
     async index(cursor?: string | null, perPage = 10): Promise<CursorPaginatedResponse<RewardItem>> {

@@ -1,5 +1,5 @@
 import { apiRequest } from '@/lib/api';
-import type { CursorPaginatedResponse, PointDonationItem } from '@/types/dashboard';
+import type { CursorPaginatedResponse, PointDonationItem } from '@/features/dashboard/types/dashboard';
 
 export interface DonationRecipientCandidate {
     id: number;

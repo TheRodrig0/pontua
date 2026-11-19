@@ -1,5 +1,5 @@
 import { apiRequest } from '@/lib/api';
-import type { UserProfile } from '@/types/dashboard';
+import type { UserProfile } from '@/features/dashboard/types/dashboard';
 
 export interface UpdateUserPayload {
     name?: string;

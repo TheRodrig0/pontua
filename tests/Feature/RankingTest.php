@@ -27,7 +27,7 @@ class RankingTest extends TestCase
         $userHigh = User::factory()->create([
             'name' => 'High User',
             'nick' => 'high.user',
-            'avatar_url' => 'avatars/1.png',
+            'avatar_url' => 'avatars/1.webp',
             'scan_streak' => 5,
         ]);
         PointBucket::create([

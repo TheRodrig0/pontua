@@ -1,7 +1,11 @@
 import { apiRequest } from '@/lib/api';
-import type { CursorPaginatedResponse, RewardTagValue } from '@/types/dashboard';
+import type {
+    RedemptionResolutionStatus,
+    RedemptionStatus,
+} from '@/features/dashboard/enums/dashboard';
+import type { CursorPaginatedResponse, RewardTagValue } from '@/features/dashboard/types/dashboard';
 
-export type RedemptionStatus = 'pending' | 'completed' | 'cancelled';
+export type { RedemptionResolutionStatus, RedemptionStatus };
 
 interface RedemptionReward {
     id: number;
@@ -70,7 +74,7 @@ export const redemptionService = {
 
     async adminUpdate(
         id: number,
-        status: 'completed' | 'cancelled'
+        status: RedemptionResolutionStatus
     ): Promise<RewardRedemptionRequest> {
         return apiRequest<RewardRedemptionRequest>(`/api/admin/redemptions/${id}`, {
             method: 'PATCH',

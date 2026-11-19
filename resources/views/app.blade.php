@@ -9,6 +9,10 @@
     <meta name="color-scheme" content="light dark">
     <title inertia>{{ config('app.name', 'Pontua') }}</title>
 
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/poppins/poppins-400-latin.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/poppins/poppins-700-latin.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/poppins/poppins-800-latin.woff2" crossorigin>
+
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo.svg') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">

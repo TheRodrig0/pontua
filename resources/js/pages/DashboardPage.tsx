@@ -8,20 +8,25 @@ import {
     ShieldCheck,
     Trophy,
 } from 'lucide-react';
-import AboutApaeSection from '@/components/dashboard/AboutApaeSection';
-import { AdminSection } from '@/components/dashboard/AdminSection';
-import DonationsSection from '@/components/dashboard/DonationsSection';
-import { DashboardHeader } from '@/components/dashboard/layout/DashboardHeader';
-import { DashboardSidebar, type NavItemConfig } from '@/components/dashboard/layout/DashboardSidebar';
-import OverviewSection from '@/components/dashboard/OverviewSection';
-import ProfileSection from '@/components/dashboard/ProfileSection';
-import RankingSection from '@/components/dashboard/RankingSection';
-import RewardDetailModal from '@/components/dashboard/RewardDetailModal';
-import RewardsStoreSection from '@/components/dashboard/RewardsStoreSection';
-import ScanReceiptModal from '@/components/dashboard/ScanReceiptModal';
-import { useDashboardData, type InertiaAuthUser } from '@/hooks/useDashboardData';
-import { apiRequest, setAuthToken } from '@/lib/api';
-import type { DashboardTab } from '@/types/dashboard';
+import {
+    AboutApaeSection,
+    AdminSection,
+    DashboardHeader,
+    DashboardSidebar,
+    DonationsSection,
+    OverviewSection,
+    ProfileSection,
+    RankingSection,
+    RewardDetailModal,
+    RewardsStoreSection,
+    ScanReceiptModal,
+    UserRole,
+    useDashboardData,
+    type DashboardTab,
+    type InertiaAuthUser,
+    type NavItemConfig,
+} from '@/features/dashboard';
+import { apiRequest } from '@/lib/api';
 
 interface InertiaSharedProps {
     auth?: {
@@ -77,12 +82,11 @@ export default function DashboardPage(): React.ReactElement {
         } catch {
             // Proceed to redirect even if session expired
         } finally {
-            setAuthToken(null);
             router.visit('/login');
         }
     };
 
-    const isAdmin = profile?.role === 'admin' || inertiaUser?.role === 'admin';
+    const isAdmin = profile?.role === UserRole.ADMIN || inertiaUser?.role === UserRole.ADMIN;
 
     const visibleNavItems: NavItemConfig[] = isAdmin
         ? [
@@ -101,7 +105,7 @@ export default function DashboardPage(): React.ReactElement {
     const currentUserId = profile?.id || inertiaUser?.id;
 
     return (
-        <div className="min-h-screen flex bg-app-bg dark:bg-[#111827] text-app-navy dark:text-gray-100 font-poppins selection:bg-[#4bb9a6] selection:text-white transition-colors duration-300">
+        <div className="min-h-screen flex bg-app-bg dark:bg-app-darkbg text-app-navy dark:text-gray-100 font-poppins selection:bg-app-teal selection:text-white transition-colors duration-300">
             <Head title={`${currentTabTitle} - PONTUA`} />
 
             <DashboardSidebar

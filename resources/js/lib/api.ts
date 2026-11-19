@@ -1,96 +1,132 @@
+const DEFAULT_API_ERROR_MESSAGE = 'Ocorreu um erro ao processar a solicitação.'
+const MUTATING_HTTP_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
+
 export interface ApiError extends Error {
-    status?: number;
-    errors?: Record<string, string[]>;
+    status?: number
+    errors?: Record<string, string[]>
 }
 
-function getCookieValue(name: string): string | null {
+function getCookieValue(cookieName: string): string | null {
     if (typeof document === 'undefined') {
-        return null;
+        const noCookieValue = null
+        return noCookieValue
     }
 
-    const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-    return match ? decodeURIComponent(match[3]) : null;
+    const cookiePrefix = `${cookieName}=`
+    const matchingCookie = document.cookie
+        .split('; ')
+        .find((cookieEntry) => cookieEntry.startsWith(cookiePrefix))
+
+    const cookieValue = matchingCookie
+        ? decodeURIComponent(matchingCookie.slice(cookiePrefix.length))
+        : null
+
+    return cookieValue
 }
 
-export function getAuthToken(): string | null {
+function isSameOriginUrl(requestUrl: string): boolean {
     if (typeof window === 'undefined') {
-        return null;
+        const isRelativeSameOrigin = requestUrl.startsWith('/') && !requestUrl.startsWith('//')
+        return isRelativeSameOrigin
     }
 
-    return localStorage.getItem('pontua_auth_token');
-}
-
-export function setAuthToken(token: string | null): void {
-    if (typeof window === 'undefined') {
-        return;
-    }
-
-    if (token) {
-        localStorage.setItem('pontua_auth_token', token);
-    } else {
-        localStorage.removeItem('pontua_auth_token');
+    try {
+        const parsedRequestUrl = new URL(requestUrl, window.location.origin)
+        const isSameOrigin = parsedRequestUrl.origin === window.location.origin
+        return isSameOrigin
+    } catch {
+        const isInvalidUrl = false
+        return isInvalidUrl
     }
 }
 
-export async function apiRequest<T>(
-    url: string,
-    options: RequestInit = {}
-): Promise<T> {
-    const token = getAuthToken();
-    const xsrfToken = getCookieValue('XSRF-TOKEN');
+export function getCsrfToken(): string | null {
+    const csrfCookieToken = getCookieValue('XSRF-TOKEN')
+    return csrfCookieToken
+}
 
-    const headers: Record<string, string> = {
+export async function ensureCsrfCookie(): Promise<string | null> {
+    const existingCsrfToken = getCsrfToken()
+    if (existingCsrfToken) {
+        return existingCsrfToken
+    }
+
+    await fetch('/sanctum/csrf-cookie', {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+
+    const refreshedCsrfToken = getCsrfToken()
+    return refreshedCsrfToken
+}
+
+export async function apiRequest<TResponse>(
+    requestUrl: string,
+    requestOptions: RequestInit = {}
+): Promise<TResponse> {
+    const isSameOriginRequest = isSameOriginUrl(requestUrl)
+    const requestMethod = (requestOptions.method || 'GET').toUpperCase()
+    const isMutatingRequest = MUTATING_HTTP_METHODS.has(requestMethod)
+
+    let csrfCookieToken = isSameOriginRequest ? getCsrfToken() : null
+    if (isSameOriginRequest && isMutatingRequest && !csrfCookieToken) {
+        csrfCookieToken = await ensureCsrfCookie()
+    }
+
+    const requestHeaders: Record<string, string> = {
         Accept: 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
-        ...(options.headers as Record<string, string> | undefined),
-    };
-
-    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
-        headers['Content-Type'] = 'application/json';
+        ...(requestOptions.headers as Record<string, string> | undefined),
     }
 
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+    const isFormDataBody = requestOptions.body instanceof FormData
+    if (!isFormDataBody && !requestHeaders['Content-Type']) {
+        requestHeaders['Content-Type'] = 'application/json'
     }
 
-    if (xsrfToken) {
-        headers['X-XSRF-TOKEN'] = xsrfToken;
+    if (csrfCookieToken) {
+        requestHeaders['X-XSRF-TOKEN'] = csrfCookieToken
     }
 
-    const response = await fetch(url, {
+    const response = await fetch(requestUrl, {
         credentials: 'same-origin',
-        ...options,
-        headers,
-    });
+        ...requestOptions,
+        headers: requestHeaders,
+    })
 
-    const contentType = response.headers.get('content-type') || '';
-    const isJson = contentType.includes('application/json');
-    const data = isJson ? await response.json() : null;
+    const responseContentType = response.headers.get('content-type') || ''
+    const isJsonResponse = responseContentType.includes('application/json')
+    const responsePayload = isJsonResponse ? await response.json() : null
 
     if (!response.ok) {
         if (response.status === 401) {
-            setAuthToken(null);
-
-            if (
+            const isAuthRoute =
                 typeof window !== 'undefined' &&
-                !window.location.pathname.startsWith('/login') &&
-                !window.location.pathname.startsWith('/register')
-            ) {
-                window.location.href = '/login';
+                (window.location.pathname.startsWith('/login') ||
+                    window.location.pathname.startsWith('/register'))
+
+            if (typeof window !== 'undefined' && !isAuthRoute) {
+                window.location.href = '/login'
             }
         }
 
-        const firstValidationError = data?.errors
-            ? (Object.values(data.errors)[0] as string[])?.[0]
-            : null;
+        const firstValidationError = responsePayload?.errors
+            ? (Object.values(responsePayload.errors)[0] as string[])?.[0]
+            : null
 
-        const error: ApiError = new Error(
-            firstValidationError || data?.message || 'Ocorreu um erro ao processar a solicitação.'
-        );
-        error.status = response.status;
-        error.errors = data?.errors;
-        throw error;
+        const errorMessage =
+            firstValidationError || responsePayload?.message || DEFAULT_API_ERROR_MESSAGE
+
+        const apiError: ApiError = new Error(errorMessage)
+        apiError.status = response.status
+        apiError.errors = responsePayload?.errors
+        throw apiError
     }
 
-    return data as T;
+    const typedResponsePayload = responsePayload as TResponse
+    return typedResponsePayload
 }

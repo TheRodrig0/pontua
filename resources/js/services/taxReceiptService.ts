@@ -1,5 +1,5 @@
 import { apiRequest } from '@/lib/api';
-import type { CursorPaginatedResponse, TaxReceiptItem } from '@/types/dashboard';
+import type { CursorPaginatedResponse, TaxReceiptItem } from '@/features/dashboard/types/dashboard';
 
 export function normalizeSefazQrPayload(rawContent: string): string {
     let trimmed = rawContent.trim();
