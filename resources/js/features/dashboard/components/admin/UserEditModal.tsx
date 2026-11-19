@@ -1,7 +1,8 @@
 import React from 'react';
 import { AlertCircle, Ban, CheckCircle2, Loader2, Mail, ShieldAlert } from 'lucide-react';
 import ModalDialog from '@/components/ui/ModalDialog';
-import type { AdminUserData } from '@/types/dashboard';
+import { UserRole } from '@/features/dashboard/enums/dashboard';
+import type { AdminUserData } from '@/features/dashboard/types/dashboard';
 
 interface UserEditModalProps {
     isOpen: boolean;
@@ -9,7 +10,7 @@ interface UserEditModalProps {
     isSelf?: boolean;
     userFormName: string;
     userFormNick: string;
-    userFormRole: 'user' | 'admin';
+    userFormRole: UserRole;
     userFormIsBanned: boolean;
     userFormBanReason: string;
     userFormError: string | null;
@@ -18,7 +19,7 @@ interface UserEditModalProps {
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onChangeName: (value: string) => void;
     onChangeNick: (value: string) => void;
-    onChangeRole: (value: 'user' | 'admin') => void;
+    onChangeRole: (value: UserRole) => void;
     onChangeIsBanned: (value: boolean) => void;
     onChangeBanReason: (value: string) => void;
 }
@@ -58,7 +59,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                 )}
 
                 {editingUser && (
-                    <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-3.5 flex items-center justify-between gap-3">
+                    <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200/80 dark:border-slate-800 rounded-xl p-3.5 flex items-center justify-between gap-3">
                         <div className="min-w-0">
                             <span className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400">
                                 E-mail
@@ -79,7 +80,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                                     Suspenso
                                 </span>
                             ) : (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#4bb9a6] mt-0.5">
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-app-teal mt-0.5">
                                     <CheckCircle2 className="w-3 h-3" />
                                     Ativo
                                 </span>
@@ -102,7 +103,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                         value={userFormName}
                         onChange={(e) => onChangeName(e.target.value)}
                         placeholder="Ex: João Silva"
-                        className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6]"
+                        className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal"
                         required
                     />
                 </div>
@@ -126,7 +127,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                                 value={userFormNick}
                                 onChange={(e) => onChangeNick(e.target.value.replace(/^@/, ''))}
                                 placeholder="joaosilva"
-                                className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl pl-8 pr-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6]"
+                                className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl pl-8 pr-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal"
                             />
                         </div>
                     </div>
@@ -142,11 +143,11 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                             id="admin-user-role"
                             value={userFormRole}
                             disabled={isSelf}
-                            onChange={(e) => onChangeRole(e.target.value as 'user' | 'admin')}
-                            className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6] disabled:opacity-60 disabled:cursor-not-allowed"
+                            onChange={(e) => onChangeRole(e.target.value as UserRole)}
+                            className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            <option value="user">Aluno (Padrão)</option>
-                            <option value="admin">Administrador</option>
+                            <option value={UserRole.USER}>Aluno (Padrão)</option>
+                            <option value={UserRole.ADMIN}>Administrador</option>
                         </select>
                         {isSelf && (
                             <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
@@ -201,7 +202,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                                     value={userFormBanReason}
                                     onChange={(e) => onChangeBanReason(e.target.value)}
                                     placeholder="Ex: Reincidência em apelido ofensivo no ranking"
-                                    className="w-full bg-rose-500/5 dark:bg-[#111827] border border-rose-500/30 rounded-xl px-3.5 py-2 text-xs text-app-navy dark:text-white focus:outline-none focus:border-rose-500"
+                                    className="w-full bg-rose-500/5 dark:bg-app-darkbg border border-rose-500/30 rounded-xl px-3.5 py-2 text-xs text-app-navy dark:text-white focus:outline-none focus:border-rose-500"
                                 />
                             </div>
                         )}
@@ -220,7 +221,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                     <button
                         type="submit"
                         disabled={isSavingUser}
-                        className="bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer"
+                        className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
                     >
                         {isSavingUser && <Loader2 className="w-4 h-4 animate-spin" />}
                         <span>{isSavingUser ? 'Salvando...' : 'Salvar Alterações'}</span>

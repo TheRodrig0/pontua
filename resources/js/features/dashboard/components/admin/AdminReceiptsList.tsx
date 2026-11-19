@@ -1,7 +1,8 @@
 import React from 'react';
 import { AlertCircle, Check, Clock, ReceiptText, Search } from 'lucide-react';
+import { TAX_RECEIPT_STATUS_LABELS, TaxReceiptStatus } from '@/features/dashboard/enums/dashboard';
 import { formatAccessKeyPreview, formatCurrencyBRL } from '@/utils/formatters';
-import type { TaxReceiptItem } from '@/types/dashboard';
+import type { TaxReceiptItem } from '@/features/dashboard/types/dashboard';
 
 interface AdminReceiptsListProps {
     receipts: TaxReceiptItem[];
@@ -43,7 +44,7 @@ export const AdminReceiptsList: React.FC<AdminReceiptsListProps> = ({
                 <button
                     type="button"
                     onClick={onClearSearch}
-                    className="mt-3 text-xs font-bold text-[#4bb9a6] hover:underline cursor-pointer"
+                    className="mt-3 text-xs font-bold text-app-teal hover:underline cursor-pointer"
                 >
                     Limpar busca
                 </button>
@@ -54,8 +55,8 @@ export const AdminReceiptsList: React.FC<AdminReceiptsListProps> = ({
     return (
         <div className="divide-y divide-slate-200/70 dark:divide-slate-800/80">
             {filteredReceipts.map((receipt) => {
-                const isApproved = receipt.status === 'approved';
-                const isPending = receipt.status === 'pending';
+                const isApproved = receipt.status === TaxReceiptStatus.APPROVED;
+                const isPending = receipt.status === TaxReceiptStatus.PENDING;
 
                 return (
                     <div
@@ -80,23 +81,23 @@ export const AdminReceiptsList: React.FC<AdminReceiptsListProps> = ({
                                     )}
 
                                     {isApproved && (
-                                        <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                                        <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                                             <Check className="w-3 h-3" />
-                                            <span>Aprovado</span>
+                                            <span>{TAX_RECEIPT_STATUS_LABELS[TaxReceiptStatus.APPROVED]}</span>
                                         </span>
                                     )}
 
                                     {isPending && (
                                         <span className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                                             <Clock className="w-3 h-3" />
-                                            <span>Em análise</span>
+                                            <span>{TAX_RECEIPT_STATUS_LABELS[TaxReceiptStatus.PENDING]}</span>
                                         </span>
                                     )}
 
                                     {!isApproved && !isPending && (
                                         <span className="bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/25 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                                             <AlertCircle className="w-3 h-3" />
-                                            <span>Rejeitado</span>
+                                            <span>{TAX_RECEIPT_STATUS_LABELS[TaxReceiptStatus.REJECTED]}</span>
                                         </span>
                                     )}
                                 </div>
@@ -108,7 +109,7 @@ export const AdminReceiptsList: React.FC<AdminReceiptsListProps> = ({
                         </div>
 
                         <div className="flex items-center justify-end pl-12 sm:pl-0">
-                            <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap tabular-nums">
+                            <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap tabular-nums">
                                 +{receipt.points_earned} pts
                             </span>
                         </div>

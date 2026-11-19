@@ -15,7 +15,7 @@ import {
     donationService,
     type DonationRecipientCandidate as RecipientCandidate,
 } from '@/services/donationService';
-import type { PointDonationItem, RankingUser } from '@/types/dashboard';
+import type { PointDonationItem, RankingUser } from '@/features/dashboard/types/dashboard';
 import { normalizeSearchText } from '@/utils/formatters';
 
 interface DonationsSectionProps {
@@ -223,7 +223,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Coluna Esquerda: Formulário de Doação */}
-            <div className="lg:col-span-7 bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-xs">
+            <div className="lg:col-span-7 bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-6 border-b border-slate-100 dark:border-slate-800/80">
                     <div>
                         <h2 className="text-base sm:text-lg font-extrabold text-app-navy dark:text-white tracking-tight">
@@ -234,15 +234,15 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                         </p>
                     </div>
 
-                    <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200/70 dark:border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-2.5 shrink-0">
-                        <Wallet className="w-4 h-4 text-[#4bb9a6]" />
+                    <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200/70 dark:border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-2.5 shrink-0">
+                        <Wallet className="w-4 h-4 text-app-teal" />
                         <div className="text-xs">
                             <span className="text-app-graytext dark:text-slate-400 block text-[10px] font-bold uppercase tracking-wider">
                                 Seu Saldo
                             </span>
                             <span className="font-black text-app-navy dark:text-white tabular-nums text-sm">
                                 {currentBalance.toLocaleString('pt-BR')}{' '}
-                                <span className="text-[#4bb9a6] text-xs">pts</span>
+                                <span className="text-app-teal text-xs">pts</span>
                             </span>
                         </div>
                     </div>
@@ -273,7 +273,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                         </label>
 
                         {selectedRecipient ? (
-                            <div className="bg-slate-50 dark:bg-[#111827] border border-[#4bb9a6]/50 rounded-xl p-3.5 flex items-center justify-between gap-3">
+                            <div className="bg-slate-50 dark:bg-app-darkbg border border-app-teal/50 rounded-xl p-3.5 flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-3 min-w-0">
                                     {renderAvatar(selectedRecipient, 'w-10 h-10', 'text-xs')}
                                     <div className="min-w-0">
@@ -281,7 +281,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                                             {selectedRecipient.name}
                                         </span>
                                         {selectedRecipient.nick && (
-                                            <span className="block text-xs text-[#4bb9a6] font-medium truncate">
+                                            <span className="block text-xs text-app-teal font-medium truncate">
                                                 @{selectedRecipient.nick}
                                             </span>
                                         )}
@@ -299,7 +299,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                             </div>
                         ) : (
                             <div className="relative">
-                                <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-3 flex items-center gap-2.5 focus-within:border-[#4bb9a6] transition-colors">
+                                <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-3 flex items-center gap-2.5 focus-within:border-app-teal transition-colors">
                                     <Search className="w-4 h-4 text-app-graytext dark:text-slate-400 shrink-0" />
                                     <input
                                         id="donate-search-user"
@@ -311,7 +311,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                                         className="w-full bg-transparent text-sm text-app-navy dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
                                     />
                                     {isSearchingUsers && (
-                                        <Loader2 className="w-4 h-4 text-[#4bb9a6] animate-spin shrink-0" />
+                                        <Loader2 className="w-4 h-4 text-app-teal animate-spin shrink-0" />
                                     )}
                                     {searchQuery && !isSearchingUsers && (
                                         <button
@@ -346,14 +346,14 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                                                                 {user.name}
                                                             </span>
                                                             {user.nick && (
-                                                                <span className="block text-xs text-[#4bb9a6] font-medium truncate">
+                                                                <span className="block text-xs text-app-teal font-medium truncate">
                                                                     @{user.nick}
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </div>
 
-                                                    <span className="text-xs font-semibold text-[#4bb9a6] shrink-0">
+                                                    <span className="text-xs font-semibold text-app-teal shrink-0">
                                                         Selecionar
                                                     </span>
                                                 </button>
@@ -373,8 +373,8 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                         >
                             Quantidade de pontos
                         </label>
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-3 flex items-center gap-2.5 focus-within:border-[#4bb9a6] transition-colors">
-                            <Sparkles className="w-4 h-4 text-[#4bb9a6] shrink-0" />
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-3 flex items-center gap-2.5 focus-within:border-app-teal transition-colors">
+                            <Sparkles className="w-4 h-4 text-app-teal shrink-0" />
                             <input
                                 id="donate-points-amount"
                                 type="number"
@@ -401,7 +401,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                                 !amount ||
                                 currentBalance <= 0
                             }
-                            className="w-full bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-50 text-white text-xs font-extrabold uppercase tracking-wider py-3.5 px-6 rounded-xl inline-flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:cursor-not-allowed"
+                            className="w-full bg-app-teal hover:bg-app-teal-hover disabled:opacity-50 text-white text-xs font-extrabold uppercase tracking-wider py-3.5 px-6 rounded-xl inline-flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -417,10 +417,10 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
             </div>
 
             {/* Coluna Direita: Histórico de Transferências */}
-            <div className="lg:col-span-5 bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-xs">
+            <div className="lg:col-span-5 bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-xs">
                 <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-slate-100 dark:border-slate-800/80">
                     <div className="flex items-center gap-2">
-                        <History className="w-4 h-4 text-[#4bb9a6]" />
+                        <History className="w-4 h-4 text-app-teal" />
                         <h3 className="text-sm font-extrabold text-app-navy dark:text-white tracking-tight">
                             Minhas Transferências
                         </h3>
@@ -453,7 +453,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                                     className="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 text-xs"
                                 >
                                     <div className="flex items-center gap-3 min-w-0">
-                                        <div className="w-8 h-8 rounded-lg bg-[#4bb9a6]/15 text-[#4bb9a6] flex items-center justify-center shrink-0">
+                                        <div className="w-8 h-8 rounded-lg bg-app-teal/15 text-app-teal flex items-center justify-center shrink-0">
                                             <ArrowUpRight className="w-4 h-4" />
                                         </div>
                                         <div className="min-w-0">
@@ -477,7 +477,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
 
                                     <span className="font-extrabold text-app-navy dark:text-white shrink-0 tabular-nums">
                                         -{donation.amount.toLocaleString('pt-BR')}{' '}
-                                        <span className="text-[#4bb9a6] text-[11px]">pts</span>
+                                        <span className="text-app-teal text-[11px]">pts</span>
                                     </span>
                                 </div>
                             );
@@ -491,7 +491,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                             type="button"
                             onClick={onLoadMoreDonations}
                             disabled={isLoadingDonations}
-                            className="text-xs font-bold text-[#4bb9a6] hover:underline cursor-pointer"
+                            className="text-xs font-bold text-app-teal hover:underline cursor-pointer"
                         >
                             {isLoadingDonations ? 'Carregando...' : 'Ver mais transferências'}
                         </button>

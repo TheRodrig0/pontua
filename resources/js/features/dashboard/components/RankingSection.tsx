@@ -10,7 +10,7 @@ import {
 import type {
     MyRankingPerformance,
     RankingUser,
-} from '@/types/dashboard';
+} from '@/features/dashboard/types/dashboard';
 
 interface RankingSectionProps {
     currentUserId?: number;
@@ -136,7 +136,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
 
         return (
             <div
-                className={`${sizeClass} rounded-full bg-[#4bb9a6]/20 text-[#4bb9a6] font-extrabold ${textClass} flex items-center justify-center shrink-0 border border-[#4bb9a6]/30`}
+                className={`${sizeClass} rounded-full bg-app-teal/20 text-app-teal font-extrabold ${textClass} flex items-center justify-center shrink-0 border border-app-teal/30`}
             >
                 {getInitials(user.name)}
             </div>
@@ -147,28 +147,28 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
         <div className="space-y-6">
             {/* 1. Three KPI Metric Cards (Mesmo contraste da Visão Geral) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Sua Colocação Atual
                         </span>
-                        <Award className="w-4 h-4 text-[#ea7349]" />
+                        <Award className="w-4 h-4 text-app-coral" />
                     </div>
 
                     <div className="my-3 flex items-baseline gap-2">
                         <span className="text-3xl sm:text-4xl font-extrabold text-app-navy dark:text-white tracking-tight tabular-nums">
                             {myPosition ? `#${myPosition}` : '#0'}
                         </span>
-                        <span className="text-xs font-bold text-[#4bb9a6] uppercase tracking-wider">
+                        <span className="text-xs font-bold text-app-teal uppercase tracking-wider">
                             de {ranking.length} alunos
                         </span>
                     </div>
 
                     <div className="pt-1 space-y-2">
                         {userAboveMe && pointsNeededToAdvance && (
-                            <div className="h-1.5 w-full bg-slate-200 dark:bg-[#111827] rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-slate-200 dark:bg-app-darkbg rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-[#4bb9a6] rounded-full transition-all duration-700 ease-out"
+                                    className="h-full bg-app-teal rounded-full transition-all duration-700 ease-out"
                                     style={{ width: barsReady ? `${progressToNextPct}%` : '0%' }}
                                 />
                             </div>
@@ -183,19 +183,19 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Seus Pontos no Ranking
                         </span>
-                        <Sparkles className="w-4 h-4 text-[#4bb9a6]" />
+                        <Sparkles className="w-4 h-4 text-app-teal" />
                     </div>
 
                     <div className="my-3 flex items-baseline gap-1.5">
                         <span className="text-3xl sm:text-4xl font-extrabold text-app-navy dark:text-white tracking-tight tabular-nums">
                             {animatedMyPoints.toLocaleString('pt-BR')}
                         </span>
-                        <span className="text-xs font-extrabold text-[#4bb9a6] uppercase tracking-wider">
+                        <span className="text-xs font-extrabold text-app-teal uppercase tracking-wider">
                             PTS
                         </span>
                     </div>
@@ -207,12 +207,12 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Sequência Solidária
                         </span>
-                        <Flame className="w-4 h-4 text-[#ea7349]" />
+                        <Flame className="w-4 h-4 text-app-coral" />
                     </div>
 
                     <div className="my-3">
@@ -230,10 +230,10 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
             </div>
 
             {/* 2. Lista com Barras Horizontais Vivas (Estilo GitHub / Linear) */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#4bb9a6]/15 dark:bg-[#112a2e] border border-[#4bb9a6]/25 text-[#4bb9a6] flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-app-teal/15 dark:bg-[#112a2e] border border-app-teal/25 text-app-teal flex items-center justify-center shrink-0">
                             <Trophy className="w-5 h-5" />
                         </div>
                         <div>
@@ -246,7 +246,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                         </div>
                     </div>
 
-                    <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-[#4bb9a6] transition-colors w-full sm:w-64">
+                    <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2 focus-within:border-app-teal transition-colors w-full sm:w-64">
                         <Search className="w-4 h-4 text-app-graytext dark:text-slate-400 shrink-0" />
                         <input
                             type="text"
@@ -287,38 +287,30 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
 
                             let positionBadge =
                                 'bg-slate-100 dark:bg-slate-800 text-app-navy dark:text-slate-200 border-slate-200 dark:border-slate-700';
-                            let barFillStyle =
-                                'bg-gradient-to-r from-[#4bb9a6]/25 via-[#4bb9a6]/15 to-[#4bb9a6]/5 dark:from-[#4bb9a6]/25 dark:via-[#4bb9a6]/15 dark:to-transparent';
 
                             if (item.position === 1) {
                                 positionBadge =
                                     'bg-amber-400/20 text-amber-600 dark:text-amber-300 border-amber-400/40';
-                                barFillStyle =
-                                    'bg-gradient-to-r from-amber-500/25 via-amber-400/15 to-transparent dark:from-amber-500/30 dark:via-amber-500/15 dark:to-transparent';
                             } else if (item.position === 2) {
                                 positionBadge =
                                     'bg-slate-300/35 dark:bg-slate-700 text-slate-700 dark:text-slate-100 border-slate-400/40';
-                                barFillStyle =
-                                    'bg-gradient-to-r from-[#4bb9a6]/30 via-[#4bb9a6]/18 to-transparent';
                             } else if (item.position === 3) {
                                 positionBadge =
-                                    'bg-[#ea7349]/20 text-[#ea7349] border-[#ea7349]/40';
-                                barFillStyle =
-                                    'bg-gradient-to-r from-[#ea7349]/25 via-[#ea7349]/15 to-transparent';
+                                    'bg-app-coral/20 text-app-coral border-app-coral/40';
                             }
 
                             return (
                                 <div
                                     key={item.id}
-                                    className={`group relative overflow-hidden rounded-xl border transition-all duration-200 hover:translate-x-1 ${
+                                    className={`group relative overflow-hidden rounded-xl border bg-slate-50 dark:bg-app-darkbg transition-all duration-200 hover:translate-x-1 ${
                                         isMe
-                                            ? 'border-[#4bb9a6] bg-[#4bb9a6]/10 dark:bg-[#112a2e]/70 shadow-xs'
-                                            : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#111827] hover:border-[#4bb9a6]/50'
+                                            ? 'border-app-teal shadow-xs'
+                                            : 'border-slate-200 dark:border-slate-800 hover:border-app-teal/50'
                                     }`}
                                 >
-                                    {/* Barra proporcional viva */}
+                                    {/* Barra proporcional neutra */}
                                     <div
-                                        className={`absolute inset-y-0 left-0 pointer-events-none transition-all duration-700 ease-out ${barFillStyle}`}
+                                        className="absolute inset-y-0 left-0 pointer-events-none transition-all duration-700 ease-out bg-slate-200/65 dark:bg-white/[0.06]"
                                         style={{
                                             width: barsReady ? `${barWidth}%` : '0%',
                                             transitionDelay: `${idx * 45}ms`,
@@ -341,13 +333,13 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                                                         {item.name}
                                                     </span>
                                                     {isMe && (
-                                                        <span className="bg-[#4bb9a6] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0">
+                                                        <span className="bg-app-teal text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0">
                                                             Você
                                                         </span>
                                                     )}
                                                 </div>
                                                 {item.nick && (
-                                                    <span className="block text-xs font-semibold text-[#4bb9a6] truncate">
+                                                    <span className="block text-xs font-semibold text-app-teal truncate">
                                                         @{item.nick}
                                                     </span>
                                                 )}
@@ -355,7 +347,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                                         </div>
 
                                         <div className="flex items-center gap-4 sm:gap-5 shrink-0">
-                                            <span className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-[#ea7349] bg-[#ea7349]/12 border border-[#ea7349]/25 px-2.5 py-1 rounded-full tabular-nums">
+                                            <span className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-app-coral bg-app-coral/12 border border-app-coral/25 px-2.5 py-1 rounded-full tabular-nums">
                                                 <Flame className="w-3.5 h-3.5" />
                                                 <span>
                                                     {item.scan_streak}{' '}
@@ -365,7 +357,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
 
                                             <span className="text-sm sm:text-base font-black text-app-navy dark:text-white tabular-nums w-24 text-right">
                                                 {item.total_donated.toLocaleString('pt-BR')}{' '}
-                                                <span className="text-xs font-bold text-[#4bb9a6]">
+                                                <span className="text-xs font-bold text-app-teal">
                                                     pts
                                                 </span>
                                             </span>

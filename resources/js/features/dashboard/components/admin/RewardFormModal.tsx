@@ -1,7 +1,8 @@
 import React from 'react';
 import { AlertCircle, Loader2, Upload } from 'lucide-react';
 import ModalDialog from '@/components/ui/ModalDialog';
-import type { RewardItem, RewardTagValue } from '@/types/dashboard';
+import { REWARD_TAG_LABELS, RewardTag } from '@/features/dashboard/enums/dashboard';
+import type { RewardItem, RewardTagValue } from '@/features/dashboard/types/dashboard';
 
 interface RewardFormModalProps {
     isOpen: boolean;
@@ -45,7 +46,7 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
     onChangeImage,
 }) => {
     const isEditing = Boolean(editingReward);
-    const isAacc = formTag === 'aacc';
+    const isAacc = formTag === RewardTag.AACC;
 
     return (
         <ModalDialog
@@ -80,7 +81,7 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                                 ? 'Ex: Certificado de Horas Complementares'
                                 : 'Ex: Camiseta Oficial GTI'
                         }
-                        className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6]"
+                        className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal"
                         required
                     />
                 </div>
@@ -101,13 +102,13 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                             id="admin-reward-tag"
                             value={formTag}
                             onChange={(e) => onChangeTag(e.target.value as RewardTagValue)}
-                            className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6]"
+                            className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal"
                         >
-                            <option value="clothing">Vestuário</option>
-                            <option value="accessory">Acessório</option>
-                            <option value="cosmetic">Cosmético</option>
-                            <option value="aacc">Horas AACC</option>
-                            <option value="other">Outros</option>
+                            {Object.values(RewardTag).map((tag) => (
+                                <option key={tag} value={tag}>
+                                    {REWARD_TAG_LABELS[tag]}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
@@ -127,7 +128,7 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                                 value={formHours}
                                 onChange={(e) => onChangeHours(e.target.value)}
                                 placeholder="1 a 8"
-                                className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6] tabular-nums"
+                                className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal tabular-nums"
                                 required
                             />
                         </div>
@@ -147,7 +148,7 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                             value={formCost}
                             onChange={(e) => onChangeCost(e.target.value)}
                             placeholder="Ex: 250"
-                            className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6] tabular-nums"
+                            className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal tabular-nums"
                             required
                         />
                     </div>
@@ -167,7 +168,7 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                         value={formDescription}
                         onChange={(e) => onChangeDescription(e.target.value)}
                         placeholder="Detalhes sobre retirada ou especificações..."
-                        className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6]"
+                        className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal"
                     />
                 </div>
 
@@ -180,9 +181,9 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                     </label>
                     <label
                         htmlFor="admin-reward-image"
-                        className="flex items-center justify-center gap-2 w-full bg-slate-50 dark:bg-[#111827] border border-dashed border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-xs font-semibold text-app-graytext dark:text-slate-400 hover:border-[#4bb9a6] cursor-pointer transition-colors"
+                        className="flex items-center justify-center gap-2 w-full bg-slate-50 dark:bg-app-darkbg border border-dashed border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-xs font-semibold text-app-graytext dark:text-slate-400 hover:border-app-teal cursor-pointer transition-colors"
                     >
-                        <Upload className="w-4 h-4 text-[#4bb9a6]" />
+                        <Upload className="w-4 h-4 text-app-teal" />
                         <span>
                             {formImage ? formImage.name : 'Selecionar imagem PNG, JPG ou WEBP'}
                         </span>
@@ -208,7 +209,7 @@ export const RewardFormModal: React.FC<RewardFormModalProps> = ({
                     <button
                         type="submit"
                         disabled={isSaving}
-                        className="bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer"
+                        className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
                     >
                         {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                         <span>{isSaving ? 'Salvando...' : 'Salvar Prêmio'}</span>

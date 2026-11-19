@@ -12,10 +12,10 @@ import {
     Printer,
 } from 'lucide-react';
 import ModalDialog from '@/components/ui/ModalDialog';
-import { REWARD_TAG_LABELS } from '@/enums/dashboard';
+import { REWARD_TAG_LABELS, RewardTag } from '@/features/dashboard/enums/dashboard';
 import { redemptionService, type MyRedemption } from '@/services/redemptionService';
 import { rewardService } from '@/services/rewardService';
-import type { RewardItem, RewardTagValue, UserProfile } from '@/types/dashboard';
+import type { RewardItem, RewardTagValue, UserProfile } from '@/features/dashboard/types/dashboard';
 import { openAaccCertificatePrint } from '@/utils/printAaccCertificate';
 
 interface RewardDetailModalProps {
@@ -114,10 +114,10 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
     };
 
     const renderFallbackIcon = (tag?: RewardTagValue) => {
-        if (tag === 'clothing') return <Shirt className="w-10 h-10 text-white" />;
-        if (tag === 'accessory') return <Watch className="w-10 h-10 text-white" />;
-        if (tag === 'cosmetic') return <Sparkles className="w-10 h-10 text-white" />;
-        if (tag === 'aacc') return <GraduationCap className="w-10 h-10 text-white" />;
+        if (tag === RewardTag.CLOTHING) return <Shirt className="w-10 h-10 text-white" />;
+        if (tag === RewardTag.ACCESSORY) return <Watch className="w-10 h-10 text-white" />;
+        if (tag === RewardTag.COSMETIC) return <Sparkles className="w-10 h-10 text-white" />;
+        if (tag === RewardTag.AACC) return <GraduationCap className="w-10 h-10 text-white" />;
         return <Gift className="w-10 h-10 text-white" />;
     };
 
@@ -130,7 +130,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
         >
             {isLoading ? (
                 <div className="py-10 flex flex-col items-center justify-center gap-3 text-slate-400">
-                    <Loader2 className="w-7 h-7 animate-spin text-[#4bb9a6]" />
+                    <Loader2 className="w-7 h-7 animate-spin text-app-teal" />
                     <span className="text-xs font-medium">
                         Carregando informações da recompensa...
                     </span>
@@ -162,13 +162,13 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                         </div>
                     )}
 
-                    <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2.5">
+                    <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2.5">
                         <div className="flex items-center justify-between gap-2">
-                            <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">
+                            <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/30 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">
                                 {TAG_LABELS[reward.tag] || reward.tag}
                             </span>
 
-                            <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30 text-xs font-black px-3 py-1 rounded-lg inline-flex items-center gap-1">
+                            <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/30 text-xs font-black px-3 py-1 rounded-lg inline-flex items-center gap-1">
                                 <Sparkles className="w-3.5 h-3.5" />
                                 <span>{reward.cost} PTS</span>
                             </span>
@@ -192,13 +192,13 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                     )}
 
                     {isSuccess ? (
-                        <div className="bg-[#4bb9a6]/15 border border-[#4bb9a6]/35 rounded-xl p-4 space-y-3">
-                            <div className="flex items-center gap-2 text-xs font-extrabold text-[#4bb9a6]">
+                        <div className="bg-app-teal/15 border border-app-teal/35 rounded-xl p-4 space-y-3">
+                            <div className="flex items-center gap-2 text-xs font-extrabold text-app-teal">
                                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                                 <span>Solicitação de resgate confirmada com sucesso!</span>
                             </div>
 
-                            {reward.tag === 'aacc' ? (
+                            {reward.tag === RewardTag.AACC ? (
                                 <>
                                     <p className="text-[11px] text-app-graytext dark:text-slate-300 leading-relaxed">
                                         Sua declaração oficial com o código de autenticidade{' '}
@@ -230,15 +230,15 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                                     <p className="text-[11px] text-app-graytext dark:text-slate-300 leading-relaxed">
                                         Seus pontos foram reservados. O código de resgate oficial foi <strong>enviado diretamente para o seu e-mail cadastrado</strong>.
                                     </p>
-                                    <div className="pt-1 text-[11px] font-semibold text-app-navy dark:text-white flex items-start gap-2 bg-white/60 dark:bg-slate-900/60 p-2.5 rounded-lg border border-[#4bb9a6]/30">
-                                        <Mail className="w-4 h-4 text-[#4bb9a6] shrink-0 mt-0.5" />
+                                    <div className="pt-1 text-[11px] font-semibold text-app-navy dark:text-white flex items-start gap-2 bg-white/60 dark:bg-slate-900/60 p-2.5 rounded-lg border border-app-teal/30">
+                                        <Mail className="w-4 h-4 text-app-teal shrink-0 mt-0.5" />
                                         <span>Acesse sua caixa de entrada e apresente o e-mail na Administração da FATEC para retirar seu prêmio.</span>
                                     </div>
                                 </>
                             )}
                         </div>
                     ) : (
-                        <div className="flex items-center justify-between gap-3 bg-[#4bb9a6]/10 dark:bg-[#112a2e]/50 border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 rounded-xl p-3.5 text-xs">
+                        <div className="flex items-center justify-between gap-3 bg-app-teal/10 dark:bg-[#112a2e]/50 border border-app-teal/25 dark:border-app-teal/20 rounded-xl p-3.5 text-xs">
                             <span className="text-app-graytext dark:text-slate-300">
                                 Seu saldo atual:{' '}
                                 <strong className="text-app-navy dark:text-white">
@@ -250,7 +250,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                                     isOutOfStock
                                         ? 'text-rose-500 dark:text-rose-400'
                                         : canAfford
-                                          ? 'text-[#4bb9a6]'
+                                          ? 'text-app-teal'
                                           : 'text-amber-600 dark:text-amber-400'
                                 }`}
                             >
@@ -277,7 +277,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                                 type="button"
                                 disabled={!canRedeem}
                                 onClick={handleRequestRedemption}
-                                className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-45 disabled:pointer-events-none text-white shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                                className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-app-teal hover:bg-app-teal-hover disabled:opacity-45 disabled:pointer-events-none text-white shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
                             >
                                 {isRedeeming ? (
                                     <>

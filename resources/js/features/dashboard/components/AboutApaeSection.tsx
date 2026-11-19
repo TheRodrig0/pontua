@@ -23,7 +23,7 @@ const projectPillars = [
             'Desenvolvido no curso de GTI da Fatec Franco da Rocha unindo prática tecnológica e cidadania.',
         badge: 'ODS 4 · ONU',
         badgeStyle:
-            'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25',
+            'bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25',
     },
     {
         icon: Leaf,
@@ -32,7 +32,7 @@ const projectPillars = [
             'Elimina o transporte semanal da urna física e a triagem manual de notas amassadas na APAE.',
         badge: 'ODS 11 · ONU',
         badgeStyle:
-            'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25',
+            'bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25',
     },
     {
         icon: Handshake,
@@ -41,7 +41,7 @@ const projectPillars = [
             'Conecta a Fatec Franco da Rocha à APAE garantindo recursos antes do vencimento.',
         badge: 'ODS 17 · ONU',
         badgeStyle:
-            'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25',
+            'bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25',
     },
     {
         icon: Award,
@@ -62,19 +62,19 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
             {/* 1. Three KPI Metric Cards (Mesmo padrão da Visão Geral) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* Card 1 */}
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Pesquisa com Estudantes
                         </span>
-                        <Sparkles className="w-4 h-4 text-[#4bb9a6]" />
+                        <Sparkles className="w-4 h-4 text-app-teal" />
                     </div>
 
                     <div className="my-3 flex items-baseline gap-1.5">
                         <span className="text-3xl sm:text-4xl font-extrabold text-app-navy dark:text-white tracking-tight">
                             95%
                         </span>
-                        <span className="text-xs font-extrabold text-[#4bb9a6] uppercase tracking-wider">
+                        <span className="text-xs font-extrabold text-app-teal uppercase tracking-wider">
                             DOS ENTREVISTADOS
                         </span>
                     </div>
@@ -87,12 +87,12 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
                 </div>
 
                 {/* Card 2 */}
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Prazo Legal Protegido
                         </span>
-                        <Clock className="w-4 h-4 text-[#ea7349]" />
+                        <Clock className="w-4 h-4 text-app-coral" />
                     </div>
 
                     <div className="my-3">
@@ -109,12 +109,12 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
                 </div>
 
                 {/* Card 3 */}
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Impacto Social
                         </span>
-                        <Heart className="w-4 h-4 text-[#ea7349]" />
+                        <Heart className="w-4 h-4 text-app-coral" />
                     </div>
 
                     <div className="my-3">
@@ -132,9 +132,9 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
             </div>
 
             {/* 2. Banner de Propósito (Mesmo padrão do Banner da Visão Geral) */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                 <div className="flex items-start sm:items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#4bb9a6]/15 dark:bg-[#112a2e] border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 text-[#4bb9a6] flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-app-teal/15 dark:bg-[#112a2e] border border-app-teal/25 dark:border-app-teal/20 text-app-teal flex items-center justify-center shrink-0">
                         <QrCode className="w-6 h-6" />
                     </div>
 
@@ -151,7 +151,7 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
                 <button
                     type="button"
                     onClick={onOpenScanModal}
-                    className="w-full sm:w-auto bg-[#4bb9a6] hover:bg-[#3da392] text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer shrink-0"
+                    className="w-full sm:w-auto bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer shrink-0"
                 >
                     <Camera className="w-4 h-4" />
                     <span>ESCANEAR CUPOM</span>
@@ -159,7 +159,7 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
             </div>
 
             {/* 3. Lista de Valores & Pilares (Mesmo padrão de 'Últimos Cupons Doados' da Visão Geral) */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-4 mb-5">
                     <div>
                         <h3 className="text-base font-extrabold text-app-navy dark:text-white tracking-tight">
@@ -170,7 +170,7 @@ export const AboutApaeSection: React.FC<AboutApaeSectionProps> = ({
                         </p>
                     </div>
 
-                    <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 text-[11px] font-bold px-3 py-1 rounded-full">
+                    <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 dark:border-app-teal/20 text-[11px] font-bold px-3 py-1 rounded-full">
                         Agenda 2030
                     </span>
                 </div>

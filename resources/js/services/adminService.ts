@@ -1,5 +1,5 @@
-import { apiRequest, getAuthToken } from '@/lib/api';
-import type { AdminOverviewData } from '@/types/dashboard';
+import { apiRequest } from '@/lib/api';
+import type { AdminOverviewData } from '@/features/dashboard/types/dashboard';
 
 export interface AdminSettingsData {
     apae_email: string;
@@ -35,14 +35,10 @@ export const adminService = {
     },
 
     async downloadApaeBatch(): Promise<void> {
-        const token = getAuthToken();
         const headers: Record<string, string> = {
             Accept: 'application/zip, application/json',
             'X-Requested-With': 'XMLHttpRequest',
         };
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
 
         const response = await fetch('/api/admin/apae-batch/download', {
             method: 'GET',

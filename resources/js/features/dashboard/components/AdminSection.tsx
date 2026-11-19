@@ -1,15 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePage } from '@inertiajs/react';
 import { CheckCircle2, Clock, KeyRound, RefreshCw, Search, Settings, X } from 'lucide-react';
-import { AdminReceiptsList } from '@/components/dashboard/admin/AdminReceiptsList';
-import { AdminRedemptionsList } from '@/components/dashboard/admin/AdminRedemptionsList';
-import { AdminRewardsList } from '@/components/dashboard/admin/AdminRewardsList';
-import { AdminSettingsCard } from '@/components/dashboard/admin/AdminSettingsCard';
-import { AdminStatsGrid, type AdminSubTab } from '@/components/dashboard/admin/AdminStatsGrid';
-import { AdminUsersList } from '@/components/dashboard/admin/AdminUsersList';
-import { RewardFormModal } from '@/components/dashboard/admin/RewardFormModal';
-import { UserEditModal } from '@/components/dashboard/admin/UserEditModal';
-import { REWARD_TAG_LABELS, RewardTag } from '@/enums/dashboard';
+import { AdminReceiptsList } from '@/features/dashboard/components/admin/AdminReceiptsList';
+import { AdminRedemptionsList } from '@/features/dashboard/components/admin/AdminRedemptionsList';
+import { AdminRewardsList } from '@/features/dashboard/components/admin/AdminRewardsList';
+import { AdminSettingsCard } from '@/features/dashboard/components/admin/AdminSettingsCard';
+import { AdminStatsGrid, type AdminSubTab } from '@/features/dashboard/components/admin/AdminStatsGrid';
+import { AdminUsersList } from '@/features/dashboard/components/admin/AdminUsersList';
+import { RewardFormModal } from '@/features/dashboard/components/admin/RewardFormModal';
+import { UserEditModal } from '@/features/dashboard/components/admin/UserEditModal';
+import {
+    REWARD_TAG_LABELS,
+    RedemptionStatus,
+    RewardTag,
+    UserRole,
+    type RedemptionResolutionStatus,
+} from '@/features/dashboard/enums/dashboard';
 import { adminService } from '@/services/adminService';
 import {
     redemptionService,
@@ -21,7 +27,7 @@ import type {
     AdminUserData,
     RewardItem,
     RewardTagValue,
-} from '@/types/dashboard';
+} from '@/features/dashboard/types/dashboard';
 
 interface AdminSectionProps {
     onRewardsMutated: () => void;
@@ -40,7 +46,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
     const [editingReward, setEditingReward] = useState<RewardItem | null>(null);
     const [formName, setFormName] = useState('');
     const [formDescription, setFormDescription] = useState('');
-    const [formTag, setFormTag] = useState<RewardTagValue>('clothing');
+    const [formTag, setFormTag] = useState<RewardTagValue>(RewardTag.CLOTHING);
     const [formCost, setFormCost] = useState('');
     const [formHours, setFormHours] = useState('4');
     const [formImage, setFormImage] = useState<File | null>(null);
@@ -52,7 +58,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
     const [editingUser, setEditingUser] = useState<AdminUserData | null>(null);
     const [userFormName, setUserFormName] = useState('');
     const [userFormNick, setUserFormNick] = useState('');
-    const [userFormRole, setUserFormRole] = useState<'user' | 'admin'>('user');
+    const [userFormRole, setUserFormRole] = useState<UserRole>(UserRole.USER);
     const [userFormIsBanned, setUserFormIsBanned] = useState(false);
     const [userFormBanReason, setUserFormBanReason] = useState('');
     const [isSavingUser, setIsSavingUser] = useState(false);
@@ -79,7 +85,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
     }, [fetchAdminOverview]);
 
     const handleValidateRedemption = useCallback(
-        async (id: number, status: 'completed' | 'cancelled') => {
+        async (id: number, status: RedemptionResolutionStatus) => {
             try {
                 const updated = await redemptionService.adminUpdate(id, status);
                 setRedemptions((prev) =>
@@ -99,7 +105,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
         setEditingReward(null);
         setFormName('');
         setFormDescription('');
-        setFormTag('clothing');
+        setFormTag(RewardTag.CLOTHING);
         setFormCost('');
         setFormHours('4');
         setFormImage(null);
@@ -114,13 +120,13 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
             reward.name.match(/\b(\d+)\s*horas?\b/i);
         const extractedHours = hoursMatch ? hoursMatch[1] : '4';
         const cleanName =
-            reward.tag === 'aacc'
+            reward.tag === RewardTag.AACC
                 ? reward.name.replace(/\s*\(\d+\s*h(?:oras?)?\)\s*$/i, '').trim()
                 : reward.name;
 
         setFormName(cleanName);
         setFormDescription(reward.description || '');
-        setFormTag(reward.tag || 'other');
+        setFormTag(reward.tag || RewardTag.OTHER);
         setFormCost(String(reward.cost));
         setFormHours(extractedHours);
         setFormImage(null);
@@ -143,7 +149,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
         let finalName = formName.trim();
         const formData = new FormData();
 
-        if (formTag === 'aacc') {
+        if (formTag === RewardTag.AACC) {
             const parsedHours = parseInt(formHours, 10);
             if (Number.isNaN(parsedHours) || parsedHours < 1 || parsedHours > 8) {
                 setFormError('Para Horas AACC, informe uma quantidade entre 1 e 8 horas.');
@@ -204,7 +210,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
         setEditingUser(user);
         setUserFormName(user.name);
         setUserFormNick(user.nick || '');
-        setUserFormRole(user.role === 'admin' ? 'admin' : 'user');
+        setUserFormRole(user.role === UserRole.ADMIN ? UserRole.ADMIN : UserRole.USER);
         setUserFormIsBanned(Boolean(user.is_banned));
         setUserFormBanReason(user.ban_reason || '');
         setUserFormError(null);
@@ -225,7 +231,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
             return;
         }
 
-        if (editingUser?.id === currentUserId && userFormRole !== 'admin') {
+        if (editingUser?.id === currentUserId && userFormRole !== UserRole.ADMIN) {
             setUserFormError('Você não pode remover o privilégio de administrador da sua própria conta.');
             return;
         }
@@ -260,7 +266,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
     const receipts = data?.recent_receipts || [];
     const users = data?.users || [];
     const pendingRedemptions = useMemo(
-        () => redemptions.filter((item) => item.status === 'pending'),
+        () => redemptions.filter((item) => item.status === RedemptionStatus.PENDING),
         [redemptions]
     );
 
@@ -319,7 +325,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
             const nameMatch = (user.name || '').toLowerCase().includes(query);
             const nickMatch = (user.nick || '').toLowerCase().includes(query);
             const emailMatch = (user.email || '').toLowerCase().includes(query);
-            const roleMatch = (user.role === 'admin' ? 'admin administrador' : 'aluno').includes(query);
+            const roleMatch = (user.role === UserRole.ADMIN ? 'admin administrador' : 'aluno').includes(query);
             return nameMatch || nickMatch || emailMatch || roleMatch;
         });
     }, [users, searchQuery]);
@@ -362,8 +368,8 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                     <div className="flex items-center gap-2 shrink-0">
                         <button
                             type="button"
-                            onClick={() => handleValidateRedemption(pendingRedemptions[0].id, 'completed')}
-                            className="px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-[#4bb9a6] hover:bg-[#3da392] text-white inline-flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                            onClick={() => handleValidateRedemption(pendingRedemptions[0].id, RedemptionStatus.COMPLETED)}
+                            className="px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-app-teal hover:bg-app-teal-hover text-white inline-flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                             title={`Validar imediatamente ${pendingRedemptions[0].voucher_code}`}
                         >
                             <CheckCircle2 className="w-3.5 h-3.5" />
@@ -375,7 +381,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                                 setSubTab('redemptions');
                                 setSearchQuery('');
                             }}
-                            className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white dark:bg-[#182234] hover:bg-slate-50 dark:hover:bg-slate-800 text-app-navy dark:text-white border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                            className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white dark:bg-app-darkcard hover:bg-slate-50 dark:hover:bg-slate-800 text-app-navy dark:text-white border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                         >
                             Ver pendentes →
                         </button>
@@ -383,7 +389,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                 </div>
             )}
 
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                     <div>
                         <h3 className="text-base font-extrabold text-app-navy dark:text-white tracking-tight">
@@ -403,7 +409,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                     </div>
 
                     <div className="flex items-center gap-2 overflow-x-auto">
-                        <div className="inline-flex bg-slate-100 dark:bg-[#111827] p-1 rounded-xl border border-slate-200/70 dark:border-slate-800">
+                        <div className="inline-flex bg-slate-100 dark:bg-app-darkbg p-1 rounded-xl border border-slate-200/70 dark:border-slate-800">
                             <button
                                 type="button"
                                 onClick={() => {
@@ -412,7 +418,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                                 }}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer whitespace-nowrap ${
                                     subTab === 'rewards'
-                                        ? 'bg-white dark:bg-[#182234] text-app-navy dark:text-white shadow-xs'
+                                        ? 'bg-white dark:bg-app-darkcard text-app-navy dark:text-white shadow-xs'
                                         : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                                 }`}
                             >
@@ -426,7 +432,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                                 }}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap ${
                                     subTab === 'redemptions'
-                                        ? 'bg-white dark:bg-[#182234] text-app-navy dark:text-white shadow-xs'
+                                        ? 'bg-white dark:bg-app-darkcard text-app-navy dark:text-white shadow-xs'
                                         : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                                 }`}
                             >
@@ -447,7 +453,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                                 }}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer whitespace-nowrap ${
                                     subTab === 'receipts'
-                                        ? 'bg-white dark:bg-[#182234] text-app-navy dark:text-white shadow-xs'
+                                        ? 'bg-white dark:bg-app-darkcard text-app-navy dark:text-white shadow-xs'
                                         : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                                 }`}
                             >
@@ -461,7 +467,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                                 }}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer whitespace-nowrap ${
                                     subTab === 'users'
-                                        ? 'bg-white dark:bg-[#182234] text-app-navy dark:text-white shadow-xs'
+                                        ? 'bg-white dark:bg-app-darkcard text-app-navy dark:text-white shadow-xs'
                                         : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                                 }`}
                             >
@@ -475,7 +481,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                                 }}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap ${
                                     subTab === 'settings'
-                                        ? 'bg-white dark:bg-[#182234] text-app-navy dark:text-white shadow-xs'
+                                        ? 'bg-white dark:bg-app-darkcard text-app-navy dark:text-white shadow-xs'
                                         : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                                 }`}
                             >
@@ -492,7 +498,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                             className="p-2 rounded-lg text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
                         >
                             <RefreshCw
-                                className={`w-4 h-4 ${isLoading ? 'animate-spin text-[#4bb9a6]' : ''}`}
+                                className={`w-4 h-4 ${isLoading ? 'animate-spin text-app-teal' : ''}`}
                             />
                         </button>
                     </div>
@@ -500,7 +506,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
 
                 {subTab !== 'settings' && (
                     <div className="mb-4">
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 focus-within:border-[#4bb9a6] transition-colors">
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 focus-within:border-app-teal transition-colors">
                             <Search className="w-4 h-4 text-app-graytext dark:text-slate-400 shrink-0" />
                             <input
                                 type="text"

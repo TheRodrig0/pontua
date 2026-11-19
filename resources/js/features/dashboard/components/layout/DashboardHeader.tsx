@@ -50,7 +50,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 <button
                     type="button"
                     onClick={onOpenScanModal}
-                    className="bg-[#4bb9a6] hover:bg-[#3da392] text-white text-xs font-extrabold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer"
+                    className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
                 >
                     <Camera className="w-4 h-4" />
                     <span>Doar Cupom Fiscal</span>

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { Lock, ArrowLeft, CheckCircle2, ShieldCheck } from 'lucide-react';
-import AuthLayout from '@/components/auth/AuthLayout';
-import FeedbackBanner, { FeedbackState } from '@/components/auth/FeedbackBanner';
-import AuthInput from '@/components/auth/AuthInput';
-import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
-import PasswordStrengthMeter from '@/components/auth/PasswordStrengthMeter';
+import { Lock, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import {
+    AuthInput,
+    AuthLayout,
+    AuthSubmitButton,
+    FeedbackBanner,
+    PasswordStrengthMeter,
+    type FeedbackState,
+} from '@/features/auth';
 import { authService } from '@/services/authService';
 
 interface ResetPasswordProps {

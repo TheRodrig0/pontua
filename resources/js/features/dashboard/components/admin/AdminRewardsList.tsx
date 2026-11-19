@@ -1,7 +1,7 @@
 import React from 'react';
 import { Gift, Loader2, Pencil, Search, Trash2 } from 'lucide-react';
-import { REWARD_TAG_LABELS, RewardTag } from '@/enums/dashboard';
-import type { RewardItem } from '@/types/dashboard';
+import { REWARD_TAG_LABELS, RewardTag } from '@/features/dashboard/enums/dashboard';
+import type { RewardItem } from '@/features/dashboard/types/dashboard';
 
 interface AdminRewardsListProps {
     rewards: RewardItem[];
@@ -49,7 +49,7 @@ export const AdminRewardsList: React.FC<AdminRewardsListProps> = ({
                 <button
                     type="button"
                     onClick={onClearSearch}
-                    className="mt-3 text-xs font-bold text-[#4bb9a6] hover:underline cursor-pointer"
+                    className="mt-3 text-xs font-bold text-app-teal hover:underline cursor-pointer"
                 >
                     Limpar busca
                 </button>
@@ -78,7 +78,7 @@ export const AdminRewardsList: React.FC<AdminRewardsListProps> = ({
                                     <span className="text-sm font-extrabold text-app-navy dark:text-white">
                                         {reward.name}
                                     </span>
-                                    <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 text-[10px] font-bold px-2 py-0.5 rounded-full">
                                         {tagLabel}
                                     </span>
                                 </div>
@@ -91,7 +91,7 @@ export const AdminRewardsList: React.FC<AdminRewardsListProps> = ({
                         </div>
 
                         <div className="flex items-center justify-between sm:justify-end gap-3 pl-12 sm:pl-0">
-                            <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap tabular-nums">
+                            <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap tabular-nums">
                                 {reward.cost.toLocaleString('pt-BR')} pts
                             </span>
 

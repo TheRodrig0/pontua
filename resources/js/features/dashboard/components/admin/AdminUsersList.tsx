@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pencil, Search, Users } from 'lucide-react';
-import type { AdminUserData } from '@/types/dashboard';
+import { USER_ROLE_LABELS, UserRole } from '@/features/dashboard/enums/dashboard';
+import type { AdminUserData } from '@/features/dashboard/types/dashboard';
 
 interface AdminUsersListProps {
     users: AdminUserData[];
@@ -44,7 +45,7 @@ export const AdminUsersList: React.FC<AdminUsersListProps> = ({
                 <button
                     type="button"
                     onClick={onClearSearch}
-                    className="mt-3 text-xs font-bold text-[#4bb9a6] hover:underline cursor-pointer"
+                    className="mt-3 text-xs font-bold text-app-teal hover:underline cursor-pointer"
                 >
                     Limpar busca
                 </button>
@@ -55,7 +56,7 @@ export const AdminUsersList: React.FC<AdminUsersListProps> = ({
     return (
         <div className="divide-y divide-slate-200/70 dark:divide-slate-800/80">
             {filteredUsers.map((user) => {
-                const isAdminRole = user.role === 'admin';
+                const isAdminRole = user.role === UserRole.ADMIN;
 
                 return (
                     <div
@@ -73,7 +74,7 @@ export const AdminUsersList: React.FC<AdminUsersListProps> = ({
                                         {user.name}
                                     </span>
                                     {user.nick && (
-                                        <span className="text-xs font-semibold text-[#4bb9a6]">
+                                        <span className="text-xs font-semibold text-app-teal">
                                             @{user.nick}
                                         </span>
                                     )}
@@ -84,7 +85,9 @@ export const AdminUsersList: React.FC<AdminUsersListProps> = ({
                                                 : 'bg-slate-100 dark:bg-slate-800 text-app-graytext dark:text-slate-300 border-slate-200 dark:border-slate-700'
                                         }`}
                                     >
-                                        {isAdminRole ? 'Admin' : 'Aluno'}
+                                        {isAdminRole
+                                            ? USER_ROLE_LABELS[UserRole.ADMIN]
+                                            : USER_ROLE_LABELS[UserRole.USER]}
                                     </span>
                                     {user.is_banned && (
                                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30">
@@ -101,7 +104,7 @@ export const AdminUsersList: React.FC<AdminUsersListProps> = ({
                         </div>
 
                         <div className="flex items-center justify-between sm:justify-end gap-3 pl-12 sm:pl-0">
-                            <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap tabular-nums">
+                            <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap tabular-nums">
                                 {user.current_balance.toLocaleString('pt-BR')} pts
                             </span>
 

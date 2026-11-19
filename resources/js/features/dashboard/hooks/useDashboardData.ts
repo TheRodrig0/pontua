@@ -4,6 +4,7 @@ import { rankingService } from '@/services/rankingService';
 import { rewardService } from '@/services/rewardService';
 import { taxReceiptService } from '@/services/taxReceiptService';
 import { userService } from '@/services/userService';
+import { TaxReceiptStatus } from '@/features/dashboard/enums/dashboard';
 import type {
     MyRankingPerformance,
     PointDonationItem,
@@ -11,7 +12,7 @@ import type {
     RewardItem,
     TaxReceiptItem,
     UserProfile,
-} from '@/types/dashboard';
+} from '@/features/dashboard/types/dashboard';
 
 export interface InertiaAuthUser {
     id: number;
@@ -167,10 +168,10 @@ export function useDashboardData(inertiaUser?: InertiaAuthUser | null) {
         );
     }, []);
 
-    // Poll automatically every 2.5s whenever there is a receipt with status === 'pending'
+    // Poll automatically every 2.5s whenever there is a receipt with pending status
     // (works seamlessly both with Queue Worker and in environments where WebSocket port 8080 is not exposed)
     useEffect(() => {
-        const hasPendingReceipt = receipts.some((r) => r.status === 'pending');
+        const hasPendingReceipt = receipts.some((r) => r.status === TaxReceiptStatus.PENDING);
         if (!hasPendingReceipt) {
             return;
         }
@@ -184,7 +185,7 @@ export function useDashboardData(inertiaUser?: InertiaAuthUser | null) {
                         const olderItems = prev.filter((item) => !fetchedIds.has(item.id));
                         return [...res.data, ...olderItems];
                     });
-                    const stillPending = res.data.some((r) => r.status === 'pending');
+                    const stillPending = res.data.some((r) => r.status === TaxReceiptStatus.PENDING);
                     if (!stillPending) {
                         await Promise.all([
                             fetchCoreData(),

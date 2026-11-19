@@ -1,5 +1,5 @@
 import { apiRequest } from '@/lib/api';
-import type { MyRankingPerformance, RankingUser } from '@/types/dashboard';
+import type { MyRankingPerformance, RankingUser } from '@/features/dashboard/types/dashboard';
 
 export const rankingService = {
     async index(): Promise<RankingUser[]> {

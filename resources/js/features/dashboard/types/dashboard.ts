@@ -1,3 +1,5 @@
+import type { RewardTag, TaxReceiptStatus, UserRole } from '../enums/dashboard';
+
 export type DashboardTab = 'overview' | 'rewards' | 'ranking' | 'donations' | 'about' | 'admin' | 'profile';
 
 export interface UserProfile {
@@ -6,7 +8,7 @@ export interface UserProfile {
     email: string;
     nick: string | null;
     avatar_url: string | null;
-    role: 'user' | 'admin' | string;
+    role: UserRole | string;
     scan_streak: number;
     longest_streak: number;
     last_scan_date: string | null;
@@ -34,7 +36,7 @@ export interface MyRankingPerformance {
     scan_streak?: number;
 }
 
-export type TaxReceiptStatusType = 'pending' | 'approved' | 'rejected';
+export type TaxReceiptStatusType = TaxReceiptStatus;
 
 export interface TaxReceiptItem {
     id: number;
@@ -56,7 +58,7 @@ export interface TaxReceiptItem {
     };
 }
 
-export type RewardTagType = 'clothing' | 'accessory' | 'cosmetic' | 'aacc' | 'other';
+export type RewardTagType = RewardTag;
 export type RewardTagValue = RewardTagType;
 
 export interface RewardItem {

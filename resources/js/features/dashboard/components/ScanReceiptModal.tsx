@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import jsQR from 'jsqr';
 import {
-    ScanLine,
     Camera,
     CheckCircle2,
     AlertCircle,
@@ -16,7 +15,7 @@ import {
 } from 'lucide-react';
 import ModalDialog from '@/components/ui/ModalDialog';
 import { taxReceiptService } from '@/services/taxReceiptService';
-import type { TaxReceiptItem } from '@/types/dashboard';
+import type { TaxReceiptItem } from '@/features/dashboard/types/dashboard';
 
 // Force qr-scanner to use its WebWorker decoder instead of Chrome's broken desktop BarcodeDetector stub on Windows/Linux
 (QrScanner as any)._disableBarcodeDetector = true;
@@ -468,7 +467,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                         }}
                         className={`py-2 px-3 rounded-lg text-xs font-extrabold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                             inputMode === 'camera'
-                                ? 'bg-[#4bb9a6] text-white shadow-xs'
+                                ? 'bg-app-teal text-white shadow-xs'
                                 : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                         }`}
                     >
@@ -487,7 +486,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                         }}
                         className={`py-2 px-3 rounded-lg text-xs font-extrabold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                             inputMode === 'manual'
-                                ? 'bg-[#4bb9a6] text-white shadow-xs'
+                                ? 'bg-app-teal text-white shadow-xs'
                                 : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                         }`}
                     >
@@ -523,7 +522,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="bg-[#4bb9a6] hover:bg-[#3da392] text-white font-bold px-3.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 cursor-pointer"
+                                className="bg-app-teal hover:bg-app-teal-hover text-white font-bold px-3.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 cursor-pointer"
                             >
                                 <ImageUp className="w-3.5 h-3.5" />
                                 <span>Enviar Foto do QR Code</span>
@@ -543,7 +542,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => void startCamera()}
-                                    className="bg-[#4bb9a6] hover:bg-[#3da392] text-white font-extrabold px-4 py-2 rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
+                                    className="bg-app-teal hover:bg-app-teal-hover text-white font-extrabold px-4 py-2 rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
                                 >
                                     <Camera className="w-3.5 h-3.5" />
                                     <span>Escanear novamente</span>
@@ -554,7 +553,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                                     onClick={() => fileInputRef.current?.click()}
                                     className="bg-slate-200 dark:bg-slate-800 text-app-navy dark:text-slate-200 font-bold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
                                 >
-                                    <ImageUp className="w-3.5 h-3.5 text-[#4bb9a6]" />
+                                    <ImageUp className="w-3.5 h-3.5 text-app-teal" />
                                     <span>Enviar outra foto</span>
                                 </button>
                             </div>
@@ -572,7 +571,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                             <button
                                 type="button"
                                 onClick={() => void startCamera()}
-                                className="self-start bg-[#4bb9a6] hover:bg-[#3da392] text-white font-extrabold px-4 py-2 rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
+                                className="self-start bg-app-teal hover:bg-app-teal-hover text-white font-extrabold px-4 py-2 rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
                             >
                                 <Camera className="w-3.5 h-3.5" />
                                 <span>Escanear outro cupom</span>
@@ -600,11 +599,11 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                     />
 
                     <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4">
-                        <div className="w-56 h-56 sm:w-64 sm:h-64 relative rounded-2xl border-2 border-[#4bb9a6]/90 shadow-[0_0_0_9999px_rgba(15,23,42,0.50)]">
-                            <span className="absolute -top-0.5 -left-0.5 w-6 h-6 border-t-4 border-l-4 border-[#4bb9a6] rounded-tl-lg" />
-                            <span className="absolute -top-0.5 -right-0.5 w-6 h-6 border-t-4 border-r-4 border-[#4bb9a6] rounded-tr-lg" />
-                            <span className="absolute -bottom-0.5 -left-0.5 w-6 h-6 border-b-4 border-l-4 border-[#4bb9a6] rounded-bl-lg" />
-                            <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-b-4 border-r-4 border-[#4bb9a6] rounded-br-lg" />
+                        <div className="w-56 h-56 sm:w-64 sm:h-64 relative rounded-2xl border-2 border-app-teal/90 shadow-[0_0_0_9999px_rgba(15,23,42,0.50)]">
+                            <span className="absolute -top-0.5 -left-0.5 w-6 h-6 border-t-4 border-l-4 border-app-teal rounded-tl-lg" />
+                            <span className="absolute -top-0.5 -right-0.5 w-6 h-6 border-t-4 border-r-4 border-app-teal rounded-tr-lg" />
+                            <span className="absolute -bottom-0.5 -left-0.5 w-6 h-6 border-b-4 border-l-4 border-app-teal rounded-bl-lg" />
+                            <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 border-b-4 border-r-4 border-app-teal rounded-br-lg" />
                         </div>
 
                         <div className="mt-3 flex items-center gap-2">
@@ -614,7 +613,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                                     : 'Iniciando câmera...'}
                             </span>
                             {videoResolution && (
-                                <span className="bg-[#4bb9a6]/20 text-[#4bb9a6] text-[10px] font-extrabold px-2 py-1 rounded-full border border-[#4bb9a6]/40">
+                                <span className="bg-app-teal/20 text-app-teal text-[10px] font-extrabold px-2 py-1 rounded-full border border-app-teal/40">
                                     {videoResolution} • {zoomLevel}x
                                 </span>
                             )}
@@ -623,7 +622,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
 
                     {(isStartingCamera || isSubmitting) && (
                         <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-10">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#4bb9a6]" />
+                            <Loader2 className="w-8 h-8 animate-spin text-app-teal" />
                             <span className="text-xs font-extrabold text-white">
                                 {isSubmitting
                                     ? 'Enviando cupom fiscal...'
@@ -635,7 +634,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
 
                 {inputMode === 'manual' && (
                     <form onSubmit={handleManualSubmit} className="space-y-3">
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3.5">
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl p-3.5">
                             <label
                                 htmlFor="manual-nfce-input"
                                 className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1.5"
@@ -656,7 +655,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer"
+                            className="w-full bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
                         >
                             {isSubmitting ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -677,7 +676,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                                 disabled={!isCameraActive || isSubmitting}
                                 className="px-3 py-2.5 rounded-xl text-xs font-bold text-app-navy dark:text-slate-300 hover:text-app-teal dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                             >
-                                <ZoomIn className="w-4 h-4 text-[#4bb9a6]" />
+                                <ZoomIn className="w-4 h-4 text-app-teal" />
                                 <span>Zoom {zoomLevel}x</span>
                             </button>
 
@@ -687,7 +686,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                                 disabled={!isCameraActive || isSubmitting}
                                 className="px-3 py-2.5 rounded-xl text-xs font-bold text-app-navy dark:text-slate-300 hover:text-app-teal dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                             >
-                                <SwitchCamera className="w-4 h-4 text-[#4bb9a6]" />
+                                <SwitchCamera className="w-4 h-4 text-app-teal" />
                                 <span>Alternar Câmera</span>
                             </button>
 
@@ -697,7 +696,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                                 disabled={isSubmitting}
                                 className="px-3 py-2.5 rounded-xl text-xs font-bold text-app-navy dark:text-slate-300 hover:text-app-teal dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                             >
-                                <ImageUp className="w-4 h-4 text-[#4bb9a6]" />
+                                <ImageUp className="w-4 h-4 text-app-teal" />
                                 <span>Ler Foto</span>
                             </button>
                         </div>

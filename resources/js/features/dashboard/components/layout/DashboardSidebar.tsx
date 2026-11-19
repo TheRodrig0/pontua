@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LogOut, Sparkles, X } from 'lucide-react';
-import { PontuaLogoIcon } from '@/components/LogoPontua';
-import ThemeToggle from '@/components/ThemeToggle';
-import type { DashboardTab, UserProfile } from '@/types/dashboard';
+import { PontuaLogoIcon } from '@/components/layout/LogoPontua';
+import ThemeToggle from '@/components/layout/ThemeToggle';
+import type { DashboardTab, UserProfile } from '@/features/dashboard/types/dashboard';
 
 export interface NavItemConfig {
     id: DashboardTab;
@@ -114,7 +114,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     <nav ref={navRef} className="relative p-3.5 space-y-1.5">
                         <div
                             aria-hidden="true"
-                            className="absolute left-3.5 right-3.5 top-0 bg-[#4bb9a6] rounded-xl shadow-md shadow-[#4bb9a6]/25 pointer-events-none transition-[transform,height,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                            className="absolute left-3.5 right-3.5 top-0 bg-app-teal rounded-xl shadow-md shadow-app-teal/25 pointer-events-none transition-[transform,height,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
                             style={{
                                 transform: `translateY(${pillStyle.top}px)`,
                                 height: `${pillStyle.height}px`,
@@ -160,9 +160,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
                 <div className="p-3.5 border-t border-slate-200/80 dark:border-slate-800/80 space-y-2.5">
                     <div
-                        className={`w-full bg-slate-50 dark:bg-[#182234] border rounded-xl p-2 flex items-center justify-between gap-2 transition-colors ${
+                        className={`w-full bg-slate-50 dark:bg-app-darkcard border rounded-xl p-2 flex items-center justify-between gap-2 transition-colors ${
                             activeTab === 'profile'
-                                ? 'border-[#4bb9a6] ring-1 ring-[#4bb9a6]/30'
+                                ? 'border-app-teal ring-1 ring-app-teal/30'
                                 : 'border-slate-200/80 dark:border-slate-800'
                         } ${isSidebarCollapsed ? 'flex-col justify-center' : ''}`}
                     >
@@ -182,7 +182,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 <img
                                     src={profile.avatar_url}
                                     alt={displayUserName}
-                                    className="w-9 h-9 rounded-full object-cover border border-[#4bb9a6]/40 shrink-0"
+                                    className="w-9 h-9 rounded-full object-cover border border-app-teal/40 shrink-0"
                                 />
                             ) : (
                                 <div className="w-9 h-9 rounded-full bg-[#10b981] text-white font-extrabold text-xs flex items-center justify-center shrink-0">
@@ -198,7 +198,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 <span className="block text-xs font-extrabold text-app-navy dark:text-white truncate">
                                     {displayUserName}
                                 </span>
-                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#4bb9a6] whitespace-nowrap">
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-app-teal whitespace-nowrap">
                                     <Sparkles className="w-3 h-3" />
                                     <span>{displayBalance.toLocaleString('pt-BR')} pts</span>
                                 </span>

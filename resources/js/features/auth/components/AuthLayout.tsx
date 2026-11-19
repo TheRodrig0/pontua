@@ -1,7 +1,7 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
-import LogoPontua from '@/components/LogoPontua';
-import ThemeToggle from '@/components/ThemeToggle';
+import LogoPontua from '@/components/layout/LogoPontua';
+import ThemeToggle from '@/components/layout/ThemeToggle';
 
 interface AuthLayoutProps {
     currentPage: 'login' | 'register' | 'forgot-password' | 'reset-password';

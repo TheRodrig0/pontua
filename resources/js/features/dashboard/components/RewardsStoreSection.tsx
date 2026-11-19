@@ -15,11 +15,15 @@ import {
     XCircle,
     type LucideIcon,
 } from 'lucide-react';
-import { RewardFormModal } from '@/components/dashboard/admin/RewardFormModal';
-import { REWARD_TAG_LABELS } from '@/enums/dashboard';
+import { RewardFormModal } from '@/features/dashboard/components/admin/RewardFormModal';
+import {
+    REWARD_TAG_LABELS,
+    RedemptionStatus,
+    RewardTag,
+} from '@/features/dashboard/enums/dashboard';
 import { redemptionService, type MyRedemption } from '@/services/redemptionService';
 import { rewardService } from '@/services/rewardService';
-import type { RewardItem, RewardTagValue } from '@/types/dashboard';
+import type { RewardItem, RewardTagValue } from '@/features/dashboard/types/dashboard';
 import { formatDateShort } from '@/utils/formatters';
 import { openAaccCertificatePrint } from '@/utils/printAaccCertificate';
 
@@ -112,7 +116,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
     const [editingReward, setEditingReward] = useState<RewardItem | null>(null);
     const [formName, setFormName] = useState('');
     const [formDescription, setFormDescription] = useState('');
-    const [formTag, setFormTag] = useState<RewardTagValue>('clothing');
+    const [formTag, setFormTag] = useState<RewardTagValue>(RewardTag.CLOTHING);
     const [formCost, setFormCost] = useState('');
     const [formHours, setFormHours] = useState('4');
     const [formImage, setFormImage] = useState<File | null>(null);
@@ -124,7 +128,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
         setEditingReward(null);
         setFormName('');
         setFormDescription('');
-        setFormTag('clothing');
+        setFormTag(RewardTag.CLOTHING);
         setFormCost('');
         setFormHours('4');
         setFormImage(null);
@@ -139,13 +143,13 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
             reward.name.match(/\b(\d+)\s*horas?\b/i);
         const extractedHours = hoursMatch ? hoursMatch[1] : '4';
         const cleanName =
-            reward.tag === 'aacc'
+            reward.tag === RewardTag.AACC
                 ? reward.name.replace(/\s*\(\d+\s*h(?:oras?)?\)\s*$/i, '').trim()
                 : reward.name;
 
         setFormName(cleanName);
         setFormDescription(reward.description || '');
-        setFormTag(reward.tag || 'other');
+        setFormTag(reward.tag || RewardTag.OTHER);
         setFormCost(String(reward.cost));
         setFormHours(extractedHours);
         setFormImage(null);
@@ -167,7 +171,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
         let finalName = formName.trim();
         const formData = new FormData();
 
-        if (formTag === 'aacc') {
+        if (formTag === RewardTag.AACC) {
             const parsedHours = parseInt(formHours, 10);
             if (Number.isNaN(parsedHours) || parsedHours < 1 || parsedHours > 8) {
                 setFormError('Para Horas AACC, informe uma quantidade entre 1 e 8 horas.');
@@ -235,7 +239,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
     return (
         <div className="space-y-6">
             {/* Store Header Banner & Database Tag Filters */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
                 <div>
                     <div className="flex flex-wrap items-center gap-3">
                         <h2 className="text-lg sm:text-xl font-extrabold text-app-navy dark:text-white tracking-tight">
@@ -251,13 +255,13 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                    <div className="inline-flex bg-slate-100 dark:bg-[#111827] p-1 rounded-xl border border-slate-200/70 dark:border-slate-800">
+                    <div className="inline-flex bg-slate-100 dark:bg-app-darkbg p-1 rounded-xl border border-slate-200/70 dark:border-slate-800">
                         <button
                             type="button"
                             onClick={() => setViewMode('catalog')}
                             className={`text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                                 viewMode === 'catalog'
-                                    ? 'bg-white dark:bg-[#182234] text-app-navy dark:text-white shadow-xs'
+                                    ? 'bg-white dark:bg-app-darkcard text-app-navy dark:text-white shadow-xs'
                                     : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                             }`}
                         >
@@ -271,13 +275,13 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                             }}
                             className={`text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 ${
                                 viewMode === 'my_redemptions'
-                                    ? 'bg-white dark:bg-[#182234] text-[#4bb9a6] shadow-xs font-extrabold'
+                                    ? 'bg-white dark:bg-app-darkcard text-app-teal shadow-xs font-extrabold'
                                     : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                             }`}
                         >
                             <span>Meus Resgates</span>
                             {myRedemptions.length > 0 && (
-                                <span className="bg-[#4bb9a6]/20 text-[#4bb9a6] text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                                <span className="bg-app-teal/20 text-app-teal text-[10px] font-black px-1.5 py-0.2 rounded-full">
                                     {myRedemptions.length}
                                 </span>
                             )}
@@ -288,7 +292,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                         <button
                             type="button"
                             onClick={openCreateModal}
-                            className="bg-[#4bb9a6] hover:bg-[#3da392] text-white text-xs font-extrabold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                            className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                         >
                             <Plus className="w-3.5 h-3.5" />
                             <span>Nova Recompensa</span>
@@ -306,8 +310,8 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                             onClick={() => setActiveFilter('all')}
                             className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
                                 activeFilter === 'all'
-                                    ? 'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30'
-                                    : 'bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800 text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
+                                    ? 'bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/30'
+                                    : 'bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800 text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                             }`}
                         >
                             Todos
@@ -325,11 +329,11 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                     onClick={() => setActiveFilter(tagKey)}
                                     className={`text-xs font-bold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 transition-all cursor-pointer ${
                                         isActive
-                                            ? 'bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30'
-                                            : 'bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800 text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
+                                            ? 'bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/30'
+                                            : 'bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800 text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
                                     }`}
                                 >
-                                    <Icon className="w-3.5 h-3.5 text-[#4bb9a6]" />
+                                    <Icon className="w-3.5 h-3.5 text-app-teal" />
                                     <span>{cfg.label}</span>
                                 </button>
                             );
@@ -338,7 +342,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
 
             {/* Rewards Grid */}
             {filteredRewards.length === 0 ? (
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-12 text-center">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-12 text-center">
                     <Gift className="w-10 h-10 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
                     <p className="text-base font-extrabold text-app-navy dark:text-white">
                         Nenhuma recompensa encontrada
@@ -359,7 +363,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                         return (
                             <div
                                 key={reward.id}
-                                className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+                                className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all"
                             >
                                 <div
                                     className={`relative h-44 sm:h-48 w-full ${tagConfig.coverBgClass} border-b border-white/10 flex items-center justify-center overflow-hidden`}
@@ -412,7 +416,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                         </div>
                                     )}
 
-                                    <span className="absolute bottom-3.5 right-3.5 bg-slate-950/90 text-[#4bb9a6] text-xs font-black uppercase px-3 py-1.5 rounded-lg border border-slate-700/80">
+                                    <span className="absolute bottom-3.5 right-3.5 bg-slate-950/90 text-app-teal text-xs font-black uppercase px-3 py-1.5 rounded-lg border border-slate-700/80">
                                         {reward.cost} PTS
                                     </span>
                                 </div>
@@ -423,7 +427,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                             <h3 className="text-base sm:text-lg font-extrabold text-app-navy dark:text-white tracking-tight">
                                                 {reward.name}
                                             </h3>
-                                            <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shrink-0">
+                                            <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shrink-0">
                                                 {tagConfig.label}
                                             </span>
                                         </div>
@@ -440,7 +444,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                             <span className="block text-[10px] text-app-graytext dark:text-slate-400">
                                                 Custo de resgate
                                             </span>
-                                            <span className="text-sm font-extrabold text-[#4bb9a6]">
+                                            <span className="text-sm font-extrabold text-app-teal">
                                                 {reward.cost}{' '}
                                                 <span className="font-semibold text-xs">
                                                     pontos
@@ -451,7 +455,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                         <button
                                             type="button"
                                             onClick={() => onSelectReward(reward.id)}
-                                            className="bg-[#4bb9a6] hover:bg-[#3da392] text-white text-xs font-extrabold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer"
+                                            className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
                                         >
                                             <Gift className="w-4 h-4" />
                                             <span>Detalhes</span>
@@ -470,7 +474,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                         type="button"
                         onClick={onLoadMore}
                         disabled={isLoading}
-                        className="bg-white dark:bg-[#182234] hover:bg-slate-50 dark:hover:bg-slate-800 text-[#4bb9a6] border border-slate-200 dark:border-slate-700 text-xs font-bold px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
+                        className="bg-white dark:bg-app-darkcard hover:bg-slate-50 dark:hover:bg-slate-800 text-app-teal border border-slate-200 dark:border-slate-700 text-xs font-bold px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
                     >
                         {isLoading ? 'Carregando...' : 'Carregar mais recompensas'}
                     </button>
@@ -479,11 +483,11 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                 </>
             ) : (
                 /* My Redemptions View inside Store */
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
                     <div className="flex items-center justify-between gap-4 mb-5">
                         <div>
                             <h3 className="text-base font-extrabold text-app-navy dark:text-white flex items-center gap-2">
-                                <Gift className="w-4 h-4 text-[#4bb9a6]" />
+                                <Gift className="w-4 h-4 text-app-teal" />
                                 <span>Meus Resgates &amp; Certificados</span>
                             </h3>
                             <p className="text-xs text-app-graytext dark:text-slate-400 mt-0.5">
@@ -494,7 +498,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
 
                     {isLoadingMyRedemptions ? (
                         <div className="py-12 flex items-center justify-center gap-2 text-xs text-app-graytext dark:text-slate-400">
-                            <Loader2 className="w-5 h-5 animate-spin text-[#4bb9a6]" />
+                            <Loader2 className="w-5 h-5 animate-spin text-app-teal" />
                             <span>Carregando seus pedidos...</span>
                         </div>
                     ) : myRedemptions.length === 0 ? (
@@ -510,15 +514,15 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                     ) : (
                         <div className="space-y-3">
                             {myRedemptions.map((item) => {
-                                const isAacc = item.reward?.tag === 'aacc';
-                                const isPending = item.status === 'pending';
-                                const isCompleted = item.status === 'completed';
-                                const isCancelled = item.status === 'cancelled';
+                                const isAacc = item.reward?.tag === RewardTag.AACC;
+                                const isPending = item.status === RedemptionStatus.PENDING;
+                                const isCompleted = item.status === RedemptionStatus.COMPLETED;
+                                const isCancelled = item.status === RedemptionStatus.CANCELLED;
 
                                 return (
                                     <div
                                         key={item.id}
-                                        className="bg-slate-50/70 dark:bg-[#111827]/70 border border-slate-200/80 dark:border-slate-800/80 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                                        className="bg-slate-50/70 dark:bg-app-darkbg/70 border border-slate-200/80 dark:border-slate-800/80 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                                     >
                                         <div className="min-w-0 space-y-1.5">
                                             <div className="flex flex-wrap items-center gap-2">
@@ -530,7 +534,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                                 </span>
                                             </div>
                                             <div className="flex flex-wrap items-center gap-2 text-xs text-app-graytext dark:text-slate-400">
-                                                <span className="font-bold text-[#ea7349]">{item.points_cost} PTS</span>
+                                                <span className="font-bold text-app-coral">{item.points_cost} PTS</span>
                                                 <span>•</span>
                                                 <span>{formatDateShort(item.created_at)}</span>
                                                 <span>•</span>
@@ -543,8 +547,8 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                                     )}
                                                     {isCompleted && (
                                                         <>
-                                                            <CheckCircle2 className="w-3.5 h-3.5 text-[#4bb9a6]" />
-                                                            <span className="text-[#4bb9a6]">Validado</span>
+                                                            <CheckCircle2 className="w-3.5 h-3.5 text-app-teal" />
+                                                            <span className="text-app-teal">Validado</span>
                                                         </>
                                                     )}
                                                     {isCancelled && (
@@ -571,7 +575,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                                             issuedAt: item.created_at,
                                                         })
                                                     }
-                                                    className="px-4 py-2 rounded-xl text-xs font-extrabold bg-[#4bb9a6] hover:bg-[#3da392] text-white shadow-xs transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                                                    className="px-4 py-2 rounded-xl text-xs font-extrabold bg-app-teal hover:bg-app-teal-hover text-white shadow-xs transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                                                 >
                                                     <Printer className="w-4 h-4" />
                                                     <span>Baixar Certificado (PDF)</span>

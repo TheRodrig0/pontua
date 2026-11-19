@@ -14,9 +14,8 @@ import {
     AlertCircle,
     CheckCircle2,
 } from 'lucide-react';
-import { setAuthToken } from '@/lib/api';
 import { userService } from '@/services/userService';
-import type { UserProfile } from '@/types/dashboard';
+import type { UserProfile } from '@/features/dashboard/types/dashboard';
 
 interface ProfileSectionProps {
     profile: UserProfile | null;
@@ -64,7 +63,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
         setNick(profile.nick || '');
         setAvatarLoadError(false);
 
-        const match = profile.avatar_url?.match(/avatars\/(\d+)\.png/);
+        const match = profile.avatar_url?.match(/avatars\/(\d+)\.(?:png|webp)/);
         setSelectedAvatarId(match ? parseInt(match[1], 10) : null);
     }, [profile]);
 
@@ -116,7 +115,6 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
         try {
             await userService.deleteAccount(deletePassword);
 
-            setAuthToken(null);
             router.visit('/');
         } catch (error: any) {
             setErrorMessage(
@@ -134,7 +132,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
     const longestStreak = profile?.longest_streak ?? 0;
     const activeAvatarUrl =
         selectedAvatarId !== null
-            ? `/avatars/${selectedAvatarId}.png`
+            ? `/avatars/${selectedAvatarId}.webp`
             : profile?.avatar_url || null;
 
     return (
@@ -155,7 +153,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
             )}
 
             {/* 1. Resumo do Perfil (GET /api/me) */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                         {activeAvatarUrl && !avatarLoadError ? (
@@ -163,7 +161,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                                 src={activeAvatarUrl}
                                 alt={displayName}
                                 onError={() => setAvatarLoadError(true)}
-                                className="w-16 h-16 rounded-2xl object-cover border-2 border-[#4bb9a6]/40 shrink-0 shadow-sm"
+                                className="w-16 h-16 rounded-2xl object-cover border-2 border-app-teal/40 shrink-0 shadow-sm"
                             />
                         ) : (
                             <div className="w-16 h-16 rounded-2xl bg-[#10b981] text-white font-black text-xl flex items-center justify-center shrink-0 shadow-sm">
@@ -176,7 +174,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                                 {displayName}
                             </h2>
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-app-graytext dark:text-slate-400">
-                                <span className="inline-flex items-center gap-1 font-semibold text-[#4bb9a6]">
+                                <span className="inline-flex items-center gap-1 font-semibold text-app-teal">
                                     <AtSign className="w-3.5 h-3.5" />
                                     {profile?.nick || 'sem-apelido'}
                                 </span>
@@ -192,9 +190,9 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
 
                     {/* Quick Stats */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl px-3.5 py-2.5">
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200/80 dark:border-slate-800 rounded-xl px-3.5 py-2.5">
                             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-app-graytext dark:text-slate-400">
-                                <Sparkles className="w-3 h-3 text-[#4bb9a6]" />
+                                <Sparkles className="w-3 h-3 text-app-teal" />
                                 Saldo
                             </span>
                             <span className="block text-sm font-extrabold text-app-navy dark:text-white mt-0.5">
@@ -202,9 +200,9 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                             </span>
                         </div>
 
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl px-3.5 py-2.5">
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200/80 dark:border-slate-800 rounded-xl px-3.5 py-2.5">
                             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-app-graytext dark:text-slate-400">
-                                <ReceiptText className="w-3 h-3 text-[#4bb9a6]" />
+                                <ReceiptText className="w-3 h-3 text-app-teal" />
                                 Notas
                             </span>
                             <span className="block text-sm font-extrabold text-app-navy dark:text-white mt-0.5">
@@ -212,9 +210,9 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                             </span>
                         </div>
 
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl px-3.5 py-2.5">
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200/80 dark:border-slate-800 rounded-xl px-3.5 py-2.5">
                             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-app-graytext dark:text-slate-400">
-                                <Flame className="w-3 h-3 text-[#ea7349]" />
+                                <Flame className="w-3 h-3 text-app-coral" />
                                 Sequência
                             </span>
                             <span className="block text-sm font-extrabold text-app-navy dark:text-white mt-0.5">
@@ -222,7 +220,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                             </span>
                         </div>
 
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl px-3.5 py-2.5">
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200/80 dark:border-slate-800 rounded-xl px-3.5 py-2.5">
                             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-app-graytext dark:text-slate-400">
                                 <Trophy className="w-3 h-3 text-amber-500" />
                                 Recorde
@@ -236,7 +234,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
             </div>
 
             {/* 2. Formulário de Edição (PATCH /api/me) */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
                 <div className="mb-5">
                     <h3 className="text-base font-extrabold text-app-navy dark:text-white tracking-tight">
                         Editar Dados do Perfil
@@ -269,7 +267,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
 
                 <form onSubmit={handleUpdateSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3.5 focus-within:border-[#4bb9a6]">
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl p-3.5 focus-within:border-app-teal">
                             <label
                                 htmlFor="profile-name"
                                 className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1.5"
@@ -290,7 +288,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                             </div>
                         </div>
 
-                        <div className="bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3.5 focus-within:border-[#4bb9a6]">
+                        <div className="bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl p-3.5 focus-within:border-app-teal">
                             <label
                                 htmlFor="profile-nick"
                                 className="block text-[10px] font-extrabold uppercase tracking-wider text-app-graytext dark:text-slate-400 mb-1.5"
@@ -298,7 +296,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                                 Apelido no Ranking (@usuario)
                             </label>
                             <div className="flex items-center gap-2">
-                                <AtSign className="w-4 h-4 text-[#4bb9a6] shrink-0" />
+                                <AtSign className="w-4 h-4 text-app-teal shrink-0" />
                                 <input
                                     id="profile-nick"
                                     type="text"
@@ -332,17 +330,17 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                                         aria-pressed={isSelected}
                                         className={`relative group rounded-2xl p-1 border-2 transition-all cursor-pointer flex items-center justify-center ${
                                             isSelected
-                                                ? 'border-[#4bb9a6] bg-[#4bb9a6]/15 dark:bg-[#112a2e] ring-2 ring-[#4bb9a6]/30 scale-105'
-                                                : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#111827] hover:border-slate-300 dark:hover:border-slate-600 hover:scale-105'
+                                                ? 'border-app-teal bg-app-teal/15 dark:bg-[#112a2e] ring-2 ring-app-teal/30 scale-105'
+                                                : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-app-darkbg hover:border-slate-300 dark:hover:border-slate-600 hover:scale-105'
                                         }`}
                                     >
                                         <img
-                                            src={`/avatars/${id}.png`}
+                                            src={`/avatars/${id}.webp`}
                                             alt={`Avatar ${id}`}
                                             className="w-full aspect-square rounded-xl object-cover"
                                         />
                                         {isSelected && (
-                                            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#4bb9a6] text-white flex items-center justify-center shadow-sm">
+                                            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-app-teal text-white flex items-center justify-center shadow-sm">
                                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                             </span>
                                         )}
@@ -356,7 +354,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                         <button
                             type="submit"
                             disabled={isUpdating}
-                            className="bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer"
+                            className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
                         >
                             {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
                             <span>{isUpdating ? 'Salvando...' : 'Salvar Alterações'}</span>
@@ -366,7 +364,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
             </div>
 
             {/* 3. Exclusão de Conta (DELETE /api/me) */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h3 className="text-sm font-extrabold text-rose-500 dark:text-rose-400">
@@ -401,7 +399,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                             Confirme sua senha atual para excluir definitivamente sua conta:
                         </label>
 
-                        <div className="bg-white dark:bg-[#111827] border border-rose-500/40 rounded-xl px-3.5 py-2.5 flex items-center gap-2 max-w-md">
+                        <div className="bg-white dark:bg-app-darkbg border border-rose-500/40 rounded-xl px-3.5 py-2.5 flex items-center gap-2 max-w-md">
                             <Lock className="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" />
                             <input
                                 id="delete-account-password"

@@ -72,9 +72,9 @@ export const AdminSettingsCard: React.FC<AdminSettingsCardProps> = ({
     };
 
     return (
-        <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm space-y-6">
+        <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-6 shadow-sm space-y-6">
             <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#4bb9a6]/15 dark:bg-[#112a2e] border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 text-[#4bb9a6] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-app-teal/15 dark:bg-[#112a2e] border border-app-teal/25 dark:border-app-teal/20 text-app-teal flex items-center justify-center shrink-0">
                     <Mail className="w-4 h-4" />
                 </div>
                 <h3 className="text-sm font-extrabold text-app-navy dark:text-white">
@@ -111,14 +111,14 @@ export const AdminSettingsCard: React.FC<AdminSettingsCardProps> = ({
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="contato@apaefranco.org.br"
                         required
-                        className="w-full bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-[#4bb9a6]"
+                        className="w-full bg-slate-50 dark:bg-app-darkbg border border-slate-200 dark:border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-app-navy dark:text-white focus:outline-none focus:border-app-teal"
                     />
                 </div>
 
                 <button
                     type="submit"
                     disabled={isSaving}
-                    className="bg-[#4bb9a6] hover:bg-[#3da392] disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer"
+                    className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
                 >
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     <span>{isSaving ? 'Salvando...' : 'Salvar'}</span>
@@ -143,9 +143,9 @@ export const AdminSettingsCard: React.FC<AdminSettingsCardProps> = ({
                         className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-60 text-app-navy dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 transition-colors cursor-pointer"
                     >
                         {isSendingBatch ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-[#4bb9a6]" />
+                            <Loader2 className="w-4 h-4 animate-spin text-app-teal" />
                         ) : (
-                            <Send className="w-4 h-4 text-[#4bb9a6]" />
+                            <Send className="w-4 h-4 text-app-teal" />
                         )}
                         <span>{isSendingBatch ? 'Enviando Lote...' : 'Enviar Lote Agora'}</span>
                     </button>
@@ -157,9 +157,9 @@ export const AdminSettingsCard: React.FC<AdminSettingsCardProps> = ({
                         className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-60 text-app-navy dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 transition-colors cursor-pointer"
                     >
                         {isDownloadingBatch ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-[#4bb9a6]" />
+                            <Loader2 className="w-4 h-4 animate-spin text-app-teal" />
                         ) : (
-                            <Download className="w-4 h-4 text-[#4bb9a6]" />
+                            <Download className="w-4 h-4 text-app-teal" />
                         )}
                         <span>{isDownloadingBatch ? 'Gerando ZIP...' : 'Baixar Lote (.ZIP)'}</span>
                     </button>

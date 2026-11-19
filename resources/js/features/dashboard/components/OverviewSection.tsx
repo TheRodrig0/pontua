@@ -11,12 +11,13 @@ import {
     AlertCircle,
     RefreshCw,
 } from 'lucide-react';
+import { TAX_RECEIPT_STATUS_LABELS, TaxReceiptStatus } from '@/features/dashboard/enums/dashboard';
 import type {
     DashboardTab,
     MyRankingPerformance,
     TaxReceiptItem,
     UserProfile,
-} from '@/types/dashboard';
+} from '@/features/dashboard/types/dashboard';
 
 interface OverviewSectionProps {
     profile: UserProfile | null;
@@ -170,19 +171,19 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
             {/* 1. Three KPI Metric Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* Card 1: Pontos Acumulados */}
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Pontos Acumulados
                         </span>
-                        <Sparkles className="w-4 h-4 text-[#4bb9a6]" />
+                        <Sparkles className="w-4 h-4 text-app-teal" />
                     </div>
 
                     <div className="my-3 flex items-baseline gap-1.5">
                         <span className="text-3xl sm:text-4xl font-extrabold text-app-navy dark:text-white tracking-tight">
                             {currentBalance.toLocaleString('pt-BR')}
                         </span>
-                        <span className="text-xs font-extrabold text-[#4bb9a6] uppercase tracking-wider">
+                        <span className="text-xs font-extrabold text-app-teal uppercase tracking-wider">
                             PTS
                         </span>
                     </div>
@@ -196,7 +197,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                         <button
                             type="button"
                             onClick={() => onNavigateTab('rewards')}
-                            className="text-[11px] font-bold text-[#4bb9a6] hover:underline cursor-pointer"
+                            className="text-[11px] font-bold text-app-teal hover:underline cursor-pointer"
                         >
                             Ver loja →
                         </button>
@@ -204,12 +205,12 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                 </div>
 
                 {/* Card 2: Sequência Solidária */}
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Sequência Solidária
                         </span>
-                        <Flame className="w-4 h-4 text-[#ea7349]" />
+                        <Flame className="w-4 h-4 text-app-coral" />
                     </div>
 
                     <div className="my-3">
@@ -226,12 +227,12 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                 </div>
 
                 {/* Card 3: Posição no Ranking */}
-                <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-app-graytext dark:text-slate-400">
                             Posição no Ranking
                         </span>
-                        <Award className="w-4 h-4 text-[#ea7349]" />
+                        <Award className="w-4 h-4 text-app-coral" />
                     </div>
 
                     <div className="my-3">
@@ -247,7 +248,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                         <button
                             type="button"
                             onClick={() => onNavigateTab('ranking')}
-                            className="text-[11px] font-bold text-[#ea7349] hover:underline cursor-pointer"
+                            className="text-[11px] font-bold text-app-coral hover:underline cursor-pointer"
                         >
                             Ver ranking →
                         </button>
@@ -256,9 +257,9 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
             </div>
 
             {/* 2. CTA Banner: Doar Cupom Fiscal para a APAE */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                 <div className="flex items-start sm:items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#4bb9a6]/15 dark:bg-[#112a2e] border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 text-[#4bb9a6] flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-app-teal/15 dark:bg-[#112a2e] border border-app-teal/25 dark:border-app-teal/20 text-app-teal flex items-center justify-center shrink-0">
                         <QrCode className="w-6 h-6" />
                     </div>
 
@@ -275,7 +276,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                 <button
                     type="button"
                     onClick={onOpenScanModal}
-                    className="w-full sm:w-auto bg-[#4bb9a6] hover:bg-[#3da392] text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-[#4bb9a6]/20 transition-all cursor-pointer shrink-0"
+                    className="w-full sm:w-auto bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer shrink-0"
                 >
                     <Camera className="w-4 h-4" />
                     <span>ESCANEAR CUPOM</span>
@@ -283,7 +284,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
             </div>
 
             {/* 3. Últimos Cupons Doados */}
-            <div className="bg-white dark:bg-[#182234] border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <div className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-4 mb-5">
                     <div>
                         <h3 className="text-base font-extrabold text-app-navy dark:text-white tracking-tight">
@@ -303,10 +304,10 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                             className="p-1.5 rounded-lg text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                         >
                             <RefreshCw
-                                className={`w-3.5 h-3.5 ${isLoadingReceipts ? 'animate-spin text-[#4bb9a6]' : ''}`}
+                                className={`w-3.5 h-3.5 ${isLoadingReceipts ? 'animate-spin text-app-teal' : ''}`}
                             />
                         </button>
-                        <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 dark:border-[#4bb9a6]/20 text-[11px] font-bold px-3 py-1 rounded-full">
+                        <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 dark:border-app-teal/20 text-[11px] font-bold px-3 py-1 rounded-full">
                             {totalNotesCount} {totalNotesCount === 1 ? 'nota' : 'notas'}
                         </span>
                     </div>
@@ -332,8 +333,8 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                 ) : (
                     <div className="divide-y divide-slate-200/70 dark:divide-slate-800/80">
                         {receipts.map((receipt) => {
-                            const isApproved = receipt.status === 'approved';
-                            const isPending = receipt.status === 'pending';
+                            const isApproved = receipt.status === TaxReceiptStatus.APPROVED;
+                            const isPending = receipt.status === TaxReceiptStatus.PENDING;
 
                             return (
                                 <div
@@ -354,23 +355,23 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                                                 </span>
 
                                                 {isApproved && (
-                                                    <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                                                    <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                                                         <Check className="w-3 h-3" />
-                                                        <span>Aprovado</span>
+                                                        <span>{TAX_RECEIPT_STATUS_LABELS[TaxReceiptStatus.APPROVED]}</span>
                                                     </span>
                                                 )}
 
                                                 {isPending && (
                                                     <span className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                                                         <Clock className="w-3 h-3" />
-                                                        <span>Em análise</span>
+                                                        <span>{TAX_RECEIPT_STATUS_LABELS[TaxReceiptStatus.PENDING]}</span>
                                                     </span>
                                                 )}
 
                                                 {!isApproved && !isPending && (
                                                     <span className="bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/25 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                                                         <AlertCircle className="w-3 h-3" />
-                                                        <span>Rejeitado</span>
+                                                        <span>{TAX_RECEIPT_STATUS_LABELS[TaxReceiptStatus.REJECTED]}</span>
                                                     </span>
                                                 )}
                                             </div>
@@ -397,7 +398,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                                         </span>
 
                                         {isApproved && (
-                                            <span className="bg-[#4bb9a6]/15 dark:bg-[#112a2e] text-[#4bb9a6] border border-[#4bb9a6]/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap">
+                                            <span className="bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/25 text-[11px] font-extrabold px-3 py-1 rounded-full whitespace-nowrap">
                                                 +{receipt.points_earned} pts
                                             </span>
                                         )}
@@ -419,7 +420,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                                                             className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-app-navy dark:text-slate-200 text-[11px] font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                                                         >
                                                             <RefreshCw
-                                                                className={`w-3 h-3 text-[#4bb9a6] ${
+                                                                className={`w-3 h-3 text-app-teal ${
                                                                     retryingId === receipt.id ? 'animate-spin' : ''
                                                                 }`}
                                                             />
@@ -444,7 +445,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                             type="button"
                             onClick={onLoadMoreReceipts}
                             disabled={isLoadingReceipts}
-                            className="text-xs font-bold text-[#4bb9a6] hover:underline disabled:opacity-50 cursor-pointer"
+                            className="text-xs font-bold text-app-teal hover:underline disabled:opacity-50 cursor-pointer"
                         >
                             {isLoadingReceipts ? 'Carregando...' : 'Carregar mais cupons'}
                         </button>
