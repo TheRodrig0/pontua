@@ -18,7 +18,7 @@
         "vite": "^8.3.5"
     },
     "dependencies": {
-        "@inertiajs/react": "^3.10.0",
+        "@inertiajs/react": "^3.11.0",
         "jsqr": "^1.4.0",
         "lucide-react": "^1.67.0",
         "qr-scanner": "^1.4.2",
