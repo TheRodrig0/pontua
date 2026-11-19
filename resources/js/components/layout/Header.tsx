@@ -177,7 +177,7 @@ const Header: React.FC = () => {
 
                     <Link
                         href="/register"
-                        className="inline-flex items-center justify-center min-h-11 bg-app-teal-deep hover:bg-[#176155] dark:bg-app-teal dark:hover:bg-app-teal-light text-white dark:text-app-teal-ink text-[13px] sm:text-sm font-bold px-4 sm:px-6 py-2 rounded-full shadow-xs hover:shadow-md transition-all duration-150 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-app-teal-deep dark:focus-visible:outline-app-teal focus-visible:outline-offset-2"
+                        className="hidden sm:inline-flex items-center justify-center min-h-11 bg-app-teal-deep hover:bg-[#176155] dark:bg-app-teal dark:hover:bg-app-teal-light text-white dark:text-app-teal-ink text-sm font-bold px-6 py-2 rounded-full shadow-xs hover:shadow-md transition-all duration-150 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-app-teal-deep dark:focus-visible:outline-app-teal focus-visible:outline-offset-2"
                     >
                         Criar Conta
                     </Link>
@@ -264,7 +264,14 @@ const Header: React.FC = () => {
                         })}
                     </nav>
 
-                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-app-elevated-dark sm:hidden">
+                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-app-elevated-dark flex flex-col gap-2 sm:hidden">
+                        <Link
+                            href="/register"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="min-h-11 flex items-center justify-center rounded-full bg-app-teal-deep hover:bg-[#176155] dark:bg-app-teal dark:hover:bg-app-teal-light text-white dark:text-app-teal-ink text-sm font-bold py-2.5 px-6 shadow-xs transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-app-teal-deep dark:focus-visible:outline-app-teal focus-visible:outline-offset-2"
+                        >
+                            Criar Conta
+                        </Link>
                         <Link
                             href="/login"
                             onClick={() => setIsMobileMenuOpen(false)}
