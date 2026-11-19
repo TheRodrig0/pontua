@@ -14,7 +14,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '' }) => {
         <button
             type="button"
             onClick={toggleTheme}
-            className={`p-2 rounded-xl text-app-navy dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus:outline-none ${className}`}
+            className={`p-2 rounded-xl text-app-navy dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus-visible:outline-2 focus-visible:outline-app-teal-deep dark:focus-visible:outline-app-teal focus-visible:outline-offset-2 ${className}`}
             aria-label="Alternar tema"
         >
             <ThemeIcon size={20} />

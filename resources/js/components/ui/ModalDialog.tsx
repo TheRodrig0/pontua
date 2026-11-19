@@ -87,7 +87,7 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
             ref={dialogRef}
             aria-labelledby={titleId}
             {...({ closedby: 'any' } as any)}
-            className={`w-full ${maxWidthClass} m-auto rounded-2xl bg-white dark:bg-[#161f30] text-app-navy dark:text-gray-100 border border-slate-200 dark:border-slate-700/80 p-0 shadow-2xl backdrop:bg-slate-950/75 backdrop:backdrop-blur-xs open:animate-[fadeIn_0.2s_ease-out]`}
+            className={`w-full ${maxWidthClass} m-auto rounded-2xl bg-white dark:bg-app-darkpanel text-app-navy dark:text-gray-100 border border-slate-200 dark:border-slate-700/80 p-0 shadow-2xl backdrop:bg-slate-950/75 backdrop:backdrop-blur-xs open:animate-[fadeIn_0.2s_ease-out]`}
         >
             <div className="p-6">
                 <div className="flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4 mb-5">

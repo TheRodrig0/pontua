@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../../images/logo.svg';
+import logo from '../../../images/logo.svg';
 
 export interface LogoPontuaProps extends React.HTMLAttributes<HTMLDivElement> {
     iconSize?: number | string;
@@ -17,7 +17,7 @@ export const PontuaLogoIcon: React.FC<{
             src={logo}
             alt={alt}
             style={{ width: size, height: size }}
-            className={`shrink-0 drop-shadow-sm ${className}`}
+            className={`shrink-0 ${className}`}
         />
     );
 };
@@ -26,7 +26,7 @@ const LogoPontua: React.FC<LogoPontuaProps> = ({
     className = '',
     iconSize = 40,
     showText = true,
-    textClassName = 'text-xl sm:text-2xl font-black tracking-tight text-app-navy dark:text-white',
+    textClassName = 'text-xl sm:text-2xl font-extrabold tracking-tight text-app-navy dark:text-white',
     ...props
 }) => {
     return (
@@ -38,7 +38,7 @@ const LogoPontua: React.FC<LogoPontuaProps> = ({
 
             {showText && (
                 <span className={textClassName}>
-                    PONTUA<span className="text-app-coral">.</span>
+                    Pontua<span className="text-app-coral">.</span>
                 </span>
             )}
         </div>
