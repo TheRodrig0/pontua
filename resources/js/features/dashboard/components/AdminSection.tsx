@@ -341,7 +341,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
 
             {/* Subtle, evident Redemption Validation strip */}
             {pendingRedemptions.length > 0 && subTab !== 'redemptions' && (
-                <div className="bg-amber-500/[0.06] dark:bg-amber-500/[0.08] border border-amber-500/30 dark:border-amber-500/25 rounded-2xl px-4 sm:px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
+                <div className="bg-amber-500/[0.06] dark:bg-amber-500/[0.08] border border-amber-500/30 dark:border-amber-500/25 rounded-2xl px-4 sm:px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-500 flex items-center justify-center shrink-0">
                             <Clock className="w-4 h-4" />
@@ -369,7 +369,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({ onRewardsMutated }) 
                         <button
                             type="button"
                             onClick={() => handleValidateRedemption(pendingRedemptions[0].id, RedemptionStatus.COMPLETED)}
-                            className="px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-app-teal hover:bg-app-teal-hover text-white inline-flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                            className="px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-app-teal hover:bg-app-teal-hover text-white inline-flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                             title={`Validar imediatamente ${pendingRedemptions[0].voucher_code}`}
                         >
                             <CheckCircle2 className="w-3.5 h-3.5" />

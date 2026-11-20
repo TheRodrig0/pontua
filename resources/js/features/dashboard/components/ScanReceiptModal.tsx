@@ -465,7 +465,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                             setSuccessMessage(null);
                             setInputMode('camera');
                         }}
-                        className={`py-2 px-3 rounded-lg text-xs font-extrabold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        className={`py-2 px-3 rounded-lg text-xs font-extrabold inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                             inputMode === 'camera'
                                 ? 'bg-app-teal text-white shadow-xs'
                                 : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
@@ -484,7 +484,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                             setSuccessMessage(null);
                             setInputMode('manual');
                         }}
-                        className={`py-2 px-3 rounded-lg text-xs font-extrabold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        className={`py-2 px-3 rounded-lg text-xs font-extrabold inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                             inputMode === 'manual'
                                 ? 'bg-app-teal text-white shadow-xs'
                                 : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
@@ -655,7 +655,7 @@ export const ScanReceiptModal: React.FC<ScanReceiptModalProps> = ({
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
+                            className="w-full bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-app-teal/20 transition-colors cursor-pointer"
                         >
                             {isSubmitting ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

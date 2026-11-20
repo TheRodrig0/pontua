@@ -17,7 +17,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     onOpenScanModal,
 }) => {
     return (
-        <header className="h-18 bg-white/90 dark:bg-[#151e2e]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/90 px-4 sm:px-8 flex items-center justify-between gap-4 sticky top-0 z-30 transition-colors">
+        <header className="h-18 bg-white dark:bg-[#151e2e] border-b border-slate-200/80 dark:border-slate-800/90 px-4 sm:px-8 flex items-center justify-between gap-4 sticky top-0 z-30 transition-colors">
             <div className="flex items-center gap-3">
                 <button
                     type="button"
@@ -50,7 +50,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 <button
                     type="button"
                     onClick={onOpenScanModal}
-                    className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
+                    className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-colors cursor-pointer"
                 >
                     <Camera className="w-4 h-4" />
                     <span>Doar Cupom Fiscal</span>

@@ -22,7 +22,7 @@ export const AuthSubmitButton: React.FC<AuthSubmitButtonProps> = ({
         <button
             type={type}
             disabled={isButtonDisabled}
-            className={`w-full bg-app-teal hover:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm uppercase tracking-wider cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2 ${className}`}
+            className={`w-full bg-app-teal hover:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition-[background-color,border-color,color,opacity,transform,box-shadow,filter] text-xs sm:text-sm uppercase tracking-wider cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2 ${className}`}
             {...rest}
         >
             {isSubmitting ? (

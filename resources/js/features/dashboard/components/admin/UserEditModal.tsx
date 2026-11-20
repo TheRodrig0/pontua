@@ -221,7 +221,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
                     <button
                         type="submit"
                         disabled={isSavingUser}
-                        className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
+                        className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-colors cursor-pointer"
                     >
                         {isSavingUser && <Loader2 className="w-4 h-4 animate-spin" />}
                         <span>{isSavingUser ? 'Salvando...' : 'Salvar Alterações'}</span>

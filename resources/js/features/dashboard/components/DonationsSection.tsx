@@ -401,7 +401,7 @@ export const DonationsSection: React.FC<DonationsSectionProps> = ({
                                 !amount ||
                                 currentBalance <= 0
                             }
-                            className="w-full bg-app-teal hover:bg-app-teal-hover disabled:opacity-50 text-white text-xs font-extrabold uppercase tracking-wider py-3.5 px-6 rounded-xl inline-flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:cursor-not-allowed"
+                            className="w-full bg-app-teal hover:bg-app-teal-hover disabled:opacity-50 text-white text-xs font-extrabold uppercase tracking-wider py-3.5 px-6 rounded-xl inline-flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

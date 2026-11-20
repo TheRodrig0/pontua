@@ -259,7 +259,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                         <button
                             type="button"
                             onClick={() => setViewMode('catalog')}
-                            className={`text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                            className={`text-xs font-bold px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
                                 viewMode === 'catalog'
                                     ? 'bg-white dark:bg-app-darkcard text-app-navy dark:text-white shadow-xs'
                                     : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
@@ -273,7 +273,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                 setViewMode('my_redemptions');
                                 fetchMyRedemptions();
                             }}
-                            className={`text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+                            className={`text-xs font-bold px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 ${
                                 viewMode === 'my_redemptions'
                                     ? 'bg-white dark:bg-app-darkcard text-app-teal shadow-xs font-extrabold'
                                     : 'text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
@@ -292,7 +292,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                         <button
                             type="button"
                             onClick={openCreateModal}
-                            className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                            className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                         >
                             <Plus className="w-3.5 h-3.5" />
                             <span>Nova Recompensa</span>
@@ -308,7 +308,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                         <button
                             type="button"
                             onClick={() => setActiveFilter('all')}
-                            className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
+                            className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-colors cursor-pointer ${
                                 activeFilter === 'all'
                                     ? 'bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/30'
                                     : 'bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800 text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
@@ -327,7 +327,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                     key={tagKey}
                                     type="button"
                                     onClick={() => setActiveFilter(tagKey)}
-                                    className={`text-xs font-bold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 transition-all cursor-pointer ${
+                                    className={`text-xs font-bold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
                                         isActive
                                             ? 'bg-app-teal/15 dark:bg-[#112a2e] text-app-teal border border-app-teal/30'
                                             : 'bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800 text-app-graytext dark:text-slate-400 hover:text-app-navy dark:hover:text-white'
@@ -363,7 +363,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                         return (
                             <div
                                 key={reward.id}
-                                className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+                                className="bg-white dark:bg-app-darkcard border border-slate-200/80 dark:border-slate-800/90 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
                             >
                                 <div
                                     className={`relative h-44 sm:h-48 w-full ${tagConfig.coverBgClass} border-b border-white/10 flex items-center justify-center overflow-hidden`}
@@ -455,7 +455,7 @@ export const RewardsStoreSection: React.FC<RewardsStoreSectionProps> = ({
                                         <button
                                             type="button"
                                             onClick={() => onSelectReward(reward.id)}
-                                            className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
+                                            className="bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold px-4 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-colors cursor-pointer"
                                         >
                                             <Gift className="w-4 h-4" />
                                             <span>Detalhes</span>

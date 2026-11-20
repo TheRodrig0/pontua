@@ -94,7 +94,7 @@ const ForgotPassword: React.FC = () => {
 
                         <Link
                             href="/login"
-                            className="w-full bg-app-teal hover:brightness-95 text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2 text-center"
+                            className="w-full bg-app-teal hover:brightness-95 text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition-[background-color,border-color,color,opacity,transform,box-shadow,filter] text-xs sm:text-sm active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2 text-center"
                         >
                             <ArrowLeft size={16} />
                             <span>Voltar para o Login</span>
