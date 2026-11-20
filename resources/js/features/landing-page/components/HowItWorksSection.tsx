@@ -122,14 +122,14 @@ const HowItWorksSection: React.FC = () => {
                                 muted
                                 loop
                                 playsInline
-                                preload="none"
+                                preload="metadata"
                                 poster="/videos/como-funciona-poster.webp?v=8"
                                 onPlay={() => setIsPlaying(true)}
                                 onPause={() => setIsPlaying(false)}
                                 aria-label="Animação mostrando os três passos: pedir a nota sem CPF e escanear pelo navegador, enviar o apoio à APAE e acumular pontos para trocar por horas complementares, prêmios ou doação."
                             >
-                                <source src="/videos/como-funciona.webm?v=8" type="video/webm" />
                                 <source src="/videos/como-funciona.mp4?v=8" type="video/mp4" />
+                                <source src="/videos/como-funciona.webm?v=8" type="video/webm" />
                             </video>
 
                             <button
