@@ -213,7 +213,7 @@ class RewardTest extends TestCase
                 'message' => 'Recompensa deletada com sucesso.',
             ]);
 
-        $this->assertDatabaseMissing('rewards', [
+        $this->assertSoftDeleted('rewards', [
             'id' => $reward->id,
         ]);
     }
@@ -258,5 +258,70 @@ class RewardTest extends TestCase
             'tag' => RewardTag::AACC->value,
             'aacc_hours' => 8,
         ])->assertStatus(201);
+    }
+
+    public function test_admin_can_delete_reward_even_when_it_has_redemptions(): void
+    {
+        $admin = User::factory()->create([
+            'role' => UserRole::ADMIN,
+        ]);
+
+        $student = User::factory()->create([
+            'role' => UserRole::USER,
+        ]);
+
+        $reward = Reward::create([
+            'name' => 'Camiseta Oficial',
+            'description' => 'Camiseta do evento',
+            'tag' => RewardTag::OTHER,
+            'cost' => 150,
+            'is_active' => true,
+        ]);
+
+        $redemption = \App\Models\Redemption::create([
+            'user_id' => $student->id,
+            'reward_id' => $reward->id,
+            'points_cost' => $reward->cost,
+            'voucher_code' => 'PONTUA-DEL01',
+            'redeemed_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->deleteJson("/api/rewards/{$reward->id}")
+            ->assertStatus(200)
+            ->assertJson(['message' => 'Recompensa deletada com sucesso.']);
+
+        $this->assertSoftDeleted('rewards', ['id' => $reward->id]);
+
+        $this->actingAs($student)
+            ->getJson('/api/rewards')
+            ->assertStatus(200)
+            ->assertJsonMissing(['id' => $reward->id]);
+
+        $this->assertSame('Camiseta Oficial', $redemption->fresh()->reward?->name);
+    }
+
+    public function test_non_admin_cannot_delete_reward(): void
+    {
+        $student = User::factory()->create([
+            'role' => UserRole::USER,
+        ]);
+
+        $reward = Reward::create([
+            'name' => 'Item Protegido',
+            'description' => 'Desc',
+            'tag' => RewardTag::OTHER,
+            'cost' => 100,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($student)
+            ->deleteJson("/api/rewards/{$reward->id}")
+            ->assertStatus(403);
+
+        $this->assertDatabaseHas('rewards', [
+            'id' => $reward->id,
+            'deleted_at' => null,
+        ]);
     }
 }
