@@ -31,7 +31,7 @@ class Redemption extends Model
 
     public function reward(): BelongsTo
     {
-        return $this->belongsTo(Reward::class, 'reward_id');
+        return $this->belongsTo(Reward::class, 'reward_id')->withTrashed();
     }
 
     protected function casts(): array
