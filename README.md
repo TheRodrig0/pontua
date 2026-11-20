@@ -23,6 +23,7 @@
     <img src="https://img.shields.io/badge/Oracle_Cloud-F80000?style=for-the-badge&logo=oracle&logoColor=white" alt="Oracle Cloud" />
     <img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare" />
     <img src="https://img.shields.io/badge/Brevo-0B996F?style=for-the-badge&logo=brevo&logoColor=white" alt="Brevo" />
+    <a href="https://doi.org/10.63330/aurumpub.069-050"><img src="https://img.shields.io/badge/DOI-10.63330%2Faurumpub.069--050-1E7869?style=for-the-badge&logo=doi&logoColor=white" alt="DOI 10.63330/aurumpub.069-050" /></a>
   </p>
 
   <p>
@@ -35,7 +36,7 @@
 ---
 
 > **Fatec Franco da Rocha** — Tecnologia em Gestão da Tecnologia da Informação  
-> Artigo publicado no **VI SIMBAJU** — Simpósio da Bacia do Juquery (Energia e Tecnologia)
+> Artigo publicado no **VI SIMBAJU** (Simpósio da Bacia do Juquery) e na **Aurum Editora** — [Acessar capítulo (PDF)](https://aurumpublicacoes.com/index.php/editora/article/view/2679/2987) · [DOI](https://doi.org/10.63330/aurumpub.069-050)
 
 ---
 
@@ -228,6 +229,21 @@ Acesse em: `http://localhost:8000`
 
 <br>
 
-# 08 · Licença
+# 08 · Publicação Acadêmica
+
+O desenvolvimento, a pesquisa de campo e a modelagem de processos do **PONTUA** foram publicados como capítulo científico na **Aurum Editora**:
+
+* **Título:** *PONTUA: Aplicação Web para Gestão e Incentivo na Coleta de Notas Fiscais para APAE Caieiras*
+* **Editora:** Aurum Editora (e-books), pp. 766–778, 2026
+* **DOI:** [10.63330/aurumpub.069-050](https://doi.org/10.63330/aurumpub.069-050)
+* **Acesso:** [Página do artigo](https://aurumpublicacoes.com/index.php/editora/article/view/2679) · [Leitura em PDF](https://aurumpublicacoes.com/index.php/editora/article/view/2679/2987)
+
+### Como citar (ABNT)
+
+> CAMPOS, Marcos Vinicius de Oliveira *et al.* PONTUA: aplicação web para gestão e incentivo na coleta de notas fiscais para APAE Caieiras. **Aurum Editora (e-books)**, p. 766–778, 2026. DOI: https://doi.org/10.63330/aurumpub.069-050. Disponível em: https://aurumpublicacoes.com/index.php/editora/article/view/2679.
+
+<br>
+
+# 09 · Licença
 
 Distribuído sob os termos da licença disponível no arquivo [LICENSE](LICENSE).
