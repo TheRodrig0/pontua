@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from '@inertiajs/react';
 import { ArrowDown } from 'lucide-react';
 import { smoothScrollToHash } from '@/components/layout/smoothScroll';
@@ -31,6 +31,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     registerHref = '/register',
     loginHref = '/login',
 }) => {
+    const stageRef = useRef<HTMLDivElement | null>(null);
+    const [stageInView, setStageInView] = useState(true);
+
+    useEffect(() => {
+        const el = stageRef.current;
+        if (!el) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => setStageInView(entry.isIntersecting),
+            { threshold: 0.05 },
+        );
+
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <section
             aria-labelledby="hero-heading"
@@ -79,6 +95,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
                     {/* Coluna Visual — Cupom Geométrico + Dois Selos */}
                     <div
+                        ref={stageRef}
+                        data-in-view={stageInView ? 'true' : 'false'}
                         aria-hidden="true"
                         className="hero-receipt-stage relative max-w-[300px] sm:max-w-[360px] md:max-w-[310px] lg:max-w-[min(100%,34rem)] mx-auto md:ml-auto md:mr-0 w-full pt-7 pb-5 sm:pt-9 sm:pb-7 flex justify-center min-w-0"
                     >
@@ -113,10 +131,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                                 />
                             </div>
 
-                            <div className="paper-qr-row relative overflow-hidden flex items-center justify-center p-[0.72rem] sm:p-[0.95rem] lg:p-5 bg-app-teal-deep/45 dark:bg-[#14554a]/70 rounded-[14px] lg:rounded-[18px] border border-white/25 transition-[border-color] duration-200">
+                            <div className="paper-qr-row relative overflow-hidden flex items-center justify-center p-[0.72rem] sm:p-[0.95rem] lg:p-5 bg-app-teal-deep/45 dark:bg-[#14554a]/70 rounded-[14px] lg:rounded-[18px] border border-white/25 transition-transform duration-200">
                                 <QrCodeGraphic
                                     className="w-[72px] h-[72px] sm:w-[92px] sm:h-[92px] lg:w-[clamp(92px,7.6vw,138px)] lg:h-[clamp(92px,7.6vw,138px)] block"
-                                    cornersClassName="qr-corners stroke-white"
+                                    cornersClassName="qr-corners text-white"
                                     modulesClassName="fill-white transition-colors duration-200"
                                 />
                             </div>
@@ -129,7 +147,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                             </div>
                         </div>
 
-                        <div className="float-badge left absolute left-0 bottom-0 sm:bottom-[0.35rem] motion-reduce:rotate-[1.5deg] bg-white dark:bg-app-elevated-dark rounded-xl sm:rounded-[14px] lg:rounded-2xl px-[0.7rem] py-[0.45rem] sm:px-[0.95rem] sm:py-[0.6rem] xl:px-5 xl:py-3 shadow-sm border border-app-navy/10 dark:border-slate-200/14 flex items-center gap-[0.45rem] sm:gap-[0.6rem] xl:gap-3 transition-[background-color,border-color,transform,scale] duration-200">
+                        <div className="float-badge left absolute left-0 bottom-0 sm:bottom-[0.35rem] motion-reduce:rotate-[1.5deg] bg-white dark:bg-app-elevated-dark rounded-xl sm:rounded-[14px] lg:rounded-2xl px-[0.7rem] py-[0.45rem] sm:px-[0.95rem] sm:py-[0.6rem] xl:px-5 xl:py-3 shadow-sm border border-app-navy/10 dark:border-slate-200/14 flex items-center gap-[0.45rem] sm:gap-[0.6rem] xl:gap-3 transition-transform duration-200">
                             <div
                                 className="badge-icon w-7 h-7 sm:w-8 sm:h-8 xl:w-9 xl:h-9 rounded-lg sm:rounded-[9px] flex items-center justify-center flex-none bg-app-coral/14 text-app-coral-deep dark:text-app-coral transition-transform duration-200"
                                 aria-hidden="true"
@@ -141,7 +159,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                             </strong>
                         </div>
 
-                        <div className="float-badge right absolute right-0 top-[1.15rem] sm:top-[2.2rem] lg:top-[2.6rem] motion-reduce:rotate-2 bg-white dark:bg-app-elevated-dark rounded-xl sm:rounded-[14px] lg:rounded-2xl px-[0.7rem] py-[0.45rem] sm:px-[0.95rem] sm:py-[0.6rem] xl:px-5 xl:py-3 shadow-sm border border-app-navy/10 dark:border-slate-200/14 flex items-center gap-[0.45rem] sm:gap-[0.6rem] xl:gap-3 transition-[background-color,border-color,transform,scale] duration-200">
+                        <div className="float-badge right absolute right-0 top-[1.15rem] sm:top-[2.2rem] lg:top-[2.6rem] motion-reduce:rotate-2 bg-white dark:bg-app-elevated-dark rounded-xl sm:rounded-[14px] lg:rounded-2xl px-[0.7rem] py-[0.45rem] sm:px-[0.95rem] sm:py-[0.6rem] xl:px-5 xl:py-3 shadow-sm border border-app-navy/10 dark:border-slate-200/14 flex items-center gap-[0.45rem] sm:gap-[0.6rem] xl:gap-3 transition-transform duration-200">
                             <div
                                 className="badge-icon w-7 h-7 sm:w-8 sm:h-8 xl:w-9 xl:h-9 rounded-lg sm:rounded-[9px] flex items-center justify-center flex-none bg-app-teal/16 text-app-teal-deep dark:text-app-teal transition-transform duration-200"
                                 aria-hidden="true"
