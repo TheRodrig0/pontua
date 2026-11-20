@@ -54,6 +54,7 @@ jobs:
       - name: Install NPM dependencies and build assets
         run: |
           npm ci
+          npx tsc --noEmit --noUnusedLocals --noUnusedParameters
           npm run build
 
       - name: Execute tests
