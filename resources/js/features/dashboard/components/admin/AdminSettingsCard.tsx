@@ -118,7 +118,7 @@ export const AdminSettingsCard: React.FC<AdminSettingsCardProps> = ({
                 <button
                     type="submit"
                     disabled={isSaving}
-                    className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
+                    className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-colors cursor-pointer"
                 >
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     <span>{isSaving ? 'Salvando...' : 'Salvar'}</span>

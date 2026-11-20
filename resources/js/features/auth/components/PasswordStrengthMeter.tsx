@@ -15,9 +15,9 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ pa
         return (
             <div className="mt-2 px-1 flex items-center justify-between">
                 <div className="flex gap-1.5 flex-1 max-w-[140px]">
-                    <div className="h-1.5 rounded-full flex-1 transition-all bg-rose-500" />
-                    <div className="h-1.5 rounded-full flex-1 transition-all bg-slate-200 dark:bg-slate-700" />
-                    <div className="h-1.5 rounded-full flex-1 transition-all bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-1.5 rounded-full flex-1 transition-colors bg-rose-500" />
+                    <div className="h-1.5 rounded-full flex-1 transition-colors bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-1.5 rounded-full flex-1 transition-colors bg-slate-200 dark:bg-slate-700" />
                 </div>
                 <span className="text-[11px] font-semibold text-rose-500">
                     Mínimo de 8 caracteres ({password.length}/8)
@@ -52,17 +52,17 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ pa
         <div className="mt-2 px-1 flex items-center justify-between">
             <div className="flex gap-1.5 flex-1 max-w-[140px]">
                 <div
-                    className={`h-1.5 rounded-full flex-1 transition-all ${
+                    className={`h-1.5 rounded-full flex-1 transition-colors ${
                         score >= 1 ? color : 'bg-slate-200 dark:bg-slate-700'
                     }`}
                 />
                 <div
-                    className={`h-1.5 rounded-full flex-1 transition-all ${
+                    className={`h-1.5 rounded-full flex-1 transition-colors ${
                         score >= 2 ? color : 'bg-slate-200 dark:bg-slate-700'
                     }`}
                 />
                 <div
-                    className={`h-1.5 rounded-full flex-1 transition-all ${
+                    className={`h-1.5 rounded-full flex-1 transition-colors ${
                         score >= 3 ? color : 'bg-slate-200 dark:bg-slate-700'
                     }`}
                 />

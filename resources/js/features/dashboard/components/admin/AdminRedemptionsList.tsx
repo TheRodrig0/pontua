@@ -156,7 +156,7 @@ export const AdminRedemptionsList: React.FC<AdminRedemptionsListProps> = ({
                         return (
                             <div
                                 key={item.id}
-                                className={`rounded-xl p-4 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                                className={`rounded-xl p-4 border transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                                     isPending
                                         ? 'bg-amber-500/[0.04] dark:bg-amber-500/[0.06] border-amber-500/30 dark:border-amber-500/25'
                                         : isHighlighted
@@ -257,7 +257,7 @@ export const AdminRedemptionsList: React.FC<AdminRedemptionsListProps> = ({
                                             <button
                                                 type="button"
                                                 onClick={() => handleAction(item.id, RedemptionStatus.COMPLETED)}
-                                                className="px-3.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-app-teal hover:bg-app-teal-hover text-white shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                                                className="px-3.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-app-teal hover:bg-app-teal-hover text-white shadow-xs transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                                             >
                                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                                 <span>{isAacc ? 'Validar Horas' : 'Confirmar Entrega'}</span>

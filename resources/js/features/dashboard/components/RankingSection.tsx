@@ -168,7 +168,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                         {userAboveMe && pointsNeededToAdvance && (
                             <div className="h-1.5 w-full bg-slate-200 dark:bg-app-darkbg rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-app-teal rounded-full transition-all duration-700 ease-out"
+                                    className="h-full bg-app-teal rounded-full transition-[width] duration-700 ease-out"
                                     style={{ width: barsReady ? `${progressToNextPct}%` : '0%' }}
                                 />
                             </div>
@@ -302,7 +302,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                             return (
                                 <div
                                     key={item.id}
-                                    className={`group relative overflow-hidden rounded-xl border bg-slate-50 dark:bg-app-darkbg transition-all duration-200 hover:translate-x-1 ${
+                                    className={`group relative overflow-hidden rounded-xl border bg-slate-50 dark:bg-app-darkbg transition-[background-color,border-color,color,opacity,transform,box-shadow,filter] duration-200 hover:translate-x-1 ${
                                         isMe
                                             ? 'border-app-teal shadow-xs'
                                             : 'border-slate-200 dark:border-slate-800 hover:border-app-teal/50'
@@ -310,7 +310,7 @@ export const RankingSection: React.FC<RankingSectionProps> = ({
                                 >
                                     {/* Barra proporcional neutra */}
                                     <div
-                                        className="absolute inset-y-0 left-0 pointer-events-none transition-all duration-700 ease-out bg-slate-200/65 dark:bg-white/[0.06]"
+                                        className="absolute inset-y-0 left-0 pointer-events-none transition-[width] duration-700 ease-out bg-slate-200/65 dark:bg-white/[0.06]"
                                         style={{
                                             width: barsReady ? `${barWidth}%` : '0%',
                                             transitionDelay: `${idx * 45}ms`,

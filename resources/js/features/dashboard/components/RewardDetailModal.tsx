@@ -219,7 +219,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                                                 issuedAt: createdRedemption?.created_at,
                                             })
                                         }
-                                        className="w-full py-2.5 px-4 rounded-xl bg-app-navy dark:bg-white text-white dark:text-slate-900 hover:opacity-90 text-xs font-extrabold inline-flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                                        className="w-full py-2.5 px-4 rounded-xl bg-app-navy dark:bg-white text-white dark:text-slate-900 hover:opacity-90 text-xs font-extrabold inline-flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"
                                     >
                                         <Printer className="w-4 h-4" />
                                         <span>Baixar / Imprimir Declaração (PDF)</span>
@@ -277,7 +277,7 @@ export const RewardDetailModal: React.FC<RewardDetailModalProps> = ({
                                 type="button"
                                 disabled={!canRedeem}
                                 onClick={handleRequestRedemption}
-                                className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-app-teal hover:bg-app-teal-hover disabled:opacity-45 disabled:pointer-events-none text-white shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                                className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-app-teal hover:bg-app-teal-hover disabled:opacity-45 disabled:pointer-events-none text-white shadow-sm transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                             >
                                 {isRedeeming ? (
                                     <>

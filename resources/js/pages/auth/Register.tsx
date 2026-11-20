@@ -191,7 +191,7 @@ const Register: React.FC = () => {
                     </p>
                     <Link
                         href="/login"
-                        className="w-full bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-app-navy dark:text-white font-bold py-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm uppercase tracking-wider text-center block"
+                        className="w-full bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-app-navy dark:text-white font-bold py-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors text-xs sm:text-sm uppercase tracking-wider text-center block"
                     >
                         Já tenho uma conta • Entrar
                     </Link>

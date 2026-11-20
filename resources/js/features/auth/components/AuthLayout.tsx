@@ -51,7 +51,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
             <Head title={`${info.headTitle} - PONTUA`} />
 
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-app-bg/90 dark:bg-app-darkbg/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+            <header className="sticky top-0 z-50 bg-app-bg dark:bg-app-darkbg border-b border-slate-200/80 dark:border-slate-800 transition-colors">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-4">
                     <Link
                         href="/"
@@ -67,14 +67,14 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                         {currentPage === 'login' ? (
                             <Link
                                 href="/register"
-                                className="bg-app-teal hover:brightness-95 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 rounded-xl shadow-sm hover:shadow transition-all whitespace-nowrap"
+                                className="bg-app-teal hover:brightness-95 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 rounded-xl shadow-sm hover:shadow transition-[background-color,border-color,color,opacity,transform,box-shadow,filter] whitespace-nowrap"
                             >
                                 Criar Conta
                             </Link>
                         ) : (
                             <Link
                                 href="/login"
-                                className="bg-app-teal hover:brightness-95 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 rounded-xl shadow-sm hover:shadow transition-all whitespace-nowrap"
+                                className="bg-app-teal hover:brightness-95 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 rounded-xl shadow-sm hover:shadow transition-[background-color,border-color,color,opacity,transform,box-shadow,filter] whitespace-nowrap"
                             >
                                 Entrar
                             </Link>

@@ -66,7 +66,7 @@ const Login: React.FC = () => {
                     <div className="flex justify-end pt-0.5">
                         <Link
                             href="/forgot-password"
-                            className="text-xs font-bold text-app-teal hover:underline transition-all"
+                            className="text-xs font-bold text-app-teal hover:underline transition-colors"
                         >
                             Esqueceu a senha?
                         </Link>
@@ -83,7 +83,7 @@ const Login: React.FC = () => {
                     </p>
                     <Link
                         href="/register"
-                        className="w-full bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-app-navy dark:text-white font-bold py-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm uppercase tracking-wider text-center block"
+                        className="w-full bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-app-navy dark:text-white font-bold py-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors text-xs sm:text-sm uppercase tracking-wider text-center block"
                     >
                         Criar conta
                     </Link>

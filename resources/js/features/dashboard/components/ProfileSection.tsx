@@ -328,7 +328,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                                         }}
                                         aria-label={`Selecionar avatar ${id}`}
                                         aria-pressed={isSelected}
-                                        className={`relative group rounded-2xl p-1 border-2 transition-all cursor-pointer flex items-center justify-center ${
+                                        className={`relative group rounded-2xl p-1 border-2 transition-colors cursor-pointer flex items-center justify-center ${
                                             isSelected
                                                 ? 'border-app-teal bg-app-teal/15 dark:bg-[#112a2e] ring-2 ring-app-teal/30 scale-105'
                                                 : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-app-darkbg hover:border-slate-300 dark:hover:border-slate-600 hover:scale-105'
@@ -354,7 +354,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                         <button
                             type="submit"
                             disabled={isUpdating}
-                            className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer"
+                            className="bg-app-teal hover:bg-app-teal-hover disabled:opacity-60 text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center gap-2 shadow-md shadow-app-teal/20 transition-colors cursor-pointer"
                         >
                             {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
                             <span>{isUpdating ? 'Salvando...' : 'Salvar Alterações'}</span>

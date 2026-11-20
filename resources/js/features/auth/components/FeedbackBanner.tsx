@@ -23,7 +23,7 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, onDism
 
     return (
         <div
-            className={`mb-4 p-3.5 rounded-xl flex items-start gap-2.5 text-xs sm:text-sm font-medium transition-all ${
+            className={`mb-4 p-3.5 rounded-xl flex items-start gap-2.5 text-xs sm:text-sm font-medium transition-colors ${
                 isSuccess
                     ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
                     : isError

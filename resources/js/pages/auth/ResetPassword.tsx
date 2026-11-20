@@ -128,7 +128,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ token: propToken }) => {
 
                         <Link
                             href="/login"
-                            className="w-full bg-app-teal hover:brightness-95 text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2 text-center"
+                            className="w-full bg-app-teal hover:brightness-95 text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition-[background-color,border-color,color,opacity,transform,box-shadow,filter] text-xs sm:text-sm active:scale-[0.99] uppercase tracking-wider flex items-center justify-center gap-2 text-center"
                         >
                             <span>Acessar minha conta</span>
                         </Link>

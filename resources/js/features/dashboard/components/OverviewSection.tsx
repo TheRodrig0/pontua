@@ -276,7 +276,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                 <button
                     type="button"
                     onClick={onOpenScanModal}
-                    className="w-full sm:w-auto bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-app-teal/20 transition-all cursor-pointer shrink-0"
+                    className="w-full sm:w-auto bg-app-teal hover:bg-app-teal-hover text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 rounded-xl inline-flex items-center justify-center gap-2 shadow-md shadow-app-teal/20 transition-colors cursor-pointer shrink-0"
                 >
                     <Camera className="w-4 h-4" />
                     <span>ESCANEAR CUPOM</span>
