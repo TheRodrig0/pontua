@@ -23,6 +23,7 @@
     <img src="https://img.shields.io/badge/Oracle_Cloud-F80000?style=for-the-badge&logo=oracle&logoColor=white" alt="Oracle Cloud" />
     <img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare" />
     <img src="https://img.shields.io/badge/Brevo-0B996F?style=for-the-badge&logo=brevo&logoColor=white" alt="Brevo" />
+    <a href="https://doi.org/10.63330/aurumpub.069-050"><img src="https://img.shields.io/badge/DOI-10.63330%2Faurumpub.069--050-1E7869?style=for-the-badge&logo=doi&logoColor=white" alt="DOI 10.63330/aurumpub.069-050" /></a>
   </p>
 
   <p>
@@ -35,7 +36,7 @@
 ---
 
 > **Fatec Franco da Rocha** — Information Technology Management  
-> Published at **VI SIMBAJU** — Juquery Basin Symposium (Energy & Technology)
+> Published at **VI SIMBAJU** (Juquery Basin Symposium) & **Aurum Editora** — [Read full paper (PDF)](https://aurumpublicacoes.com/index.php/editora/article/view/2679/2987) · [DOI](https://doi.org/10.63330/aurumpub.069-050)
 
 ---
 
@@ -233,7 +234,22 @@ Access locally at: `http://localhost:8000`
 
 <br>
 
-# 08 · License
+# 08 · Academic Publication
+
+The development, field research, and process modeling of **PONTUA** were published as a scientific book chapter by **Aurum Editora**:
+
+* **Title:** *PONTUA: Aplicação Web para Gestão e Incentivo na Coleta de Notas Fiscais para APAE Caieiras*
+* **Publisher:** Aurum Editora (e-books), pp. 766–778, 2026
+* **DOI:** [10.63330/aurumpub.069-050](https://doi.org/10.63330/aurumpub.069-050)
+* **Access:** [Article page](https://aurumpublicacoes.com/index.php/editora/article/view/2679) · [PDF version](https://aurumpublicacoes.com/index.php/editora/article/view/2679/2987)
+
+### Citation (APA)
+
+> Campos, M. V. de O., Santos, M. D. dos, Baroco, N. S., Perondi, R. C., Silva, R. J. de Q., Estender, A. C., Melo, L. S. A. de, Naves, R., & Costa, S. M. F. (2026). PONTUA: Aplicação web para gestão e incentivo na coleta de notas fiscais para APAE Caieiras. *Aurum Editora (e-books)*, 766–778. https://doi.org/10.63330/aurumpub.069-050
+
+<br>
+
+# 09 · License
 
 Distributed under the terms available in the [LICENSE](LICENSE) file.
 
